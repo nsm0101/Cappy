@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0ea5e9;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0284c7;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="shine" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffffff;stop-opacity:0.25" />
+      <stop offset="100%" style="stop-color:#ffffff;stop-opacity:0" />
+    </linearGradient>
+  </defs>
+  <!-- Circle background -->
+  <circle cx="100" cy="100" r="100" fill="url(#bg)"/>
+  <!-- Shine overlay -->
+  <circle cx="100" cy="100" r="100" fill="url(#shine)"/>
+  <!-- Cap icon shape -->
+  <ellipse cx="100" cy="82" rx="46" ry="12" fill="rgba(255,255,255,0.9)"/>
+  <rect x="66" y="82" width="68" height="44" rx="6" fill="rgba(255,255,255,0.85)"/>
+  <!-- Cap lid highlight -->
+  <ellipse cx="100" cy="82" rx="34" ry="7" fill="rgba(255,255,255,0.4)"/>
+  <!-- Subtle cross / plus pill mark -->
+  <rect x="96" y="92" width="8" height="24" rx="4" fill="rgba(14,165,233,0.7)"/>
+  <rect x="88" y="100" width="24" height="8" rx="4" fill="rgba(14,165,233,0.7)"/>
+  <!-- Bottom text area -->
+  <text x="100" y="155" font-family="-apple-system, sans-serif" font-size="18" font-weight="700" fill="white" text-anchor="middle" opacity="0.95">Cappy</text>
+</svg>

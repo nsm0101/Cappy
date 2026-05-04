@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Cappy — Smart NFC medication tracking with weight-based dosing guides and cap verification.">
+  <meta name="theme-color" content="#0ea5e9" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0f172a" media="(prefers-color-scheme: dark)">
+  <title>Cappy — Smart Medication Tracking</title>
+  <link rel="stylesheet" href="styles.css">
+  <!-- Favicon: use PNG if available, fall back to SVG -->
+  <link rel="icon" href="assets/images/cappy_circle.png" type="image/png">
+  <link rel="icon" href="assets/images/cappy_circle.svg" type="image/svg+xml">
+</head>
+<body>
+
+  <!-- ═══════════════════════════════════════════
+       HEADER
+  ═══════════════════════════════════════════ -->
+  <header class="header" id="header">
+    <div class="header-inner container">
+      <a href="#home" class="logo" aria-label="Cappy home">
+        <img src="assets/images/cappy_circle.png" alt="" class="logo-img" aria-hidden="true" onerror="this.style.display='none'">
+        <span class="logo-wordmark">Cappy</span>
+      </a>
+
+      <nav class="nav-desktop" aria-label="Primary navigation">
+        <a href="#home" class="nav-link">Home</a>
+        <a href="#dosing" class="nav-link">Dosing Guide</a>
+        <a href="#verify" class="nav-link">Verify Cap</a>
+        <a href="#about" class="nav-link">About</a>
+      </nav>
+
+      <div class="header-actions">
+        <!-- Desktop theme toggle (compact icon strip) -->
+        <div class="theme-toggle-compact" role="group" aria-label="Appearance">
+          <button class="ttc-btn" data-theme-value="system" title="System">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+          </button>
+          <button class="ttc-btn" data-theme-value="light" title="Day">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+          </button>
+          <button class="ttc-btn" data-theme-value="dark" title="Night">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          </button>
+        </div>
+
+        <button class="hamburger" id="hamburger" aria-label="Open menu" aria-expanded="false" aria-controls="mobileMenu">
+          <span class="ham-bar"></span>
+          <span class="ham-bar"></span>
+          <span class="ham-bar"></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ═══════════════════════════════════════════
+       MOBILE MENU OVERLAY
+  ═══════════════════════════════════════════ -->
+  <div class="menu-backdrop" id="menuBackdrop" aria-hidden="true"></div>
+
+  <aside class="menu-panel" id="mobileMenu" role="dialog" aria-modal="true" aria-label="Navigation menu">
+    <div class="menu-panel-header">
+      <span class="menu-panel-title">Menu</span>
+      <button class="menu-close" id="menuClose" aria-label="Close menu">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+
+    <nav class="menu-nav" aria-label="Mobile navigation">
+      <a href="#home"   class="menu-link">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        Home
+      </a>
+      <a href="#dosing" class="menu-link">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18"/></svg>
+        Dosing Guide
+      </a>
+      <a href="#verify" class="menu-link">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        Verify Cap
+      </a>
+      <a href="#about"  class="menu-link">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        About
+      </a>
+    </nav>
+
+    <div class="menu-divider"></div>
+
+    <!-- Theme section inside hamburger -->
+    <div class="menu-theme-section">
+      <p class="menu-section-label">Appearance</p>
+      <div class="menu-theme-group" role="group" aria-label="Theme selection">
+        <button class="menu-theme-btn" data-theme-value="system">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+          <span>System</span>
+        </button>
+        <button class="menu-theme-btn" data-theme-value="light">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+          <span>Day</span>
+        </button>
+        <button class="menu-theme-btn" data-theme-value="dark">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          <span>Night</span>
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ═══════════════════════════════════════════
+       MAIN CONTENT
+  ═══════════════════════════════════════════ -->
+  <main id="main-content">
+
+    <!-- HERO ──────────────────────────────────── -->
+    <section class="hero" id="home">
+      <div class="hero-bg-glow" aria-hidden="true"></div>
+      <div class="container hero-content">
+        <button class="cappy-btn" id="cappyBtn" aria-label="Meet Cappy">
+          <img
+            src="assets/images/cappy_circle.png"
+            alt="Cappy mascot"
+            class="cappy-img"
+            id="cappyImg"
+            onerror="this.onerror=null; this.src='assets/images/cappy_circle.svg'; this.style.padding='4px';"
+          >
+          <span class="cappy-pulse" aria-hidden="true"></span>
+        </button>
+        <h1 class="hero-title">Hello, I'm <em class="accent">Cappy!</em></h1>
+        <p class="hero-subtitle">Smart NFC medication tracking — verify, dose, and log with one tap</p>
+        <div class="hero-cta">
+          <a href="#dosing" class="btn btn-primary">Dosing Guide</a>
+          <a href="#verify" class="btn btn-outline">Verify Cap</a>
+        </div>
+        <div class="hero-badges">
+          <span class="badge">🔒 Ed25519 Verified</span>
+          <span class="badge">📡 NFC-Enabled</span>
+          <span class="badge">💊 Weight-Based Dosing</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- DOSING GUIDE ───────────────────────────── -->
+    <section class="section" id="dosing">
+      <div class="container">
+        <div class="section-header">
+          <h2 class="section-title">Weighing &amp; Dosing Guide</h2>
+          <p class="section-sub">Calculate safe, weight-based doses for common medications</p>
+        </div>
+
+        <!-- Calculator card -->
+        <div class="card card-featured" id="calculatorCard">
+          <div class="card-header">
+            <svg class="card-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="12" y2="14"/></svg>
+            <h3 class="card-title">Dose Calculator</h3>
+          </div>
+          <div class="calc-form">
+            <div class="field-group">
+              <label class="field-label" for="weightInput">Patient Weight</label>
+              <div class="input-with-addon">
+                <input
+                  type="number"
+                  id="weightInput"
+                  class="field-input"
+                  placeholder="Enter weight"
+                  min="0.1"
+                  max="500"
+                  step="0.1"
+                  inputmode="decimal"
+                  aria-describedby="weightUnit"
+                >
+                <div class="unit-toggle" role="group" aria-label="Weight unit" id="weightUnit">
+                  <button class="unit-btn active" data-unit="kg">kg</button>
+                  <button class="unit-btn" data-unit="lbs">lbs</button>
+                </div>
+              </div>
+            </div>
+            <div class="field-group">
+              <label class="field-label" for="medSelect">Medication</label>
+              <select id="medSelect" class="field-select">
+                <option value="">Select a medication…</option>
+                <option value="ibuprofen"    data-dose="10" data-max="400" data-unit="mg" data-interval="every 6–8 hours">Ibuprofen (10 mg/kg)</option>
+                <option value="acetaminophen" data-dose="15" data-max="500" data-unit="mg" data-interval="every 4–6 hours">Acetaminophen / Paracetamol (15 mg/kg)</option>
+                <option value="amoxicillin"  data-dose="25" data-max="500" data-unit="mg" data-interval="every 8–12 hours">Amoxicillin (25 mg/kg)</option>
+                <option value="azithromycin" data-dose="10" data-max="250" data-unit="mg" data-interval="once daily">Azithromycin (10 mg/kg)</option>
+                <option value="prednisolone" data-dose="1"  data-max="40"  data-unit="mg" data-interval="once daily">Prednisolone (1 mg/kg)</option>
+              </select>
+            </div>
+            <button class="btn btn-primary btn-block" id="calcBtn">Calculate Dose</button>
+          </div>
+
+          <div class="result-box" id="resultBox" hidden aria-live="polite">
+            <div class="result-inner">
+              <div class="result-label">Recommended Dose</div>
+              <div class="result-dose" id="resultDose">—</div>
+              <div class="result-meta" id="resultMeta"></div>
+            </div>
+            <div class="result-disclaimer">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              Always confirm doses with a licensed healthcare provider.
+            </div>
+          </div>
+        </div>
+
+        <!-- Reference guide grid -->
+        <div class="guide-grid">
+          <div class="card guide-card">
+            <div class="guide-card-icon" aria-hidden="true">⚖️</div>
+            <h3>Weighing Tips</h3>
+            <ul class="guide-list">
+              <li>Use a calibrated scale for each measurement</li>
+              <li>Weigh at the same time of day</li>
+              <li>Remove shoes and heavy clothing</li>
+              <li>Record weight in kilograms for precision</li>
+              <li>Reassess weight every 2–4 weeks for children</li>
+            </ul>
+          </div>
+          <div class="card guide-card">
+            <div class="guide-card-icon" aria-hidden="true">💊</div>
+            <h3>Dosing Intervals</h3>
+            <ul class="guide-list">
+              <li>Ibuprofen: every 6–8 hours (max 4 doses/day)</li>
+              <li>Acetaminophen: every 4–6 hours (max 5 doses/day)</li>
+              <li>Amoxicillin: every 8–12 hours</li>
+              <li>Azithromycin: once daily for 3–5 days</li>
+              <li>Never exceed the single-dose maximum</li>
+            </ul>
+          </div>
+          <div class="card guide-card">
+            <div class="guide-card-icon" aria-hidden="true">⚠️</div>
+            <h3>Safety Reminders</h3>
+            <ul class="guide-list">
+              <li>Always verify doses with your prescriber</li>
+              <li>Check for allergies and drug interactions</li>
+              <li>Use weight-based dosing for children &lt; 12 years</li>
+              <li>Log every dose with a timestamp in Cappy</li>
+              <li>Discard expired medications promptly</li>
+            </ul>
+          </div>
+          <div class="card guide-card">
+            <div class="guide-card-icon" aria-hidden="true">📏</div>
+            <h3>Unit Conversions</h3>
+            <ul class="guide-list">
+              <li>1 kg = 2.205 lbs</li>
+              <li>1 mg/mL = 1 g/L</li>
+              <li>1 teaspoon (tsp) = 5 mL</li>
+              <li>1 tablespoon (tbsp) = 15 mL</li>
+              <li>1 fluid ounce (fl oz) = 29.6 mL</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- VERIFY ──────────────────────────────────── -->
+    <section class="section section-alt" id="verify">
+      <div class="container">
+        <div class="section-header">
+          <h2 class="section-title">Verify Your Cap</h2>
+          <p class="section-sub">Hold your NFC-enabled device near the Cappy cap to confirm medication authenticity</p>
+        </div>
+
+        <div class="verify-card card">
+          <div class="verify-icon" aria-hidden="true">
+            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+          </div>
+          <p class="verify-instructions">
+            Place your phone's NFC reader on the top of the cap.<br>
+            Cappy will verify the cryptographic signature instantly.
+          </p>
+          <button class="btn btn-primary btn-lg" id="nfcBtn">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>
+            Scan Cap
+          </button>
+          <div class="verify-status" id="verifyStatus" role="status" aria-live="polite"></div>
+        </div>
+
+        <div class="verify-steps">
+          <div class="step">
+            <div class="step-num">1</div>
+            <p>Enable NFC in your device settings</p>
+          </div>
+          <div class="step-arrow" aria-hidden="true">→</div>
+          <div class="step">
+            <div class="step-num">2</div>
+            <p>Tap "Scan Cap" and hold near the cap</p>
+          </div>
+          <div class="step-arrow" aria-hidden="true">→</div>
+          <div class="step">
+            <div class="step-num">3</div>
+            <p>Receive instant verification result</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ABOUT ──────────────────────────────────── -->
+    <section class="section" id="about">
+      <div class="container">
+        <div class="section-header">
+          <h2 class="section-title">About Cappy</h2>
+          <p class="section-sub">Built on open cryptographic standards for trustworthy medication management</p>
+        </div>
+
+        <div class="about-grid">
+          <div class="card about-card">
+            <div class="about-icon" aria-hidden="true">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            </div>
+            <h3>Tamper-Evident</h3>
+            <p>Each cap carries an Ed25519 cryptographic signature. Any tampering is detected instantly on scan.</p>
+          </div>
+          <div class="card about-card">
+            <div class="about-icon" aria-hidden="true">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+            </div>
+            <h3>No App Needed</h3>
+            <p>Works with any NFC-capable smartphone browser. No installation, no account required to verify.</p>
+          </div>
+          <div class="card about-card">
+            <div class="about-icon" aria-hidden="true">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            </div>
+            <h3>Full Dose History</h3>
+            <p>Every scan is logged with a timestamp. Track doses, refills, and adherence over time.</p>
+          </div>
+          <div class="card about-card">
+            <div class="about-icon" aria-hidden="true">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            </div>
+            <h3>Multi-Patient</h3>
+            <p>Manage medications for the whole family. Each cap links to a specific patient profile.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ═══════════════════════════════════════════
+       FOOTER
+  ═══════════════════════════════════════════ -->
+  <footer class="footer">
+    <div class="container footer-inner">
+      <div class="footer-brand">
+        <img src="assets/images/cappy_circle.png" alt="" class="footer-logo-img" aria-hidden="true" onerror="this.style.display='none'">
+        <span class="footer-wordmark">Cappy</span>
+      </div>
+      <p class="footer-copy">© 2024 Cappy. For informational use only. Always consult a healthcare provider.</p>
+      <nav class="footer-nav" aria-label="Footer navigation">
+        <a href="#">Privacy</a>
+        <a href="#">Terms</a>
+        <a href="#">Support</a>
+      </nav>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
