@@ -277,3 +277,38 @@ HomeScreen currently uses a crude time heuristic for dose status because the sch
 - **Founder / counsel** own **E** (LEG-1 review) and any credential/DNS steps agents can't self-serve.
 
 > When an agent finishes a task, it updates the **Status** line here and notes anything that changed the plan, so the next agent inherits an accurate board.
+
+---
+
+# Phase 2 — Product features (built 2026-06-30)
+
+All implemented and typecheck-clean. JS-only items work on a reload; native items are gated on the next EAS build.
+
+| Feature | Status | Notes |
+|---------|--------|-------|
+| **Realtime Home** | DONE | Live dose updates via Supabase realtime. |
+| **Home button on Scan screen** | DONE | Cold-launch Scan screen has a Home header button. |
+| **Dosing engine** | DONE | `src/lib/dosing.ts` — exact port of the closedose.com antipyretic calculator (acetaminophen 12.5/15 mg/kg, ibuprofen 10 mg/kg, age gates, caps 160/480/1000 & 400/600, q4h infant / q6h older). Verified against 6 cases. |
+| **Dose-sheet rebuild** | DONE | Avatar picker w/ active-selection ring → age+weight recommended dose (mg + mL) → "safe to give now" vs last dose → log. |
+| **Allergies** | DONE | `child_allergies` table + curated-catalog autocomplete UI; dose sheet blocks a med the child is allergic to (ibuprofen blocked by any NSAID-class allergy). |
+| **Dated weight + stale warning** | DONE | Weight update (lb) with recorded date; >90-day warning on Child screen and dose sheet. |
+| **Photo upload + crop** | DONE (needs rebuild) | Private `avatars` bucket + RLS; pick→square-crop→signed-URL display via `MemberAvatar`. Native `expo-image-picker`. |
+| **Sign in with Apple** | DONE (needs rebuild + config) | Native Apple auth → Supabase ID-token. Needs: App ID "Sign in with Apple" capability + Supabase Apple provider w/ `com.closedose.cappy`. |
+| **Brand selection + theming** | DONE | `family_med_brands` pref (Generic/brand per generic); dose card accent color + brand name. Color/name only (no trademarked logos). |
+| **Multi-caregiver + Guest accounts** | DONE | Invite caregivers/guests from Settings; `guest` role w/ auto-expiry (24h / 7d), enforced in authz functions. |
+| **Add additional children** | DONE | "Add a child" available on Home even when a family already has children. |
+| **Caregiver names** | DONE | Name captured at sign-up (→ `profiles.display_name`) and editable in Settings, so doses attribute to the right caregiver. |
+
+### Remaining (non-blocking, optional for alpha)
+- **SEC-1** rotate DB password (founder chose to skip) · **SEC-2** advisors: only WARN-level (SECURITY DEFINER RLS helpers, optional leaked-password toggle).
+- **TEST-1** smoke tests · **CI-1** GitHub Actions · **LEG-1** privacy/terms/consent (counsel) · **DOC-1** docs · **PERF-1** image optimization.
+- **FEAT-1** manual "adjust amount" — largely obsoleted by the computed recommended dose · **FEAT-2** default-med-per-child — partially handled by tags.
+
+### Next EAS build brings up the native features
+```
+cd ClaudeBuildPlan
+npx expo install expo-image-picker expo-image-manipulator expo-apple-authentication   # if not already
+npm install base64-arraybuffer
+eas build --profile development --platform ios
+```
+Before Apple sign-in works: add the **Sign in with Apple** capability to the `com.closedose.cappy` App ID, and enable the **Apple provider** in Supabase Auth with `com.closedose.cappy` as an authorized client ID.
