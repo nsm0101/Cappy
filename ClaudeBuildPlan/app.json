@@ -89,6 +89,14 @@
         {
           "fonts": []
         }
+      ],
+      "expo-apple-authentication",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Cappy lets you choose a photo to identify each family member.",
+          "cameraPermission": "Cappy lets you take a photo to identify each family member."
+        }
       ]
     ],
     "experiments": {
