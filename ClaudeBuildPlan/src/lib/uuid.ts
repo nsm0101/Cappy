@@ -3,10 +3,12 @@
  * available; falls back to a Math.random() implementation (not
  * cryptographically strong) for the rare environment without it.
  *
- * React Native + Hermes supports `crypto.randomUUID` from RN 0.71+
- * when `react-native-get-random-values` is imported. We import it
- * once at the top of `src/api/doses.ts` and that polyfills `crypto`
- * globally.
+ * For the alpha we do NOT ship the native `react-native-get-random-values`
+ * polyfill, so `crypto.randomUUID` is typically unavailable under Hermes
+ * and the Math.random() fallback below is used. That's acceptable for
+ * dose-event primary keys / idempotency. Before production, add the native
+ * polyfill (and a fresh native build) if cryptographically strong IDs are
+ * required.
  */
 export const uuidv4 = (): string => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

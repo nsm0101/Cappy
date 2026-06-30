@@ -1,6 +1,7 @@
 // Cappy app root.
-// Polyfills MUST be imported before anything that uses crypto / URL.
-import 'react-native-get-random-values';
+// URL polyfill must be imported before anything that constructs URLs.
+// (UUID generation uses a JS fallback in src/lib/uuid.ts — no native
+// crypto polyfill required for the alpha.)
 import 'react-native-url-polyfill/auto';
 
 import React, { useCallback } from 'react';

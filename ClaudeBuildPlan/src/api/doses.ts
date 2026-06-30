@@ -1,4 +1,3 @@
-import 'react-native-get-random-values';
 import { supabase } from './client';
 import type { Database } from './database.types';
 
