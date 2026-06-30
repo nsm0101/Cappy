@@ -185,7 +185,7 @@ Per TICKET-UL. NFC cold-launch via HTTPS needs the Apple App Site Association fi
 
 ### QA-1 · End-to-end alpha smoke test on device — **P1 · M · Quality**
 **Status:** TODO
-Run the 10-step "minimum viable test" in `HOW-TO-FINISH.md`: sign up → create family → add child → program an NTAG215 with `https://cappy.closedose.com/t/TESTTAG001` → register tag → tap → log dose → verify rows in `dose_events` and `audit_events`.
+Run the 10-step "minimum viable test" in `HOW-TO-FINISH.md`: sign up → create family → add child → program an NTAG215 with `https://cappy.closedose.com/t/ibuprofen-child` → register tag → tap → log dose → verify rows in `dose_events` and `audit_events`.
 **Acceptance:** All 10 steps pass end-to-end on a physical iPhone. Record results in `BUILD-STATUS.md`.
 **Depends on:** BE-1/2/3, APP-1, NAV-1, ENV-1, SCR-1, APL-1, UL-1.
 

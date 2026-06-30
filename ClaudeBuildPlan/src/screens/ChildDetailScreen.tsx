@@ -114,7 +114,8 @@ export const ChildDetailScreen: React.FC = () => {
         <Text style={[styles.headerTitle, { color: t.fg1, fontFamily: theme.fonts.displaySemibold }]}>
           Child Profile
         </Text>
-        <View style={{ width: 64 }} /> {/* Spacer */}
+        <View style={{ width: 64 }} />
+
       </View>
 
       <ScrollView

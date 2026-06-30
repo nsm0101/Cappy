@@ -1,0 +1,6 @@
+# Cloudflare Pages headers.
+# Apple requires the AASA file to be served as application/json with no redirect.
+/.well-known/apple-app-site-association
+  Content-Type: application/json
+  Access-Control-Allow-Origin: *
+  Cache-Control: public, max-age=3600

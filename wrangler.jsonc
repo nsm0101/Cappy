@@ -1,0 +1,8 @@
+{
+  // Cloudflare Worker that serves the Apple App Site Association file
+  // (Universal Links / NFC tap-to-open) via an inline script — see
+  // aasa-worker.js. A scripted Worker deploys without static-file detection.
+  "name": "cappy-aasa",
+  "main": "aasa-worker.js",
+  "compatibility_date": "2025-01-01"
+}

@@ -164,7 +164,9 @@ export const parseTagUrl = (
   }
 
   const tagUid = clean.slice(TAG_URL_PREFIX.length).split(/[/?#]/)[0]?.trim() ?? '';
-  if (!/^[A-Za-z0-9]{4,32}$/.test(tagUid)) {
+  // Allow letters, digits, hyphens and underscores so semantic tag slugs
+  // like "ibuprofen-child" work alongside hex hardware UIDs.
+  if (!/^[A-Za-z0-9_-]{4,32}$/.test(tagUid)) {
     return {
       ok: false,
       error: { kind: 'invalid_url', message: 'Tag identifier is invalid.' },

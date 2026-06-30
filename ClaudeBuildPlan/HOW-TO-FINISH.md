@@ -409,7 +409,7 @@ Run with `pnpm test`. CI should fail on any failing test.
 5. Install on a real iPhone (NFC won't work in the simulator)
 6. Sign up with your email, create a family, add a child
 7. Buy 10 NTAG215 stickers, program one with the URL
-   `https://cappy.closedose.com/t/TESTTAG001` using NFC Tools app
+   `https://cappy.closedose.com/t/ibuprofen-child` using NFC Tools app
 8. Open the app, go to Settings, find a hidden "Register tag" dev
    action (or use the Supabase dashboard to insert directly into
    `nfc_tags`)
