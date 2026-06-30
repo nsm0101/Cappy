@@ -1,0 +1,58 @@
+<!doctype html>
+<!-- @dsCard group="Cappy — Components" name="Medication identity" subtitle="Post-tap header: generic, brand, concentration" viewport="780x440" -->
+<html><head><meta charset="utf-8"><title>Med identity</title>
+<link rel="stylesheet" href="_base.css">
+<link rel="stylesheet" href="../cappy-tokens.css">
+<style>
+  .card-frame { background: var(--bg); display:flex; gap:22px; flex-wrap:wrap; align-items:flex-start; }
+  h4 { font-family:var(--font-display); font-size:12px; font-weight:800; color:var(--fg-2); margin:0 0 12px; text-transform:uppercase; letter-spacing:0.06em; width:100%; }
+  /* med header card */
+  .med { width:340px; background:var(--bg-card); border:1px solid var(--border); border-radius:24px; box-shadow:var(--shadow-2); overflow:hidden; }
+  .med .top { background:linear-gradient(160deg,var(--blue-500),var(--blue-700)); padding:18px 20px; color:#fff; position:relative; }
+  .med .nfc { position:absolute; right:16px; top:16px; font-family:var(--font-mono); font-size:10px; letter-spacing:0.08em; background:rgba(255,255,255,0.18); padding:5px 9px; border-radius:999px; display:flex; gap:6px; align-items:center; }
+  .med .nfc::before{content:"";width:7px;height:7px;border-radius:50%;background:#fff;box-shadow:0 0 0 3px rgba(255,255,255,0.3)}
+  .med .gen { font-family:var(--font-display); font-weight:800; font-size:26px; letter-spacing:-0.02em; }
+  .med .brand { font-size:13px; opacity:0.92; margin-top:2px; }
+  .med .body { padding:16px 20px 20px; }
+  .specrow { display:flex; gap:10px; }
+  .spec { flex:1; background:var(--bg-inset); border-radius:14px; padding:11px 13px; }
+  .spec .k { font-family:var(--font-mono); font-size:9.5px; letter-spacing:0.06em; color:var(--fg-3); text-transform:uppercase; }
+  .spec .v { font-family:var(--font-display); font-weight:800; font-size:17px; color:var(--fg); margin-top:3px; }
+  .spec .v small{ font-size:11px; font-weight:600; color:var(--fg-3) }
+  /* compact inline */
+  .inline { width:340px; }
+  .ic-med { display:flex; gap:12px; align-items:center; padding:14px 16px; background:var(--bg-card); border:1px solid var(--border); border-radius:16px; box-shadow:var(--shadow-1); }
+  .ic-med .pillico { width:44px;height:44px;border-radius:12px; background:var(--blue-50); color:var(--blue-600); display:grid;place-items:center; font-family:var(--font-display); font-weight:800; font-size:20px; flex:0 0 auto; }
+  .ic-med .gen2 { font-family:var(--font-display); font-weight:800; font-size:16px; color:var(--fg); }
+  .ic-med .meta { font-family:var(--font-mono); font-size:11px; color:var(--fg-3); margin-top:2px; }
+  .tagrow { display:flex; gap:6px; margin-top:14px; flex-wrap:wrap; }
+  .tg { font-family:var(--font-mono); font-size:10px; letter-spacing:0.04em; padding:5px 9px; border-radius:999px; background:var(--bg-tint); color:var(--teal-700); border:1px solid var(--hairline); }
+  .tg.otc{ background:var(--amber-100); color:var(--amber-700) }
+</style></head>
+<body><div class="card-frame">
+  <div>
+    <h4>Med header — NFC quick-access</h4>
+    <div class="med">
+      <div class="top">
+        <div class="nfc">NFC TAG</div>
+        <div class="gen">Acetaminophen</div>
+        <div class="brand">Children’s Tylenol</div>
+      </div>
+      <div class="body">
+        <div class="specrow">
+          <div class="spec"><div class="k">Concentration</div><div class="v">160 <small>mg / 5 mL</small></div></div>
+          <div class="spec"><div class="k">Form</div><div class="v">Oral <small>suspension</small></div></div>
+        </div>
+        <div class="tagrow"><span class="tg otc">OTC</span><span class="tg">Pain · fever</span><span class="tg">Reusable token</span></div>
+      </div>
+    </div>
+  </div>
+  <div>
+    <h4>Compact — list &amp; assignment</h4>
+    <div class="inline">
+      <div class="ic-med"><div class="pillico">℞</div><div><div class="gen2">Ibuprofen</div><div class="meta">Children’s Motrin · 100 mg / 5 mL</div></div></div>
+      <div style="height:10px"></div>
+      <div class="ic-med"><div class="pillico" style="background:var(--teal-50);color:var(--teal-600)">A</div><div><div class="gen2">Acetaminophen</div><div class="meta">Tylenol · 160 mg / 5 mL</div></div></div>
+    </div>
+  </div>
+</div></body></html>

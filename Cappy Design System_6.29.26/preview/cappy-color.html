@@ -1,0 +1,44 @@
+<!doctype html>
+<!-- @dsCard group="Cappy — Brand" name="Cappy — Color & accent" subtitle="Teal brand + capybara-blue accent + dose-status" viewport="780x460" -->
+<html><head><meta charset="utf-8"><title>Cappy Color</title>
+<link rel="stylesheet" href="_base.css">
+<link rel="stylesheet" href="../cappy-tokens.css">
+<style>
+  .card-frame { background: var(--bg); }
+  h4 { font-family:var(--font-display); font-size:13px; font-weight:800; color:var(--fg-2); margin:0 0 10px; text-transform:uppercase; letter-spacing:0.06em; }
+  .block { margin-bottom:20px; }
+  .ramp { display:grid; grid-template-columns:repeat(10,1fr); gap:6px; }
+  .ramp .sw { height:46px; border-radius:8px; border:1px solid var(--hairline); display:flex; align-items:flex-end; padding:5px; font-family:var(--font-mono); font-size:8px; color:#fff; }
+  .ramp .sw.dk { color:var(--slate-700); }
+  .status { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; }
+  .chip { border-radius:14px; padding:12px 14px; border:1px solid var(--hairline); }
+  .chip .lab { font-family:var(--font-sans); font-weight:700; font-size:14px; }
+  .chip .sub { font-family:var(--font-mono); font-size:10px; color:var(--fg-3); margin-top:2px; }
+  .dot { width:10px;height:10px;border-radius:50%; display:inline-block; margin-right:7px; vertical-align:middle; }
+</style></head>
+<body><div class="card-frame">
+  <div class="block">
+    <h4>Capybara blue — secondary accent (NFC, links, Cappy moments)</h4>
+    <div class="ramp" id="blue"></div>
+  </div>
+  <div class="block">
+    <h4>Dose-safety status — the core signalling system</h4>
+    <div class="status">
+      <div class="chip" style="background:var(--dose-due-bg)"><div class="lab" style="color:var(--dose-due-fg)"><span class="dot" style="background:var(--dose-due-solid)"></span>Due now</div><div class="sub">enough time has passed</div></div>
+      <div class="chip" style="background:var(--dose-early-bg)"><div class="lab" style="color:var(--dose-early-fg)"><span class="dot" style="background:var(--dose-early-solid)"></span>Too early</div><div class="sub">wait — too soon</div></div>
+      <div class="chip" style="background:var(--dose-recent-bg)"><div class="lab" style="color:var(--dose-recent-fg)"><span class="dot" style="background:var(--dose-recent-solid)"></span>Given recently</div><div class="sub">just logged · info</div></div>
+      <div class="chip" style="background:var(--dose-overdue-bg)"><div class="lab" style="color:var(--dose-overdue-fg)"><span class="dot" style="background:var(--dose-overdue-solid)"></span>Window passed</div><div class="sub">expected dose late</div></div>
+    </div>
+  </div>
+  <div class="block" style="margin-bottom:0">
+    <h4>Capybara tan — mascot warmth, friendly avatar grounds</h4>
+    <div class="ramp" id="tan" style="grid-template-columns:repeat(4,1fr); max-width:320px"></div>
+  </div>
+</div>
+<script>
+  const blue = ['50','100','200','300','400','500','600','700','800','900'];
+  document.getElementById('blue').innerHTML = blue.map((n,i)=>`<div class="sw ${i<4?'dk':''}" style="background:var(--blue-${n})">${n}</div>`).join('');
+  const tan = ['100','300','500','700'];
+  document.getElementById('tan').innerHTML = tan.map((n,i)=>`<div class="sw ${i<2?'dk':''}" style="background:var(--tan-${n})">${n}</div>`).join('');
+</script>
+</body></html>

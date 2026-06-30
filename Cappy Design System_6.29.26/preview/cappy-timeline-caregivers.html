@@ -1,0 +1,49 @@
+<!doctype html>
+<!-- @dsCard group="Cappy — Components" name="Timeline & caregivers" subtitle="Attributed dose events + caregiver roles" viewport="780x480" -->
+<html><head><meta charset="utf-8"><title>Timeline & caregivers</title>
+<link rel="stylesheet" href="_base.css">
+<link rel="stylesheet" href="../cappy-tokens.css">
+<style>
+  .card-frame { background: var(--bg); display:flex; gap:26px; flex-wrap:wrap; align-items:flex-start; }
+  h4 { font-family:var(--font-display); font-size:12px; font-weight:800; color:var(--fg-2); margin:0 0 14px; text-transform:uppercase; letter-spacing:0.06em; width:100%; }
+  /* timeline */
+  .tl { width:360px; position:relative; padding-left:8px; }
+  .ev { display:flex; gap:14px; position:relative; padding-bottom:18px; }
+  .ev:not(:last-child)::before { content:""; position:absolute; left:15px; top:30px; bottom:-2px; width:2px; background:var(--hairline); }
+  .ev .node { width:32px;height:32px;border-radius:50%; flex:0 0 auto; display:grid;place-items:center; color:#fff; font-family:var(--font-display); font-weight:800; font-size:12px; z-index:1; box-shadow:0 0 0 4px var(--bg); }
+  .ev .body { flex:1; }
+  .ev .ln1 { font-size:14px; color:var(--fg); }
+  .ev .ln1 b { font-weight:700; }
+  .ev .ln2 { font-family:var(--font-mono); font-size:11px; color:var(--fg-3); margin-top:3px; display:flex; gap:8px; align-items:center; }
+  .ev .who { display:inline-flex; gap:6px; align-items:center; }
+  .ev .who .a{ width:18px;height:18px;border-radius:50%; display:grid;place-items:center; color:#fff; font-size:8px; font-family:var(--font-display); font-weight:800 }
+  .corr { font-family:var(--font-mono); font-size:9px; letter-spacing:0.04em; padding:2px 6px; border-radius:5px; background:var(--bg-inset); color:var(--fg-3); border:1px solid var(--hairline); }
+  /* caregiver rows */
+  .cg { width:330px; }
+  .cgrow { display:flex; gap:12px; align-items:center; padding:12px 14px; background:var(--bg-card); border:1px solid var(--border); border-radius:14px; box-shadow:var(--shadow-1); margin-bottom:10px; }
+  .cgrow .a{ width:40px;height:40px;border-radius:50%; display:grid;place-items:center; color:#fff; font-family:var(--font-display); font-weight:800; font-size:15px; flex:0 0 auto }
+  .cgrow .nm{ font-weight:700; font-size:14px; color:var(--fg) }
+  .cgrow .rel{ font-size:12px; color:var(--fg-3); margin-top:1px }
+  .role { margin-left:auto; font-family:var(--font-sans); font-size:11px; font-weight:700; padding:5px 10px; border-radius:999px; }
+  .r-admin{ background:var(--teal-50); color:var(--teal-700); border:1px solid var(--dose-due-ring) }
+  .r-write{ background:var(--blue-50); color:var(--blue-700); border:1px solid var(--nfc-ring) }
+  .r-read{ background:var(--bg-inset); color:var(--fg-2); border:1px solid var(--hairline) }
+</style></head>
+<body><div class="card-frame">
+  <div>
+    <h4>Shared timeline — attributed</h4>
+    <div class="tl">
+      <div class="ev"><div class="node" style="background:var(--dose-recent-solid)">A</div><div class="body"><div class="ln1"><b>Acetaminophen</b> · 5 mL to Emma</div><div class="ln2"><span class="who"><span class="a" style="background:var(--blue-500)">DJ</span>Dad</span> · 4:48 PM · today</div></div></div>
+      <div class="ev"><div class="node" style="background:var(--teal-500)">⚖</div><div class="body"><div class="ln1">Weight updated · <b>38 lb</b></div><div class="ln2"><span class="who"><span class="a" style="background:var(--teal-500)">SR</span>Sara</span> · 9 days ago</div></div></div>
+      <div class="ev"><div class="node" style="background:var(--dose-recent-solid)">I</div><div class="body"><div class="ln1"><b>Ibuprofen</b> · 5 mL to Noah <span class="corr">CORRECTED</span></div><div class="ln2"><span class="who"><span class="a" style="background:var(--tan-500)">GP</span>Grandpa</span> · yesterday 8:10 PM</div></div></div>
+    </div>
+  </div>
+  <div>
+    <h4>Caregivers — roles &amp; access</h4>
+    <div class="cg">
+      <div class="cgrow"><div class="a" style="background:linear-gradient(150deg,var(--teal-400),var(--teal-600))">SR</div><div><div class="nm">Sara Jensen</div><div class="rel">Mom · all children</div></div><span class="role r-admin">Admin</span></div>
+      <div class="cgrow"><div class="a" style="background:linear-gradient(150deg,var(--blue-400),var(--blue-600))">DJ</div><div><div class="nm">David Jensen</div><div class="rel">Dad · all children</div></div><span class="role r-write">Can log</span></div>
+      <div class="cgrow"><div class="a" style="background:linear-gradient(150deg,var(--tan-300),var(--tan-500))">GP</div><div><div class="nm">Grandpa Ray</div><div class="rel">Emma only</div></div><span class="role r-read">Read-only</span></div>
+    </div>
+  </div>
+</div></body></html>

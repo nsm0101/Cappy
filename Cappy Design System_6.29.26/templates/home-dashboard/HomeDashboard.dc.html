@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<!-- @template name="Home dashboard" description="The family home: who needs attention now, per-child dose status, the NFC tap hint, live activity, and bottom tabs." -->
+<helmet>
+<script src="./ds-base.js"></script>
+<style>
+  @keyframes cappy-ping { 0% { box-shadow:0 0 0 0 var(--nfc-ring); } 70%,100% { box-shadow:0 0 0 12px rgba(0,0,0,0); } }
+</style>
+</helmet>
+
+<div data-theme="{{ theme }}" style="position:relative; width:390px; height:844px; overflow:hidden; background:var(--bg); font-family:var(--font-sans); color:var(--fg); -webkit-font-smoothing:antialiased; display:flex; flex-direction:column;">
+
+  <!-- status bar -->
+  <div style="height:50px; flex:0 0 auto; display:flex; align-items:center; justify-content:space-between; padding:0 24px; font-size:14px; font-weight:700;">
+    <span>9:41</span><span style="font-size:11px; color:var(--fg-3);">●●● ◢ 100%</span>
+  </div>
+
+  <div style="flex:1; min-height:0; overflow:auto; padding:6px 16px 110px;">
+    <!-- header -->
+    <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px;">
+      <div style="flex:1;">
+        <div style="font-family:var(--font-display); font-weight:800; font-size:26px; letter-spacing:-0.02em; line-height:1.05;">Good evening,<br>Sara</div>
+      </div>
+      <div style="width:48px; height:48px; border-radius:50%; overflow:hidden; border:2px solid var(--bg-card); box-shadow:var(--shadow-1); flex:0 0 auto;">
+        <img src="../../assets/cappy-mark.png" alt="profile" style="width:100%; height:100%; object-fit:cover;">
+      </div>
+    </div>
+
+    <!-- sync chip -->
+    <div style="display:inline-flex; align-items:center; gap:8px; background:var(--dose-due-bg); color:var(--dose-due-fg); padding:8px 13px; border-radius:999px; font-size:12.5px; font-weight:700; margin-bottom:18px;">
+      <span style="width:8px; height:8px; border-radius:50%; background:var(--dose-due-solid);"></span>All 4 caregivers in sync · 2m ago
+    </div>
+
+    <!-- NFC tap hint -->
+    <div style="display:flex; gap:14px; align-items:center; background:var(--accent-2-tint); border:1.5px dashed var(--nfc-ring); border-radius:18px; padding:15px 16px; margin-bottom:22px;">
+      <div style="width:44px; height:44px; border-radius:50%; background:var(--nfc-core); flex:0 0 auto; display:grid; place-items:center;">
+        <span style="width:11px; height:11px; border-radius:50%; background:#fff; animation:cappy-ping 1.8s infinite;"></span>
+      </div>
+      <div style="flex:1;">
+        <div style="font-weight:700; font-size:14.5px;">Tap a medication tag</div>
+        <div style="font-size:12px; color:var(--fg-2); margin-top:1px;">Hold your phone to a bottle to log in seconds.</div>
+      </div>
+    </div>
+
+    <!-- children -->
+    <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:12px;">
+      <div style="font-family:var(--font-display); font-weight:800; font-size:18px;">Your children</div>
+      <span style="font-size:12.5px; color:var(--link); font-weight:600;">Manage</span>
+    </div>
+
+    <sc-for list="{{ kids }}" as="k" hint-placeholder-count="3">
+      <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:18px; padding:15px; margin-bottom:12px; box-shadow:var(--shadow-1);">
+        <div style="display:flex; gap:13px; align-items:center;">
+          <div style="width:50px; height:50px; border-radius:50%; flex:0 0 auto; display:grid; place-items:center; color:#fff; font-family:var(--font-display); font-weight:800; font-size:17px; background:{{ k.grad }};">{{ k.mono }}</div>
+          <div style="flex:1; min-width:0;">
+            <div style="font-family:var(--font-display); font-weight:800; font-size:16px;">{{ k.name }}</div>
+            <div style="font-size:12px; color:var(--fg-3); margin-top:1px;">{{ k.meta }}</div>
+          </div>
+          <div style="display:inline-flex; gap:7px; align-items:center; white-space:nowrap; font-size:11.5px; font-weight:700; padding:6px 11px; border-radius:999px; background:{{ k.statusBg }}; color:{{ k.statusFg }};">
+            <span style="width:7px; height:7px; border-radius:50%; background:{{ k.statusSolid }};"></span>{{ k.statusLabel }}
+          </div>
+        </div>
+        <div style="display:flex; align-items:center; gap:10px; margin-top:13px; padding-top:13px; border-top:1px solid var(--hairline);">
+          <div style="flex:1; font-size:12.5px; color:var(--fg-2);"><span style="color:var(--fg-3);">Last:</span> {{ k.last }}</div>
+          <button style="border:1px solid var(--border); background:var(--bg-card); color:var(--brand); font-weight:700; font-size:12.5px; padding:8px 14px; border-radius:11px; cursor:pointer;">Log dose</button>
+        </div>
+      </div>
+    </sc-for>
+
+    <!-- recent activity -->
+    <div style="font-family:var(--font-display); font-weight:800; font-size:18px; margin:24px 0 12px;">Recent activity</div>
+    <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:18px; padding:6px 16px; box-shadow:var(--shadow-1);">
+      <sc-for list="{{ activity }}" as="a" hint-placeholder-count="3">
+        <div style="display:flex; gap:12px; align-items:center; padding:12px 0; border-bottom:1px solid var(--hairline);">
+          <div style="width:34px; height:34px; border-radius:50%; flex:0 0 auto; display:grid; place-items:center; color:#fff; font-family:var(--font-display); font-weight:800; font-size:12px; background:{{ a.grad }};">{{ a.who }}</div>
+          <div style="flex:1; min-width:0; font-size:13px;">{{ a.text }}</div>
+          <div style="font-family:var(--font-mono); font-size:10.5px; color:var(--fg-3); white-space:nowrap;">{{ a.time }}</div>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+
+  <!-- bottom tab bar -->
+  <div style="position:absolute; left:0; right:0; bottom:0; height:var(--tabbar-h); background:var(--bg-card); border-top:1px solid var(--border); display:flex; padding:10px 8px 0; box-shadow:0 -6px 20px -12px rgba(0,0,0,0.18);">
+    <sc-for list="{{ tabs }}" as="t" hint-placeholder-count="4">
+      <div style="flex:1; text-align:center; padding-top:4px;">
+        <div style="width:24px; height:24px; margin:0 auto; border-radius:8px; background:{{ t.dot }};"></div>
+        <div style="font-size:10.5px; font-weight:700; margin-top:6px; color:{{ t.fg }};">{{ t.label }}</div>
+      </div>
+    </sc-for>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:390,&quot;height&quot;:844},&quot;theme&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;light&quot;,&quot;dark&quot;],&quot;default&quot;:&quot;light&quot;,&quot;tsType&quot;:&quot;\&quot;light\&quot; | \&quot;dark\&quot;&quot;,&quot;section&quot;:&quot;Appearance&quot;}}">
+class Component extends DCLogic {
+  renderVals() {
+    const theme = this.props.theme || 'light';
+    const kids = [
+      { name:'Emma', mono:'EM', grad:'linear-gradient(150deg,var(--teal-400),var(--teal-600))', meta:'6 yrs · 38 lb', last:'Acetaminophen 5h 12m ago', statusLabel:'Due now', statusBg:'var(--dose-due-bg)', statusFg:'var(--dose-due-fg)', statusSolid:'var(--dose-due-solid)' },
+      { name:'Noah', mono:'NO', grad:'linear-gradient(150deg,var(--blue-400),var(--blue-600))', meta:'3 yrs · 31 lb', last:'Ibuprofen 2h 20m ago', statusLabel:'Too early', statusBg:'var(--dose-early-bg)', statusFg:'var(--dose-early-fg)', statusSolid:'var(--dose-early-solid)' },
+      { name:'Ava', mono:'AV', grad:'linear-gradient(150deg,var(--amber-500),var(--amber-700))', meta:'18 mo · 24 lb · weight stale', last:'Acetaminophen 20m ago', statusLabel:'Just dosed', statusBg:'var(--dose-recent-bg)', statusFg:'var(--dose-recent-fg)', statusSolid:'var(--dose-recent-solid)' }
+    ];
+    const activity = [
+      { who:'GP', grad:'linear-gradient(150deg,var(--tan-300),var(--tan-500))', text:'Grandpa logged acetaminophen for Ava', time:'20m' },
+      { who:'SR', grad:'linear-gradient(150deg,var(--teal-400),var(--teal-600))', text:'You updated Emma’s weight to 38 lb', time:'9d' },
+      { who:'DJ', grad:'linear-gradient(150deg,var(--blue-400),var(--blue-600))', text:'Dad logged ibuprofen for Noah', time:'2h' }
+    ];
+    const tabs = [
+      { label:'Home',     dot:'var(--brand)',     fg:'var(--brand)' },
+      { label:'Children', dot:'var(--slate-300)', fg:'var(--fg-3)' },
+      { label:'Family',   dot:'var(--slate-300)', fg:'var(--fg-3)' },
+      { label:'Activity', dot:'var(--slate-300)', fg:'var(--fg-3)' }
+    ];
+    return { theme, kids, activity, tabs };
+  }
+}
+</script>
+</body>
+</html>

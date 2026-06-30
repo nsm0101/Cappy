@@ -1,0 +1,52 @@
+<!doctype html>
+<!-- @dsCard group="Cappy — Components" name="Last dose & weight" subtitle="Big time-since display + weight staleness prompt" viewport="780x420" -->
+<html><head><meta charset="utf-8"><title>Last dose & weight</title>
+<link rel="stylesheet" href="_base.css">
+<link rel="stylesheet" href="../cappy-tokens.css">
+<style>
+  .card-frame { background: var(--bg); display:flex; gap:22px; flex-wrap:wrap; align-items:flex-start; }
+  h4 { font-family:var(--font-display); font-size:12px; font-weight:800; color:var(--fg-2); margin:0 0 12px; text-transform:uppercase; letter-spacing:0.06em; width:100%; }
+  /* last dose */
+  .last { width:300px; background:var(--bg-card); border:1px solid var(--border); border-radius:22px; box-shadow:var(--shadow-2); padding:20px; }
+  .last .k { font-family:var(--font-mono); font-size:10px; letter-spacing:0.06em; color:var(--fg-3); text-transform:uppercase; }
+  .last .since { font-family:var(--font-display); font-weight:800; letter-spacing:-0.03em; line-height:0.95; margin:8px 0 4px; }
+  .since .num{ font-size:58px } .since .u{ font-size:24px; color:var(--fg-3) }
+  .last .at { font-size:13px; color:var(--fg-2); }
+  .last .by { display:flex; gap:8px; align-items:center; margin-top:14px; padding-top:14px; border-top:1px solid var(--hairline); font-size:12.5px; color:var(--fg-2); }
+  .last .by .a { width:24px;height:24px;border-radius:50%; background:linear-gradient(150deg,var(--blue-400),var(--blue-600)); color:#fff; display:grid;place-items:center; font-family:var(--font-display); font-weight:800; font-size:10px; }
+  .gauge { height:6px; border-radius:999px; background:var(--bg-inset); overflow:hidden; margin-top:14px; }
+  .gauge > i { display:block; height:100%; border-radius:999px; }
+  /* weight */
+  .wt { width:300px; background:var(--bg-card); border:1px solid var(--border); border-radius:22px; box-shadow:var(--shadow-2); padding:20px; }
+  .wt .v { font-family:var(--font-display); font-weight:800; font-size:40px; letter-spacing:-0.02em; color:var(--fg); }
+  .wt .v small{ font-size:18px; color:var(--fg-3) }
+  .stale { display:flex; gap:8px; align-items:center; margin-top:12px; padding:10px 12px; border-radius:12px; background:var(--amber-100); color:var(--amber-700); font-size:12.5px; font-weight:600; }
+  .stale .d{ width:8px;height:8px;border-radius:50%;background:var(--amber-600); flex:0 0 auto }
+  .fresh { display:flex; gap:8px; align-items:center; margin-top:12px; padding:10px 12px; border-radius:12px; background:var(--dose-due-bg); color:var(--dose-due-fg); font-size:12.5px; font-weight:600; }
+  .fresh .d{ width:8px;height:8px;border-radius:50%;background:var(--dose-due-solid); flex:0 0 auto }
+</style></head>
+<body><div class="card-frame">
+  <div>
+    <h4>Last dose — time since</h4>
+    <div class="last">
+      <div class="k">Last acetaminophen</div>
+      <div class="since"><span class="num">5h</span> <span class="num">12m</span> <span class="u">ago</span></div>
+      <div class="at">Given 4:48 PM · 5 mL</div>
+      <div class="gauge"><i style="width:86%; background:var(--dose-due-solid)"></i></div>
+      <div class="by"><span class="a">DJ</span>Logged by Dad (David)</div>
+    </div>
+  </div>
+  <div>
+    <h4>Weight — current &amp; staleness</h4>
+    <div class="wt">
+      <div class="k" style="font-family:var(--font-mono);font-size:10px;letter-spacing:0.06em;color:var(--fg-3);text-transform:uppercase">Most recent weight</div>
+      <div class="v" style="margin-top:6px">38 <small>lb</small> <span style="font-size:14px;color:var(--fg-muted);font-weight:600">· 17.2 kg</span></div>
+      <div class="fresh"><span class="d"></span>Updated 9 days ago — looks current</div>
+    </div>
+    <div style="height:12px"></div>
+    <div class="wt" style="padding:14px 20px">
+      <div class="v" style="font-size:26px">26 <small>lb</small></div>
+      <div class="stale"><span class="d"></span>Last updated 4 months ago — consider updating</div>
+    </div>
+  </div>
+</div></body></html>

@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<!-- @template name="Child profile" description="A child's anchor screen: weight with staleness, assigned medications and their current dose status, and recent dose history." -->
+<helmet>
+<script src="./ds-base.js"></script>
+</helmet>
+
+<div data-theme="{{ theme }}" style="position:relative; width:390px; height:844px; overflow:hidden; background:var(--bg); font-family:var(--font-sans); color:var(--fg); -webkit-font-smoothing:antialiased; display:flex; flex-direction:column;">
+
+  <div style="height:50px; flex:0 0 auto; display:flex; align-items:center; justify-content:space-between; padding:0 24px; font-size:14px; font-weight:700;">
+    <span>9:41</span><span style="font-size:11px; color:var(--fg-3);">●●● ◢ 100%</span>
+  </div>
+
+  <div style="flex:1; min-height:0; overflow:auto; padding:4px 16px 40px;">
+    <!-- nav -->
+    <div style="display:flex; align-items:center; gap:12px; margin-bottom:18px;">
+      <div style="width:38px; height:38px; border-radius:11px; border:1px solid var(--border); background:var(--bg-card); display:grid; place-items:center; font-size:18px; color:var(--fg-2); cursor:pointer;">‹</div>
+      <div style="flex:1; font-family:var(--font-mono); font-size:11px; letter-spacing:0.06em; color:var(--fg-3); text-transform:uppercase;">Child profile</div>
+      <div style="width:38px; height:38px; border-radius:11px; border:1px solid var(--border); background:var(--bg-card); display:grid; place-items:center; font-size:16px; color:var(--fg-2); cursor:pointer;">⋯</div>
+    </div>
+
+    <!-- identity -->
+    <div style="display:flex; gap:16px; align-items:center; margin-bottom:20px;">
+      <div style="width:74px; height:74px; border-radius:50%; flex:0 0 auto; display:grid; place-items:center; color:#fff; font-family:var(--font-display); font-weight:800; font-size:26px; background:linear-gradient(150deg,var(--teal-400),var(--teal-600)); box-shadow:var(--shadow-2); border:3px solid var(--bg-card);">EM</div>
+      <div>
+        <div style="font-family:var(--font-display); font-weight:800; font-size:26px; letter-spacing:-0.02em;">Emma</div>
+        <div style="font-size:13.5px; color:var(--fg-2); margin-top:2px;">6 years · born Mar 2020</div>
+      </div>
+    </div>
+
+    <!-- weight + next dose stats -->
+    <div style="display:flex; gap:12px; margin-bottom:14px;">
+      <div style="flex:1; background:var(--bg-card); border:1px solid var(--border); border-radius:18px; padding:15px; box-shadow:var(--shadow-1);">
+        <div style="font-family:var(--font-mono); font-size:9.5px; letter-spacing:0.06em; text-transform:uppercase; color:var(--fg-3);">Current weight</div>
+        <div style="font-family:var(--font-display); font-weight:800; font-size:30px; margin-top:5px;">38 <span style="font-size:15px; color:var(--fg-3);">lb</span></div>
+        <div style="display:inline-flex; gap:6px; align-items:center; margin-top:9px; background:var(--dose-due-bg); color:var(--dose-due-fg); padding:5px 9px; border-radius:999px; font-size:10.5px; font-weight:700;"><span style="width:6px; height:6px; border-radius:50%; background:var(--dose-due-solid);"></span>Updated 9d ago</div>
+      </div>
+      <div style="flex:1; background:var(--bg-card); border:1px solid var(--border); border-radius:18px; padding:15px; box-shadow:var(--shadow-1);">
+        <div style="font-family:var(--font-mono); font-size:9.5px; letter-spacing:0.06em; text-transform:uppercase; color:var(--fg-3);">Caregivers</div>
+        <div style="display:flex; margin-top:10px;">
+          <div style="width:32px; height:32px; border-radius:50%; display:grid; place-items:center; color:#fff; font-size:11px; font-family:var(--font-display); font-weight:800; background:linear-gradient(150deg,var(--teal-400),var(--teal-600)); border:2px solid var(--bg-card);">SR</div>
+          <div style="width:32px; height:32px; border-radius:50%; display:grid; place-items:center; color:#fff; font-size:11px; font-family:var(--font-display); font-weight:800; background:linear-gradient(150deg,var(--blue-400),var(--blue-600)); border:2px solid var(--bg-card); margin-left:-10px;">DJ</div>
+          <div style="width:32px; height:32px; border-radius:50%; display:grid; place-items:center; color:#fff; font-size:11px; font-family:var(--font-display); font-weight:800; background:linear-gradient(150deg,var(--tan-300),var(--tan-500)); border:2px solid var(--bg-card); margin-left:-10px;">GP</div>
+          <div style="width:32px; height:32px; border-radius:50%; display:grid; place-items:center; color:var(--fg-2); font-size:11px; font-weight:700; background:var(--bg-inset); border:2px solid var(--bg-card); margin-left:-10px;">+1</div>
+        </div>
+        <div style="font-size:11px; color:var(--fg-3); margin-top:9px;">4 can see Emma</div>
+      </div>
+    </div>
+
+    <!-- assigned medications -->
+    <div style="font-family:var(--font-display); font-weight:800; font-size:17px; margin:22px 0 12px;">Medications</div>
+    <sc-for list="{{ meds }}" as="m" hint-placeholder-count="2">
+      <div style="display:flex; gap:13px; align-items:center; background:var(--bg-card); border:1px solid var(--border); border-radius:16px; padding:14px 15px; margin-bottom:11px; box-shadow:var(--shadow-1);">
+        <div style="width:44px; height:44px; border-radius:12px; flex:0 0 auto; display:grid; place-items:center; font-family:var(--font-display); font-weight:800; font-size:18px; background:{{ m.icBg }}; color:{{ m.icFg }};">{{ m.ic }}</div>
+        <div style="flex:1; min-width:0;">
+          <div style="font-family:var(--font-display); font-weight:800; font-size:15px;">{{ m.name }}</div>
+          <div style="font-family:var(--font-mono); font-size:11px; color:var(--fg-3); margin-top:2px;">{{ m.meta }}</div>
+        </div>
+        <div style="text-align:right;">
+          <div style="display:inline-flex; gap:6px; align-items:center; white-space:nowrap; font-size:11px; font-weight:700; padding:6px 10px; border-radius:999px; background:{{ m.statusBg }}; color:{{ m.statusFg }};"><span style="width:6px; height:6px; border-radius:50%; background:{{ m.statusSolid }};"></span>{{ m.statusLabel }}</div>
+          <div style="font-size:10.5px; color:var(--fg-3); margin-top:5px;">{{ m.last }}</div>
+        </div>
+      </div>
+    </sc-for>
+
+    <!-- timeline -->
+    <div style="font-family:var(--font-display); font-weight:800; font-size:17px; margin:22px 0 14px;">Recent history</div>
+    <div style="padding-left:4px;">
+      <sc-for list="{{ history }}" as="h" hint-placeholder-count="3">
+        <div style="display:flex; gap:13px; position:relative; padding-bottom:18px;">
+          <div style="position:absolute; left:15px; top:30px; bottom:-2px; width:2px; background:var(--hairline);"></div>
+          <div style="width:32px; height:32px; border-radius:50%; flex:0 0 auto; display:grid; place-items:center; color:#fff; font-family:var(--font-display); font-weight:800; font-size:12px; background:{{ h.dot }}; box-shadow:0 0 0 4px var(--bg); z-index:1;">{{ h.ic }}</div>
+          <div style="flex:1;">
+            <div style="font-size:13.5px;">{{ h.text }}</div>
+            <div style="font-family:var(--font-mono); font-size:10.5px; color:var(--fg-3); margin-top:3px;">{{ h.meta }}</div>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+
+    <div style="display:flex; gap:7px; align-items:center; justify-content:center; margin-top:6px; font-size:11px; color:var(--fg-3);">
+      <span style="width:13px; height:13px; border-radius:50%; border:2px solid var(--fg-muted);"></span>Always confirm dosing before administering medication.
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:390,&quot;height&quot;:844},&quot;theme&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;light&quot;,&quot;dark&quot;],&quot;default&quot;:&quot;light&quot;,&quot;tsType&quot;:&quot;\&quot;light\&quot; | \&quot;dark\&quot;&quot;,&quot;section&quot;:&quot;Appearance&quot;}}">
+class Component extends DCLogic {
+  renderVals() {
+    const theme = this.props.theme || 'light';
+    const meds = [
+      { name:'Acetaminophen', meta:'Tylenol · 160 mg/5 mL', ic:'A', icBg:'var(--teal-50)', icFg:'var(--teal-600)', statusLabel:'Due now', statusBg:'var(--dose-due-bg)', statusFg:'var(--dose-due-fg)', statusSolid:'var(--dose-due-solid)', last:'5h 12m ago' },
+      { name:'Ibuprofen', meta:'Motrin · 100 mg/5 mL', ic:'I', icBg:'var(--blue-50)', icFg:'var(--blue-600)', statusLabel:'Too early', statusBg:'var(--dose-early-bg)', statusFg:'var(--dose-early-fg)', statusSolid:'var(--dose-early-solid)', last:'3h 05m ago' }
+    ];
+    const history = [
+      { ic:'A', dot:'var(--dose-recent-solid)', text:'Acetaminophen · 5 mL', meta:'Dad · today 4:48 PM' },
+      { ic:'⚖', dot:'var(--teal-500)', text:'Weight updated to 38 lb', meta:'You · 9 days ago' },
+      { ic:'I', dot:'var(--dose-recent-solid)', text:'Ibuprofen · 5 mL', meta:'Grandpa · yesterday 8:10 PM' }
+    ];
+    return { theme, meds, history };
+  }
+}
+</script>
+</body>
+</html>

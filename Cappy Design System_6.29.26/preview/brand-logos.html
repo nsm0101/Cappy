@@ -1,0 +1,207 @@
+<!doctype html>
+<!-- @dsCard group="Cappy — Brand" name="Brand — Logo" subtitle="Tweakable — Cappy face badge + horizontal lockup, across surfaces" viewport="700x560" -->
+<html><head><meta charset="utf-8"><title>Cappy Logo</title>
+<link rel="stylesheet" href="_base.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&family=Comfortaa:wght@700&family=Fredoka:wght@500;600;700&family=Nunito:wght@800;900&family=Poppins:wght@600;700&family=Quicksand:wght@600;700&display=swap">
+<style>
+:root {
+  --surface-white: #ffffff;
+  --surface-cream: #F6F1E7;
+  --surface-teal:  #128873;
+  --surface-ink:   #0B1E1D;
+}
+.card-frame { background: var(--bg); }
+.grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+.tile {
+  border-radius: 16px; border: 1px solid var(--hairline);
+  padding: 22px;
+  display: flex; flex-direction: column; gap: 12px; align-items: center;
+  position: relative;
+  min-height: 160px;
+  justify-content: center;
+}
+.tile[data-surface="white"] { background: var(--surface-white); }
+.tile[data-surface="cream"] { background: var(--surface-cream); border-color: rgba(11,30,29,0.08); }
+.tile[data-surface="teal"]  { background: var(--surface-teal);  border-color: rgba(11,30,29,0.08); }
+.tile[data-surface="ink"]   { background: var(--surface-ink);   border-color: rgba(255,255,255,0.06); }
+
+.tile.primary {
+  grid-column: span 3;
+  min-height: 240px;
+}
+.tile.primary .mark { height: 156px; }
+.tile.full { grid-column: span 3; }
+
+.mark { height: 88px; width: auto; display: block; }
+
+/* horizontal lockup: face badge + Cappy wordmark */
+.lockup { display: flex; align-items: center; gap: 16px; }
+.lockup .face { height: 64px; width: 64px; border-radius: 50%; display: block; }
+.full .lockup .face { height: 76px; width: 76px; }
+.lockup .word {
+  font-family: 'Fredoka', var(--font-display, 'Nunito Sans', sans-serif);
+  font-weight: 600;
+  font-size: 46px;
+  letter-spacing: -0.005em;
+  line-height: 1;
+}
+.full .lockup .word { font-size: 56px; }
+
+.label {
+  font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--fg-3);
+  position: absolute; left: 14px; bottom: 10px;
+}
+.tile[data-surface="teal"] .label,
+.tile[data-surface="ink"]  .label { color: rgba(255,255,255,0.75); }
+.primary-badge {
+  position: absolute; right: 14px; top: 12px;
+  font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.1em;
+  text-transform: uppercase; color: rgba(255,255,255,0.85);
+  background: rgba(255,255,255,0.14); padding: 4px 8px; border-radius: 999px;
+}
+.tile[data-surface="white"] .primary-badge,
+.tile[data-surface="cream"] .primary-badge { color: rgba(11,30,29,0.7); background: rgba(11,30,29,0.07); }
+</style>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+</head>
+<body>
+<div class="card-frame">
+  <div id="root"></div>
+</div>
+
+<script type="text/babel" src="tweaks-panel.jsx"></script>
+<script type="text/babel">
+const MARK_OPTIONS = [
+  { value: 'badge', label: 'Face badge',  src: '../assets/cappy-mark.png' },
+  { value: 'app',   label: 'App icon',    src: '../assets/cappy-icon.png' },
+];
+const SURFACE_OPTIONS = ['white','cream','teal','ink'];
+
+const FONT_OPTIONS = [
+  { value:'baloo',     label:'Baloo 2',   stack:"'Baloo 2', system-ui, sans-serif",   weight:800, ls:'-0.01em' },
+  { value:'quicksand', label:'Quicksand', stack:"'Quicksand', system-ui, sans-serif", weight:700, ls:'-0.01em' },
+  { value:'poppins',   label:'Poppins',   stack:"'Poppins', system-ui, sans-serif",   weight:700, ls:'-0.02em' },
+  { value:'comfortaa', label:'Comfortaa', stack:"'Comfortaa', system-ui, sans-serif", weight:700, ls:'-0.015em' },
+  { value:'nunito',    label:'Nunito',    stack:"'Nunito', system-ui, sans-serif",    weight:900, ls:'-0.03em' },
+  { value:'fredoka',   label:'Fredoka',   stack:"'Fredoka', system-ui, sans-serif",   weight:600, ls:'-0.005em' },
+];
+const fontDef = v => FONT_OPTIONS.find(o=>o.value===v) || FONT_OPTIONS[0];
+
+const markSrc = v => (MARK_OPTIONS.find(o=>o.value===v) || MARK_OPTIONS[0]).src;
+// Cappy wordmark color adapts to surface (teal on light, white on dark)
+const wordColor = surface => (surface === 'teal' || surface === 'ink') ? '#ffffff' : '#128873';
+
+const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+  "wordmarkFont": "baloo",
+  "primarySurface": "cream",
+  "primaryMark": "badge",
+  "tile2Surface": "white",
+  "tile2Mark": "badge",
+  "tile3Surface": "ink",
+  "tile3Mark": "badge",
+  "tile4Surface": "teal",
+  "tile4Mark": "app",
+  "lockup1Surface": "white",
+  "lockup2Surface": "teal"
+}/*EDITMODE-END*/;
+
+function Tile({ surface, src, label, primary }) {
+  return (
+    <div className={`tile ${primary ? 'primary' : ''}`} data-surface={surface}>
+      {primary && <div className="primary-badge">Primary</div>}
+      <img className="mark" src={src} alt="Cappy mark"/>
+      <div className="label">{label}</div>
+    </div>
+  );
+}
+function LockupTile({ surface, span, label, font }) {
+  return (
+    <div className={`tile ${span}`} data-surface={surface}>
+      <div className="lockup">
+        <img className="face" src="../assets/cappy-mark.png" alt="Cappy"/>
+        <span className="word" style={{ color: wordColor(surface), fontFamily: font.stack, fontWeight: font.weight, letterSpacing: font.ls }}>Cappy!</span>
+      </div>
+      <div className="label">{label}</div>
+    </div>
+  );
+}
+
+function App() {
+  const [t, setTweak] = useTweaks(TWEAK_DEFAULTS);
+  const wf = fontDef(t.wordmarkFont);
+
+  return (
+    <>
+      <div className="grid">
+        <Tile primary
+          surface={t.primarySurface}
+          src={markSrc(t.primaryMark)}
+          label={`Primary · ${t.primaryMark} on ${t.primarySurface}`}/>
+        <Tile surface={t.tile2Surface} src={markSrc(t.tile2Mark)} label={`${t.tile2Mark} · on ${t.tile2Surface}`}/>
+        <Tile surface={t.tile3Surface} src={markSrc(t.tile3Mark)} label={`${t.tile3Mark} · on ${t.tile3Surface}`}/>
+        <Tile surface={t.tile4Surface} src={markSrc(t.tile4Mark)} label={`${t.tile4Mark} · on ${t.tile4Surface}`}/>
+        <LockupTile span="full" surface={t.lockup1Surface} font={wf} label={`Lockup · ${wf.label} on ${t.lockup1Surface}`}/>
+        <LockupTile span="full" surface={t.lockup2Surface} font={wf} label={`Lockup · ${wf.label} on ${t.lockup2Surface}`}/>
+      </div>
+
+      <TweaksPanel title="Tweaks">
+        <TweakSection label="Wordmark font">
+          <TweakSelect label="Font" value={t.wordmarkFont}
+            options={FONT_OPTIONS.map(o=>({value:o.value,label:o.label}))}
+            onChange={v=>setTweak('wordmarkFont', v)}/>
+        </TweakSection>
+
+        <TweakSection label="Primary lockup">
+          <TweakSelect label="Surface" value={t.primarySurface} options={SURFACE_OPTIONS}
+            onChange={v=>setTweak('primarySurface', v)}/>
+          <TweakSelect label="Mark" value={t.primaryMark}
+            options={MARK_OPTIONS.map(o=>({value:o.value,label:o.label}))}
+            onChange={v=>setTweak('primaryMark', v)}/>
+        </TweakSection>
+
+        <TweakSection label="Mark tile 2">
+          <TweakSelect label="Surface" value={t.tile2Surface} options={SURFACE_OPTIONS}
+            onChange={v=>setTweak('tile2Surface', v)}/>
+          <TweakSelect label="Mark" value={t.tile2Mark}
+            options={MARK_OPTIONS.map(o=>({value:o.value,label:o.label}))}
+            onChange={v=>setTweak('tile2Mark', v)}/>
+        </TweakSection>
+
+        <TweakSection label="Mark tile 3">
+          <TweakSelect label="Surface" value={t.tile3Surface} options={SURFACE_OPTIONS}
+            onChange={v=>setTweak('tile3Surface', v)}/>
+          <TweakSelect label="Mark" value={t.tile3Mark}
+            options={MARK_OPTIONS.map(o=>({value:o.value,label:o.label}))}
+            onChange={v=>setTweak('tile3Mark', v)}/>
+        </TweakSection>
+
+        <TweakSection label="Mark tile 4">
+          <TweakSelect label="Surface" value={t.tile4Surface} options={SURFACE_OPTIONS}
+            onChange={v=>setTweak('tile4Surface', v)}/>
+          <TweakSelect label="Mark" value={t.tile4Mark}
+            options={MARK_OPTIONS.map(o=>({value:o.value,label:o.label}))}
+            onChange={v=>setTweak('tile4Mark', v)}/>
+        </TweakSection>
+
+        <TweakSection label="Lockup · row 1">
+          <TweakSelect label="Surface" value={t.lockup1Surface} options={SURFACE_OPTIONS}
+            onChange={v=>setTweak('lockup1Surface', v)}/>
+        </TweakSection>
+
+        <TweakSection label="Lockup · row 2">
+          <TweakSelect label="Surface" value={t.lockup2Surface} options={SURFACE_OPTIONS}
+            onChange={v=>setTweak('lockup2Surface', v)}/>
+        </TweakSection>
+      </TweaksPanel>
+    </>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body></html>

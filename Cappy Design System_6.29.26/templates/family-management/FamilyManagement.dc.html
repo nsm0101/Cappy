@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<!-- @template name="Family & caregivers" description="Manage the family group: caregiver roles, per-child access, secure invites, and pending requests — admin controls for shared, role-based trust." -->
+<helmet>
+<script src="./ds-base.js"></script>
+</helmet>
+
+<div data-theme="{{ theme }}" style="position:relative; width:390px; height:844px; overflow:hidden; background:var(--bg); font-family:var(--font-sans); color:var(--fg); -webkit-font-smoothing:antialiased; display:flex; flex-direction:column;">
+
+  <div style="height:50px; flex:0 0 auto; display:flex; align-items:center; justify-content:space-between; padding:0 24px; font-size:14px; font-weight:700;">
+    <span>9:41</span><span style="font-size:11px; color:var(--fg-3);">●●● ◢ 100%</span>
+  </div>
+
+  <div style="flex:1; min-height:0; overflow:auto; padding:4px 16px 40px;">
+    <div style="font-family:var(--font-display); font-weight:800; font-size:26px; letter-spacing:-0.02em;">The Jensen family</div>
+    <div style="font-size:13px; color:var(--fg-2); margin-top:3px;">4 caregivers · 3 children · you’re an admin</div>
+
+    <!-- invite card -->
+    <div style="background:linear-gradient(160deg,var(--blue-500),var(--blue-700)); color:#fff; border-radius:20px; padding:18px; margin:18px 0 22px; box-shadow:var(--shadow-2);">
+      <div style="font-family:var(--font-display); font-weight:800; font-size:17px;">Invite a caregiver</div>
+      <div style="font-size:12.5px; opacity:0.9; margin-top:3px;">Share a one-time code or secure link. You choose what they can see.</div>
+      <div style="display:flex; gap:10px; align-items:center; margin-top:14px;">
+        <div style="flex:1; background:rgba(255,255,255,0.16); border-radius:12px; padding:11px 14px; font-family:var(--font-mono); font-size:18px; letter-spacing:0.22em; font-weight:600;">CAP-7F3K</div>
+        <button style="background:#fff; color:var(--blue-700); border:none; border-radius:12px; padding:11px 16px; font-weight:700; font-size:13px; cursor:pointer;">Share link</button>
+      </div>
+    </div>
+
+    <!-- caregivers -->
+    <div style="font-family:var(--font-display); font-weight:800; font-size:17px; margin-bottom:12px;">Caregivers</div>
+    <sc-for list="{{ caregivers }}" as="c" hint-placeholder-count="4">
+      <div style="display:flex; gap:13px; align-items:center; background:var(--bg-card); border:1px solid var(--border); border-radius:16px; padding:13px 14px; margin-bottom:11px; box-shadow:var(--shadow-1);">
+        <div style="width:46px; height:46px; border-radius:50%; flex:0 0 auto; display:grid; place-items:center; color:#fff; font-family:var(--font-display); font-weight:800; font-size:16px; background:{{ c.grad }};">{{ c.mono }}</div>
+        <div style="flex:1; min-width:0;">
+          <div style="font-family:var(--font-display); font-weight:800; font-size:15px;">{{ c.name }}</div>
+          <div style="font-size:12px; color:var(--fg-3); margin-top:2px;">{{ c.access }}</div>
+        </div>
+        <div style="display:inline-flex; align-items:center; white-space:nowrap; font-size:11px; font-weight:700; padding:6px 11px; border-radius:999px; background:{{ c.roleBg }}; color:{{ c.roleFg }}; border:1px solid {{ c.roleBorder }};">{{ c.role }}</div>
+      </div>
+    </sc-for>
+
+    <!-- pending -->
+    <div style="font-family:var(--font-display); font-weight:800; font-size:17px; margin:22px 0 12px;">Pending</div>
+    <div style="display:flex; gap:13px; align-items:center; background:var(--bg-card); border:1px dashed var(--border-strong); border-radius:16px; padding:13px 14px; box-shadow:none;">
+      <div style="width:46px; height:46px; border-radius:50%; flex:0 0 auto; display:grid; place-items:center; color:var(--fg-2); font-family:var(--font-display); font-weight:800; font-size:16px; background:var(--bg-inset);">BS</div>
+      <div style="flex:1; min-width:0;">
+        <div style="font-family:var(--font-display); font-weight:800; font-size:15px;">Babysitter (Mia)</div>
+        <div style="font-size:12px; color:var(--amber-700); margin-top:2px; font-weight:600;">Invited 2d ago · awaiting them</div>
+      </div>
+      <button style="background:var(--bg-inset); color:var(--fg-2); border:none; border-radius:10px; padding:8px 12px; font-weight:700; font-size:12px; cursor:pointer;">Resend</button>
+    </div>
+
+    <!-- legend -->
+    <div style="background:var(--bg-inset); border-radius:14px; padding:14px 15px; margin-top:22px;">
+      <div style="font-family:var(--font-mono); font-size:10px; letter-spacing:0.06em; text-transform:uppercase; color:var(--fg-3); margin-bottom:10px;">What roles can do</div>
+      <div style="font-size:12.5px; color:var(--fg-2); line-height:1.7;">
+        <div><b style="color:var(--teal-700);">Admin</b> — invite, remove, set roles &amp; access</div>
+        <div><b style="color:var(--blue-700);">Can log</b> — record doses &amp; weights</div>
+        <div><b style="color:var(--fg-2);">Read-only</b> — see status, never edits</div>
+      </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:390,&quot;height&quot;:844},&quot;theme&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;light&quot;,&quot;dark&quot;],&quot;default&quot;:&quot;light&quot;,&quot;tsType&quot;:&quot;\&quot;light\&quot; | \&quot;dark\&quot;&quot;,&quot;section&quot;:&quot;Appearance&quot;}}">
+class Component extends DCLogic {
+  renderVals() {
+    const theme = this.props.theme || 'light';
+    const ROLE = {
+      admin: { role:'Admin',     roleBg:'var(--teal-50)', roleFg:'var(--teal-700)', roleBorder:'var(--dose-due-ring)' },
+      write: { role:'Can log',   roleBg:'var(--blue-50)', roleFg:'var(--blue-700)', roleBorder:'var(--nfc-ring)' },
+      read:  { role:'Read-only', roleBg:'var(--bg-inset)', roleFg:'var(--fg-2)',    roleBorder:'var(--hairline)' }
+    };
+    const mk = (name, mono, grad, access, r) => ({ name, mono, grad, access, ...ROLE[r] });
+    const caregivers = [
+      mk('Sara Jensen', 'SR', 'linear-gradient(150deg,var(--teal-400),var(--teal-600))', 'Mom · all 3 children', 'admin'),
+      mk('David Jensen', 'DJ', 'linear-gradient(150deg,var(--blue-400),var(--blue-600))', 'Dad · all 3 children', 'write'),
+      mk('Grandpa Ray', 'GP', 'linear-gradient(150deg,var(--tan-300),var(--tan-500))', 'Emma only', 'read'),
+      mk('Aunt Lily', 'AL', 'linear-gradient(150deg,var(--coral-500),var(--coral-700))', 'Emma & Noah', 'write')
+    ];
+    return { theme, caregivers };
+  }
+}
+</script>
+</body>
+</html>

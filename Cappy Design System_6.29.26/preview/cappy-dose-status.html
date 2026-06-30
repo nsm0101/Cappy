@@ -1,0 +1,58 @@
+<!doctype html>
+<!-- @dsCard group="Cappy — Components" name="Dose status" subtitle="Pills, banners, and the at-a-glance dose state" viewport="780x520" -->
+<html><head><meta charset="utf-8"><title>Dose status</title>
+<link rel="stylesheet" href="_base.css">
+<link rel="stylesheet" href="../cappy-tokens.css">
+<style>
+  .card-frame { background: var(--bg); }
+  h4 { font-family:var(--font-display); font-size:12px; font-weight:800; color:var(--fg-2); margin:0 0 10px; text-transform:uppercase; letter-spacing:0.06em; }
+  .block { margin-bottom:22px; }
+  .row { display:flex; flex-wrap:wrap; gap:10px; align-items:center; }
+  /* status pill */
+  .spill { display:inline-flex; align-items:center; gap:7px; white-space:nowrap; font-family:var(--font-sans); font-weight:700; font-size:13px; padding:7px 13px 7px 10px; border-radius:999px; border:1px solid; }
+  .spill .dot { width:8px; height:8px; border-radius:50%; }
+  .s-due    { background:var(--dose-due-bg);    color:var(--dose-due-fg);    border-color:var(--dose-due-ring); }
+  .s-early  { background:var(--dose-early-bg);  color:var(--dose-early-fg);  border-color:var(--dose-early-ring); }
+  .s-recent { background:var(--dose-recent-bg); color:var(--dose-recent-fg); border-color:var(--dose-recent-ring); }
+  .s-over   { background:var(--dose-overdue-bg);color:var(--dose-overdue-fg);border-color:var(--dose-overdue-ring); }
+  /* solid */
+  .solid { color:#fff; border:none; }
+  .so-due{background:var(--dose-due-solid)} .so-early{background:var(--dose-early-solid)} .so-recent{background:var(--dose-recent-solid)} .so-over{background:var(--dose-overdue-solid)}
+  /* banner */
+  .banner { display:flex; gap:14px; align-items:center; padding:16px 18px; border-radius:18px; border:1px solid; max-width:360px; }
+  .banner .big { font-family:var(--font-display); font-weight:800; font-size:20px; line-height:1; }
+  .banner .sub { font-size:12.5px; margin-top:4px; }
+  .banner .ic { width:40px; height:40px; border-radius:12px; display:grid; place-items:center; color:#fff; flex:0 0 auto; font-family:var(--font-display); font-weight:800; }
+  .b-due{background:var(--dose-due-bg); border-color:var(--dose-due-ring)} .b-due .ic{background:var(--dose-due-solid)} .b-due .big{color:var(--dose-due-fg)} .b-due .sub{color:var(--dose-due-fg)}
+  .b-early{background:var(--dose-early-bg); border-color:var(--dose-early-ring)} .b-early .ic{background:var(--dose-early-solid)} .b-early .big{color:var(--dose-early-fg)} .b-early .sub{color:var(--dose-early-fg)}
+  .safety { font-family:var(--font-sans); font-size:11.5px; color:var(--fg-3); margin-top:14px; display:flex; gap:7px; align-items:center; }
+  .safety::before { content:""; width:14px;height:14px;border-radius:50%; border:2px solid var(--fg-muted); flex:0 0 auto; }
+</style></head>
+<body><div class="card-frame">
+  <div class="block">
+    <h4>Status pills — tinted</h4>
+    <div class="row">
+      <span class="spill s-due"><span class="dot" style="background:var(--dose-due-solid)"></span>Due now</span>
+      <span class="spill s-early"><span class="dot" style="background:var(--dose-early-solid)"></span>Too early · 1h 40m</span>
+      <span class="spill s-recent"><span class="dot" style="background:var(--dose-recent-solid)"></span>Given 20m ago</span>
+      <span class="spill s-over"><span class="dot" style="background:var(--dose-overdue-solid)"></span>Window passed</span>
+    </div>
+  </div>
+  <div class="block">
+    <h4>Status pills — solid (high-visibility)</h4>
+    <div class="row">
+      <span class="spill solid so-due">Due now</span>
+      <span class="spill solid so-early">Too early</span>
+      <span class="spill solid so-recent">Just logged</span>
+      <span class="spill solid so-over">Overdue</span>
+    </div>
+  </div>
+  <div class="block" style="margin-bottom:0">
+    <h4>Status banners — the post-tap headline</h4>
+    <div class="row" style="gap:16px; align-items:stretch">
+      <div class="banner b-due"><div class="ic">✓</div><div><div class="big">Safe to give</div><div class="sub">Last dose 5h 12m ago · acetaminophen</div></div></div>
+      <div class="banner b-early"><div class="ic">!</div><div><div class="big">Too early — wait 1h 40m</div><div class="sub">Next dose ok at 9:40 PM</div></div></div>
+    </div>
+    <div class="safety">Always confirm dosing before administering medication.</div>
+  </div>
+</div></body></html>

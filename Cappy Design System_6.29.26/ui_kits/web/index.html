@@ -1,0 +1,83 @@
+<!doctype html>
+<!-- @dsCard group="UI Kit — Web" name="UI Kit — Web" subtitle="Cappy marketing site — dashboard & family coordination. Tweakable." viewport="1240x1100" -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cappy · Web UI Kit</title>
+<link rel="stylesheet" href="../../styles.css">
+<link rel="stylesheet" href="../app/styles.css">
+<style>
+  body { background: var(--bg); }
+  .marketing { min-height: 100vh; transition: background 240ms cubic-bezier(0.2,0,0,1); }
+</style>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel" src="../app/Icon.jsx"></script>
+<script type="text/babel" src="tweaks-panel.jsx"></script>
+<script type="text/babel" src="Sections.jsx"></script>
+<script type="text/babel">
+const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+  "theme": "light",
+  "accent": "teal",
+  "headline": "same-page",
+  "heroVisual": "fan",
+  "showChips": true,
+  "featureFocus": "coordination"
+}/*EDITMODE-END*/;
+
+function App() {
+  const [t, setTweak] = useTweaks(TWEAK_DEFAULTS);
+  const accent = ACCENTS[t.accent] || ACCENTS.teal;
+
+  return (
+    <div className="cd-app marketing" data-theme={t.theme}
+      style={{ '--brand': accent.solid, '--brand-hover': accent.hover, '--bg-tint': accent.tint }}>
+      <Header accent={accent}/>
+      <Hero accent={accent} headline={t.headline} showChips={t.showChips} visual={t.heroVisual}/>
+      <FeatureGrid accent={accent} focus={t.featureFocus}/>
+      <CTA accent={accent}/>
+      <Footer/>
+
+      <TweaksPanel title="Tweaks">
+        <TweakSection label="Brand">
+          <TweakRadio label="Accent" value={t.accent}
+            options={[{value:'teal',label:'Teal'},{value:'blue',label:'Capy blue'}]}
+            onChange={v=>setTweak('accent', v)}/>
+          <TweakRadio label="Theme" value={t.theme}
+            options={[{value:'light',label:'Light'},{value:'dark',label:'Dark'}]}
+            onChange={v=>setTweak('theme', v)}/>
+        </TweakSection>
+
+        <TweakSection label="Hero">
+          <TweakSelect label="Headline" value={t.headline}
+            options={[
+              {value:'same-page', label:'On the same page'},
+              {value:'no-double', label:'Zero double-doses'},
+              {value:'coordinate', label:'Coordinate every dose'},
+            ]}
+            onChange={v=>setTweak('headline', v)}/>
+          <TweakRadio label="Card layout" value={t.heroVisual}
+            options={[{value:'fan',label:'Fanned'},{value:'stack',label:'Aligned'}]}
+            onChange={v=>setTweak('heroVisual', v)}/>
+          <TweakToggle label="Trust row" value={t.showChips}
+            onChange={v=>setTweak('showChips', v)}/>
+        </TweakSection>
+
+        <TweakSection label="Features">
+          <TweakRadio label="Emphasis" value={t.featureFocus}
+            options={[{value:'coordination',label:'Coordination'},{value:'safety',label:'Safety'}]}
+            onChange={v=>setTweak('featureFocus', v)}/>
+        </TweakSection>
+      </TweaksPanel>
+    </div>
+  );
+}
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>

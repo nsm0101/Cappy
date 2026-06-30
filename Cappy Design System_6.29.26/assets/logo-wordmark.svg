@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 64" fill="none">
+  <rect x="0" y="0" width="64" height="64" rx="14" fill="#18A78D"></rect>
+  <image href="app-icon.png" x="0" y="0" width="64" height="64"></image>
+  <text x="80" y="44" font-family="Fraunces, Georgia, serif" font-size="32" font-weight="600" fill="#0B5346" letter-spacing="-0.02em">closedose</text>
+</svg>

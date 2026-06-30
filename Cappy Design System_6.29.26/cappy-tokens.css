@@ -1,0 +1,111 @@
+/* =========================================================================
+   Cappy — token extensions layered on the CloseDose base.
+   Cappy is the family medication-coordination companion to CloseDose.
+   It keeps the teal brand story and ADDS a "capybara blue" secondary accent
+   (sampled from the mascot ground) plus a dedicated dose-safety status system
+   and NFC-tap tokens. Import AFTER colors_and_type.css.
+   ========================================================================= */
+
+:root {
+  /* ---------- Capybara Blue ramp (secondary accent, from mascot ground) ----- */
+  --blue-50:  #EAF2FB;   /* @kind color */
+  --blue-100: #CFE2F6;   /* @kind color */
+  --blue-200: #A6C9EE;   /* @kind color */
+  --blue-300: #6FA8E0;   /* @kind color */
+  --blue-400: #3E86D2;   /* @kind color */
+  --blue-500: #1E6FC4;   /* @kind color */  /* Cappy accent — capybara ground blue */
+  --blue-600: #155AA6;   /* @kind color */
+  --blue-700: #114887;   /* @kind color */
+  --blue-800: #0E3A6E;   /* @kind color */
+  --blue-900: #0B2D55;   /* @kind color */
+
+  /* ---------- Capybara Tan (warmth: mascot fur, friendly avatars) ---------- */
+  --tan-100: #F2E7D6;   /* @kind color */
+  --tan-300: #DcC39B;   /* @kind color */
+  --tan-500: #C29A66;   /* @kind color */
+  --tan-700: #8F6E43;   /* @kind color */
+
+  /* ---------- Cappy accent semantics ---------- */
+  --accent-2:        var(--blue-500);   /* @kind color */
+  --accent-2-hover:  var(--blue-600);   /* @kind color */
+  --accent-2-press:  var(--blue-700);   /* @kind color */
+  --accent-2-tint:   var(--blue-50);    /* @kind color */
+  --accent-2-fg:     #FFFFFF;           /* @kind color */
+
+  /* ---------- Dose-safety status system (the heart of Cappy) ----------
+     due     — enough time has passed; a dose may be given        (calm teal/go)
+     early   — too soon for another dose; wait                    (amber caution)
+     recent  — a dose was just logged; informational             (capybara blue)
+     overdue — a scheduled/expected dose window has passed        (soft coral)
+     Color reinforces safe-vs-too-early WITHOUT implying clinical certainty. */
+  --dose-due-solid: var(--teal-500);    /* @kind color */
+  --dose-due-fg:    var(--teal-800);    /* @kind color */
+  --dose-due-bg:    var(--teal-50);     /* @kind color */
+  --dose-due-ring:  rgba(24,167,141,0.30);  /* @kind color */
+
+  --dose-early-solid: var(--amber-600); /* @kind color */
+  --dose-early-fg:    var(--amber-700); /* @kind color */
+  --dose-early-bg:    var(--amber-100); /* @kind color */
+  --dose-early-ring:  rgba(217,122,14,0.28); /* @kind color */
+
+  --dose-recent-solid: var(--blue-500); /* @kind color */
+  --dose-recent-fg:    var(--blue-700); /* @kind color */
+  --dose-recent-bg:    var(--blue-50);  /* @kind color */
+  --dose-recent-ring:  rgba(30,111,196,0.26); /* @kind color */
+
+  --dose-overdue-solid: var(--coral-600);   /* @kind color */
+  --dose-overdue-fg:    var(--coral-700);   /* @kind color */
+  --dose-overdue-bg:    var(--coral-100);   /* @kind color */
+  --dose-overdue-ring:  rgba(216,74,74,0.28); /* @kind color */
+
+  /* ---------- NFC tap tokens ---------- */
+  --nfc-core:  var(--blue-500);   /* @kind color */
+  --nfc-glow:  rgba(30,111,196,0.22);   /* @kind color */
+  --nfc-ring:  rgba(30,111,196,0.40);   /* @kind color */
+
+  /* ---------- Sheet / pop-up scrim ---------- */
+  --scrim:        rgba(8, 26, 24, 0.42);   /* @kind color */
+  --sheet-radius: 28px;   /* @kind radius */
+  --sheet-grabber: rgba(11,30,29,0.18);   /* @kind color */
+
+  /* ---------- Mobile-native sizing ---------- */
+  --tap-min:     44px;   /* @kind spacing */
+  --screen-gutter: 20px; /* @kind spacing */
+  --tabbar-h:    84px;   /* @kind spacing */
+}
+
+/* =========================================================================
+   Dark mode — warm-dark, tuned so dose status reads at 3am without glare.
+   ========================================================================= */
+:root.dark, [data-theme='dark'] {
+  --blue-500: #4D93DD;   /* @kind color */  /* lift accent for dark ground */
+
+  --accent-2:        #4D93DD;   /* @kind color */
+  --accent-2-hover:  #6FA8E0;   /* @kind color */
+  --accent-2-press:  #A6C9EE;   /* @kind color */
+  --accent-2-tint:   rgba(77,147,221,0.16);   /* @kind color */
+  --accent-2-fg:     #06121F;   /* @kind color */
+
+  --dose-due-solid: var(--teal-400);   /* @kind color */
+  --dose-due-fg:    #8FE6CF;           /* @kind color */
+  --dose-due-bg:    rgba(24,167,141,0.16);   /* @kind color */
+
+  --dose-early-solid: var(--amber-500);   /* @kind color */
+  --dose-early-fg:    #F4C173;            /* @kind color */
+  --dose-early-bg:    rgba(217,122,14,0.18);   /* @kind color */
+
+  --dose-recent-solid: #4D93DD;   /* @kind color */
+  --dose-recent-fg:    #A6C9EE;   /* @kind color */
+  --dose-recent-bg:    rgba(77,147,221,0.16);   /* @kind color */
+
+  --dose-overdue-solid: var(--coral-500);   /* @kind color */
+  --dose-overdue-fg:    #F2A8A2;            /* @kind color */
+  --dose-overdue-bg:    rgba(216,74,74,0.18);   /* @kind color */
+
+  --nfc-core:  #4D93DD;   /* @kind color */
+  --nfc-glow:  rgba(77,147,221,0.26);   /* @kind color */
+  --nfc-ring:  rgba(77,147,221,0.46);   /* @kind color */
+
+  --scrim:       rgba(0,0,0,0.58);   /* @kind color */
+  --sheet-grabber: rgba(255,255,255,0.22);   /* @kind color */
+}

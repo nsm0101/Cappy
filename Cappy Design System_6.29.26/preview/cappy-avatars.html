@@ -1,0 +1,52 @@
+<!doctype html>
+<!-- @dsCard group="Cappy — Components" name="Avatars & children" subtitle="Photo + monogram fallback, capybara default, caregiver rings" viewport="780x420" -->
+<html><head><meta charset="utf-8"><title>Avatars</title>
+<link rel="stylesheet" href="_base.css">
+<link rel="stylesheet" href="../cappy-tokens.css">
+<style>
+  .card-frame { background: var(--bg); }
+  h4 { font-family:var(--font-display); font-size:12px; font-weight:800; color:var(--fg-2); margin:0 0 12px; text-transform:uppercase; letter-spacing:0.06em; }
+  .block { margin-bottom:24px; }
+  .row { display:flex; gap:18px; align-items:flex-end; flex-wrap:wrap; }
+  .av { position:relative; border-radius:50%; display:grid; place-items:center; font-family:var(--font-display); font-weight:800; color:#fff; overflow:hidden; box-shadow: var(--shadow-1); border:2px solid var(--slate-0); }
+  .av img { width:100%; height:100%; object-fit:cover; }
+  .s-72{width:72px;height:72px;font-size:26px} .s-56{width:56px;height:56px;font-size:20px} .s-44{width:44px;height:44px;font-size:16px} .s-32{width:32px;height:32px;font-size:13px}
+  .t-teal{background:linear-gradient(150deg,var(--teal-400),var(--teal-600))}
+  .t-blue{background:linear-gradient(150deg,var(--blue-400),var(--blue-600))}
+  .t-amber{background:linear-gradient(150deg,var(--amber-500),var(--amber-700))}
+  .t-coral{background:linear-gradient(150deg,var(--coral-500),var(--coral-700))}
+  .t-tan{background:linear-gradient(150deg,var(--tan-300),var(--tan-500))}
+  .cap { background: var(--blue-500); }
+  .stack { text-align:center; }
+  .stack .nm { font-family:var(--font-sans); font-size:11px; color:var(--fg-3); margin-top:8px; font-weight:600; }
+  /* caregiver role ring */
+  .ring { position:relative; display:inline-grid; place-items:center; padding:3px; border-radius:50%; }
+  .ring.admin{ background:conic-gradient(var(--teal-500),var(--teal-500)); }
+  .ring.write{ background:var(--blue-400); }
+  .ring.read{ background:var(--slate-300); }
+  .ring .av{ border:2px solid var(--bg); }
+  .badge { position:absolute; right:-2px; bottom:-2px; z-index:3; width:20px;height:20px;border-radius:50%; border:2px solid var(--bg); display:grid;place-items:center; font-family:var(--font-mono); font-size:9px; font-weight:700; color:#fff; }
+  .ph { background-image: repeating-linear-gradient(135deg, var(--slate-100), var(--slate-100) 6px, var(--slate-200) 6px, var(--slate-200) 12px); }
+</style></head>
+<body><div class="card-frame">
+  <div class="block">
+    <h4>Children — photo, monogram fallback, capybara default</h4>
+    <div class="row">
+      <div class="stack"><div class="av s-72 ph"><img src="" alt="" onerror="this.remove()"></div><div class="nm">Photo</div></div>
+      <div class="stack"><div class="av s-72 t-teal">EM</div><div class="nm">Emma · monogram</div></div>
+      <div class="stack"><div class="av s-72 t-blue">NO</div><div class="nm">Noah</div></div>
+      <div class="stack"><div class="av s-72 t-amber">AV</div><div class="nm">Ava</div></div>
+      <div class="stack"><div class="av s-72 cap"><img src="../assets/cappy-mark.png" alt="Cappy default"></div><div class="nm">Capybara default</div></div>
+    </div>
+  </div>
+  <div class="block" style="margin-bottom:0">
+    <h4>Caregivers — role ring &amp; sizes</h4>
+    <div class="row">
+      <div class="stack"><div class="ring admin"><div class="av s-56 t-teal">SR</div><span class="badge" style="background:var(--teal-600)">A</span></div><div class="nm">Sara · admin</div></div>
+      <div class="stack"><div class="ring write"><div class="av s-56 t-blue">DJ</div></div><div class="nm">Dad · can log</div></div>
+      <div class="stack"><div class="ring read"><div class="av s-56 t-tan">GP</div><span class="badge" style="background:var(--slate-400)">R</span></div><div class="nm">Grandpa · read-only</div></div>
+      <div class="stack"><div class="av s-44 t-coral">BB</div><div class="nm">44</div></div>
+      <div class="stack"><div class="av s-32 t-teal">+3</div><div class="nm">32 · overflow</div></div>
+    </div>
+  </div>
+</div></body></html>

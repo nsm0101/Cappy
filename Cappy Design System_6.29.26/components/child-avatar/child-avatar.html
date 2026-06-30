@@ -1,0 +1,56 @@
+<!doctype html>
+<!-- @dsCard group="Cappy — Components" name="Child avatar" subtitle="Photo / monogram fallback, identity colors, caregiver ring + badge" viewport="640x300" -->
+<html><head><meta charset="utf-8"><title>Child avatar</title>
+<link rel="stylesheet" href="../../styles.css">
+<style>
+  body { margin: 0; font-family: var(--font-sans); }
+  .frame { background: var(--bg); padding: 26px; }
+  .h { font-family: var(--font-display); font-weight: 800; font-size: 15px; color: var(--fg); margin: 0 0 4px; letter-spacing: -0.01em; }
+  .sub { font-size: 12px; color: var(--fg-3); margin: 0 0 22px; }
+  .lab { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.07em; text-transform: uppercase; color: var(--fg-3); margin: 0 0 12px; }
+  .row { display: flex; gap: 18px; align-items: flex-end; flex-wrap: wrap; margin-bottom: 24px; }
+  .row:last-child { margin-bottom: 0; }
+  .stack { text-align: center; }
+  .stack .nm { font-size: 11px; color: var(--fg-3); margin-top: 8px; font-weight: 600; }
+</style>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script src="../../_ds_bundle.js"></script>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const ns = window.CloseDoseDesignSystem_019dff || {};
+const ChildAvatar = ns.ChildAvatar;
+function S({ children, nm }) { return <div className="stack">{children}<div className="nm">{nm}</div></div>; }
+function Demo() {
+  if (!ChildAvatar) return <div className="sub">Component bundle is rebuilding — reopen in a moment.</div>;
+  return (
+    <div>
+      <div className="lab">Children — monogram fallback, identity colors</div>
+      <div className="row">
+        <S nm="Emma"><ChildAvatar name="Emma" color="teal" size={64}/></S>
+        <S nm="Noah"><ChildAvatar name="Noah" color="blue" size={64}/></S>
+        <S nm="Ava"><ChildAvatar name="Ava" color="amber" size={64}/></S>
+        <S nm="Liam"><ChildAvatar name="Liam" color="coral" size={64}/></S>
+        <S nm="44 / 32"><ChildAvatar name="Mia" color="teal" size={44}/></S>
+      </div>
+      <div className="lab">Caregivers — role ring &amp; corner badge</div>
+      <div className="row">
+        <S nm="Sara · admin"><ChildAvatar name="Sara" color="teal" size={56} ring="var(--teal-500)" badge={{label:'A', color:'var(--teal-600)'}}/></S>
+        <S nm="Dad · can log"><ChildAvatar name="David James" color="blue" size={56} ring="var(--blue-400)"/></S>
+        <S nm="Grandpa · read"><ChildAvatar name="Grandpa Lou" color="tan" size={56} ring="var(--slate-300)" badge={{label:'R', color:'var(--slate-400)'}}/></S>
+      </div>
+    </div>
+  );
+}
+ReactDOM.createRoot(document.getElementById('root')).render(
+  <div className="frame">
+    <div className="h">Child &amp; caregiver avatar</div>
+    <div className="sub">One stable color per person — recognizable at a glance across every screen.</div>
+    <Demo/>
+  </div>
+);
+</script>
+</body></html>

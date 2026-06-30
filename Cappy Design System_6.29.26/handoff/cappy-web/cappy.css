@@ -1,0 +1,439 @@
+/* =========================================================================
+   CAPPY DESIGN SYSTEM — portable stylesheet for cappy-web (Vite + vanilla JS)
+   ---------------------------------------------------------------------------
+   Single, framework-free file. Link it once per page (after nothing else):
+       <link rel="stylesheet" href="/src/cappy.css">
+   Everything below is plain CSS custom properties + classes — no build step,
+   no React. Dark mode: add  data-theme="dark"  to <html> (or class="dark").
+
+   Contents:
+     1. Fonts
+     2. Tokens — color ramps, semantics, spacing, radii, type   (light + dark)
+     3. Base element styles
+     4. Layout helpers
+     5. Components
+          .cap-btn            buttons (primary / blue / secondary / ghost)
+          .cap-field          labelled text input
+          .cap-card           surface card
+          .cap-badge          pill label
+          .dose-pill          DOSE-SAFETY status (due/early/recent/overdue)
+          .cap-avatar         photo avatar w/ monogram fallback
+          .cap-row            tappable list row
+          .cap-segmented      segmented control
+          .cap-tabbar         bottom tab bar
+          .cap-sheet          pop-up / bottom-sheet (the dosing dashboard)
+          .cap-nfc            NFC tap target
+          .cap-wordmark       "Cappy!" lockup
+   ========================================================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=Nunito+Sans:opsz,wght@6..12,400;6..12,500;6..12,600;6..12,700;6..12,800&family=Inter:wght@400;500;600;700&family=DM+Mono:wght@400;500&family=Baloo+2:wght@500;600;700&display=swap');
+
+/* =========================================================================
+   2. TOKENS — LIGHT (defaults)
+   ========================================================================= */
+:root {
+  color-scheme: light;
+
+  /* ---- Brand: Teal ramp ---- */
+  --teal-50:#E8F6F2; --teal-100:#C9EBE1; --teal-200:#9FDDCC; --teal-300:#6FCBB4;
+  --teal-400:#3FB89C; --teal-500:#18A78D; --teal-600:#128873; --teal-700:#0E6D5C;
+  --teal-800:#0B5346; --teal-900:#083E34; --teal-950:#052822;
+
+  /* ---- Capybara Blue ramp (secondary accent, from mascot ground) ---- */
+  --blue-50:#EAF2FB; --blue-100:#CFE2F6; --blue-200:#A6C9EE; --blue-300:#6FA8E0;
+  --blue-400:#3E86D2; --blue-500:#1E6FC4; --blue-600:#155AA6; --blue-700:#114887;
+  --blue-800:#0E3A6E; --blue-900:#0B2D55;
+
+  /* ---- Capybara Tan (mascot fur warmth, friendly avatars) ---- */
+  --tan-100:#F2E7D6; --tan-300:#DCC39B; --tan-500:#C29A66; --tan-700:#8F6E43;
+
+  /* ---- Mint / Seafoam (soft surfaces) ---- */
+  --mint-50:#F1F9F6; --mint-100:#E8F5F1; --mint-200:#D6EFE8; --mint-300:#BFE4D8; --mint-400:#9ED3C2;
+
+  /* ---- Support ramps ---- */
+  --sage-100:#DDF1E6; --sage-300:#8DD2AE; --sage-500:#4FB088; --sage-600:#2E9E6E; --sage-700:#237A56;
+  --amber-100:#FCEBD2; --amber-300:#F2C173; --amber-500:#E89B2D; --amber-600:#D97A0E; --amber-700:#B05E08;
+  --coral-100:#FBE3E1; --coral-300:#F2A8A2; --coral-500:#E36B62; --coral-600:#D84A4A; --coral-700:#B43838;
+
+  /* ---- Neutral ramp (warm slates) ---- */
+  --slate-0:#FFFFFF; --slate-25:#FBFAF7; --slate-50:#F7F5F0; --slate-100:#EFEBE2;
+  --slate-200:#DDD8CC; --slate-300:#BDB8AC; --slate-400:#8F8B82; --slate-500:#6A6760;
+  --slate-600:#4A4844; --slate-700:#322F2C; --slate-800:#1F1D1B; --slate-900:#131211;
+  --cream:#FBF8F2; --cream-2:#F4EFE5;
+
+  /* ---- Semantic colors ---- */
+  --bg:var(--cream); --bg-muted:var(--cream-2); --bg-card:var(--slate-0);
+  --bg-inset:var(--slate-50); --bg-tint:var(--mint-100); --bg-tint-2:var(--mint-200);
+  --fg:var(--slate-800); --fg-1:var(--slate-800); --fg-2:var(--slate-600);
+  --fg-3:var(--slate-500); --fg-muted:var(--slate-400); --fg-on-brand:#FFFFFF;
+  --border:rgba(11,30,29,0.08); --border-strong:rgba(11,30,29,0.14); --hairline:rgba(11,30,29,0.06);
+
+  --brand:var(--teal-500); --brand-hover:var(--teal-600); --brand-press:var(--teal-700);
+  --brand-tint:var(--teal-50); --link:var(--teal-600);
+  --success:var(--sage-600); --warn:var(--amber-600); --error:var(--coral-600);
+  --focus:var(--teal-500); --focus-halo:rgba(24,167,141,0.22);
+
+  /* Cappy secondary accent (capybara blue) */
+  --accent-2:var(--blue-500); --accent-2-hover:var(--blue-600); --accent-2-press:var(--blue-700);
+  --accent-2-tint:var(--blue-50); --accent-2-fg:#FFFFFF;
+
+  /* ---- Dose-safety status system (the heart of Cappy) ----
+     due | early | recent | overdue. Color reinforces safe-vs-too-early
+     WITHOUT implying clinical certainty. */
+  --dose-due-solid:var(--teal-500); --dose-due-fg:var(--teal-800); --dose-due-bg:var(--teal-50); --dose-due-ring:rgba(24,167,141,0.30);
+  --dose-early-solid:var(--amber-600); --dose-early-fg:var(--amber-700); --dose-early-bg:var(--amber-100); --dose-early-ring:rgba(217,122,14,0.28);
+  --dose-recent-solid:var(--blue-500); --dose-recent-fg:var(--blue-700); --dose-recent-bg:var(--blue-50); --dose-recent-ring:rgba(30,111,196,0.26);
+  --dose-overdue-solid:var(--coral-600); --dose-overdue-fg:var(--coral-700); --dose-overdue-bg:var(--coral-100); --dose-overdue-ring:rgba(216,74,74,0.28);
+
+  /* ---- NFC tap ---- */
+  --nfc-core:var(--blue-500); --nfc-glow:rgba(30,111,196,0.22); --nfc-ring:rgba(30,111,196,0.40);
+
+  /* ---- Pop-up / sheet ---- */
+  --scrim:rgba(8,26,24,0.42); --sheet-radius:28px; --sheet-grabber:rgba(11,30,29,0.18);
+
+  /* ---- Shadows ---- */
+  --shadow-1:0 1px 2px rgba(11,30,29,0.04), 0 4px 12px -6px rgba(11,30,29,0.08);
+  --shadow-2:0 1px 2px rgba(11,30,29,0.05), 0 8px 24px -8px rgba(11,30,29,0.12);
+  --shadow-3:0 2px 4px rgba(11,30,29,0.06), 0 16px 40px -12px rgba(11,30,29,0.16);
+
+  /* ---- Spacing (4pt grid) ---- */
+  --space-1:4px; --space-2:8px; --space-3:12px; --space-4:16px; --space-5:20px;
+  --space-6:24px; --space-8:32px; --space-10:40px; --space-12:48px; --space-16:64px;
+
+  /* ---- Radii ---- */
+  --radius-1:4px; --radius-2:8px; --radius-3:12px; --radius-4:16px; --radius-5:24px; --radius-pill:999px;
+
+  /* ---- Motion ---- */
+  --motion-fast:200ms; --motion-base:320ms; --motion-slow:480ms;
+  --ease-out-soft:cubic-bezier(0.2,0,0,1); --ease-in-out-soft:cubic-bezier(0.4,0,0.2,1);
+
+  /* ---- Mobile-native sizing ---- */
+  --tap-min:44px; --screen-gutter:20px; --tabbar-h:84px;
+
+  /* ---- Type families ---- */
+  --font-display:'Nunito Sans', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-sans:'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono:'DM Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+  --font-brand:'Baloo 2', 'Nunito Sans', sans-serif;   /* playful "Cappy!" wordmark */
+
+  /* ---- Type scale ---- */
+  --fs-12:12px; --fs-14:14px; --fs-15:15px; --fs-16:16px; --fs-18:18px; --fs-20:20px;
+  --fs-24:24px; --fs-28:28px; --fs-32:32px; --fs-40:40px; --fs-48:48px;
+}
+
+/* =========================================================================
+   DARK — warm-dark, tuned so dose status reads at 3am without glare
+   ========================================================================= */
+:root.dark, [data-theme='dark'] {
+  color-scheme: dark;
+
+  --bg:#0B1717; --bg-muted:#0F1C1B; --bg-card:#13201F; --bg-inset:#1A2A29;
+  --bg-tint:#14302C; --bg-tint-2:#1B3F39;
+  --fg:#ECECE6; --fg-1:#ECECE6; --fg-2:#B5B7B0; --fg-3:#8A8C85; --fg-muted:#5E605A; --fg-on-brand:#FFFFFF;
+  --border:rgba(255,255,255,0.08); --border-strong:rgba(255,255,255,0.16); --hairline:rgba(255,255,255,0.05);
+
+  --brand:var(--teal-400); --brand-hover:var(--teal-300); --brand-press:var(--teal-200);
+  --brand-tint:rgba(54,169,154,0.16); --link:var(--teal-300);
+  --success:var(--sage-500); --warn:var(--amber-500); --error:var(--coral-500);
+  --focus:var(--teal-300); --focus-halo:rgba(111,195,179,0.25);
+
+  --blue-500:#4D93DD;
+  --accent-2:#4D93DD; --accent-2-hover:#6FA8E0; --accent-2-press:#A6C9EE;
+  --accent-2-tint:rgba(77,147,221,0.16); --accent-2-fg:#06121F;
+
+  --dose-due-solid:var(--teal-400); --dose-due-fg:#8FE6CF; --dose-due-bg:rgba(24,167,141,0.16); --dose-due-ring:rgba(63,184,156,0.34);
+  --dose-early-solid:var(--amber-500); --dose-early-fg:#F4C173; --dose-early-bg:rgba(217,122,14,0.18); --dose-early-ring:rgba(232,155,45,0.30);
+  --dose-recent-solid:#4D93DD; --dose-recent-fg:#A6C9EE; --dose-recent-bg:rgba(77,147,221,0.16); --dose-recent-ring:rgba(77,147,221,0.32);
+  --dose-overdue-solid:var(--coral-500); --dose-overdue-fg:#F2A8A2; --dose-overdue-bg:rgba(216,74,74,0.18); --dose-overdue-ring:rgba(227,107,98,0.32);
+
+  --nfc-core:#4D93DD; --nfc-glow:rgba(77,147,221,0.26); --nfc-ring:rgba(77,147,221,0.46);
+  --scrim:rgba(0,0,0,0.58); --sheet-grabber:rgba(255,255,255,0.22);
+
+  --shadow-1:0 1px 2px rgba(0,0,0,0.3), 0 4px 12px -6px rgba(0,0,0,0.4);
+  --shadow-2:0 12px 32px -12px rgba(0,0,0,0.55);
+  --shadow-3:0 24px 48px -16px rgba(0,0,0,0.7);
+}
+
+/* =========================================================================
+   3. BASE
+   ========================================================================= */
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: var(--fs-16);
+  line-height: 1.6;
+  color: var(--fg);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+h1,h2,h3 { font-family: var(--font-display); margin: 0; text-wrap: balance; }
+h1 { font-size: var(--fs-32); line-height: 1.1; letter-spacing: -0.02em; font-weight: 800; }
+h2 { font-size: var(--fs-24); line-height: 1.15; letter-spacing: -0.015em; font-weight: 800; }
+h3 { font-size: var(--fs-20); line-height: 1.2; letter-spacing: -0.01em; font-weight: 700; }
+p  { margin: 0; text-wrap: pretty; }
+
+.eyebrow {
+  font-size: var(--fs-12); font-weight: 600; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--brand);
+}
+.caption { font-size: var(--fs-12); line-height: 1.4; font-weight: 500; color: var(--fg-3); }
+.body-sm { font-size: var(--fs-14); line-height: 1.55; }
+.mono { font-family: var(--font-mono); font-feature-settings: "tnum" 1, "zero" 1; }
+.muted { color: var(--fg-2); }
+.dose-numeral {
+  font-family: var(--font-display); font-weight: 700; letter-spacing: -0.025em;
+  font-feature-settings: "tnum" 1; line-height: 1; font-size: var(--fs-48);
+}
+
+a { color: var(--link); text-decoration: none; transition: color var(--motion-fast) var(--ease-out-soft); }
+a:hover { color: var(--brand-hover); text-decoration: underline; text-underline-offset: 3px; }
+
+:focus-visible {
+  outline: 2px solid var(--focus); outline-offset: 2px;
+  box-shadow: 0 0 0 4px var(--focus-halo); border-radius: var(--radius-1);
+}
+
+/* =========================================================================
+   4. LAYOUT HELPERS
+   ========================================================================= */
+.cap-app { max-width: 480px; margin: 0 auto; padding: var(--screen-gutter); padding-bottom: calc(var(--tabbar-h) + var(--space-6)); }
+.cap-stack { display: flex; flex-direction: column; gap: var(--space-4); }
+.cap-row, .row { display: flex; gap: var(--space-3); align-items: center; flex-wrap: wrap; }
+.cap-between { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); }
+.cap-grow { flex: 1; }
+
+/* =========================================================================
+   5. COMPONENTS
+   ========================================================================= */
+
+/* ---- Buttons -------------------------------------------------------------
+   <button class="cap-btn">Primary</button>
+   <button class="cap-btn cap-btn--blue">Log dose</button>
+   <button class="cap-btn cap-btn--secondary">Cancel</button>
+   <button class="cap-btn cap-btn--ghost">Skip</button>
+   Also restyles bare <button> for backward compatibility.                  */
+.cap-btn, button {
+  font-family: var(--font-sans); font-size: var(--fs-16); font-weight: 600;
+  min-height: var(--tap-min); padding: 0 var(--space-5);
+  display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2);
+  border: 1px solid var(--brand); border-radius: var(--radius-3);
+  background: var(--brand); color: var(--fg-on-brand); cursor: pointer;
+  transition: background var(--motion-fast) var(--ease-out-soft),
+              transform var(--motion-fast) var(--ease-out-soft),
+              box-shadow var(--motion-fast) var(--ease-out-soft);
+}
+.cap-btn:hover, button:hover { background: var(--brand-hover); border-color: var(--brand-hover); }
+.cap-btn:active, button:active { background: var(--brand-press); transform: translateY(1px); }
+.cap-btn--blue { background: var(--accent-2); border-color: var(--accent-2); color: var(--accent-2-fg); }
+.cap-btn--blue:hover { background: var(--accent-2-hover); border-color: var(--accent-2-hover); }
+.cap-btn--blue:active { background: var(--accent-2-press); }
+.cap-btn--secondary { background: var(--bg-card); color: var(--fg-1); border-color: var(--border-strong); }
+.cap-btn--secondary:hover { background: var(--bg-inset); border-color: var(--border-strong); }
+.cap-btn--ghost { background: transparent; color: var(--fg-2); border-color: transparent; }
+.cap-btn--ghost:hover { background: var(--bg-inset); color: var(--fg-1); }
+.cap-btn--block { display: flex; width: 100%; }
+.cap-btn--lg { min-height: 56px; font-size: var(--fs-18); border-radius: var(--radius-4); padding: 0 var(--space-6); }
+.cap-btn:disabled, button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+/* ---- Field ---------------------------------------------------------------
+   <label class="cap-field">
+     <span class="cap-field__label">Email</span>
+     <input type="email" placeholder="you@example.com">
+   </label>                                                                  */
+.cap-field { display: flex; flex-direction: column; gap: var(--space-2); }
+.cap-field__label { font-size: var(--fs-14); font-weight: 600; color: var(--fg-2); }
+.cap-field input, .cap-field textarea, input.cap-input {
+  font-family: var(--font-sans); font-size: var(--fs-16); color: var(--fg-1);
+  min-height: var(--tap-min); padding: 0 var(--space-4);
+  background: var(--bg-card); border: 1px solid var(--border-strong);
+  border-radius: var(--radius-3); width: 100%;
+  transition: border-color var(--motion-fast), box-shadow var(--motion-fast);
+}
+.cap-field textarea { padding: var(--space-3) var(--space-4); min-height: 96px; line-height: 1.5; }
+.cap-field input:focus, .cap-field textarea:focus, input.cap-input:focus {
+  outline: none; border-color: var(--focus); box-shadow: 0 0 0 4px var(--focus-halo);
+}
+
+/* ---- Card ----------------------------------------------------------------
+   <div class="cap-card">…</div>   ·   add  .cap-card--inset  for tinted     */
+.cap-card, .card {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--radius-4); padding: var(--space-5);
+  box-shadow: var(--shadow-1); max-width: none; margin: 0;
+}
+.cap-card--inset { background: var(--bg-inset); box-shadow: none; }
+.cap-card--pad-lg { padding: var(--space-6); }
+
+/* ---- Badge ---------------------------------------------------------------
+   <span class="cap-badge">OTC</span>  <span class="cap-badge cap-badge--blue">Rx</span> */
+.cap-badge, .badge {
+  display: inline-flex; align-items: center; gap: var(--space-1);
+  font-size: var(--fs-12); font-weight: 600; line-height: 1;
+  padding: 5px 10px; border-radius: var(--radius-pill);
+  background: var(--bg-inset); color: var(--fg-2); border: 1px solid var(--border);
+}
+.cap-badge--brand { background: var(--brand-tint); color: var(--brand); border-color: transparent; }
+.cap-badge--blue  { background: var(--accent-2-tint); color: var(--accent-2); border-color: transparent; }
+
+/* ---- Dose-safety status pill --------------------------------------------
+   <span class="dose-pill dose-pill--due">Due now</span>
+   variants: --due  --early  --recent  --overdue
+   Add  .dose-pill--solid  for a filled treatment.                          */
+.dose-pill {
+  display: inline-flex; align-items: center; gap: var(--space-2);
+  font-size: var(--fs-14); font-weight: 700; line-height: 1;
+  padding: 7px 12px 7px 10px; border-radius: var(--radius-pill);
+  background: var(--_bg); color: var(--_fg);
+  box-shadow: inset 0 0 0 1px var(--_ring);
+}
+.dose-pill::before {
+  content: ""; width: 8px; height: 8px; border-radius: 50%;
+  background: var(--_solid); flex: none;
+}
+.dose-pill--due     { --_bg:var(--dose-due-bg);     --_fg:var(--dose-due-fg);     --_solid:var(--dose-due-solid);     --_ring:var(--dose-due-ring); }
+.dose-pill--early   { --_bg:var(--dose-early-bg);   --_fg:var(--dose-early-fg);   --_solid:var(--dose-early-solid);   --_ring:var(--dose-early-ring); }
+.dose-pill--recent  { --_bg:var(--dose-recent-bg);  --_fg:var(--dose-recent-fg);  --_solid:var(--dose-recent-solid);  --_ring:var(--dose-recent-ring); }
+.dose-pill--overdue { --_bg:var(--dose-overdue-bg); --_fg:var(--dose-overdue-fg); --_solid:var(--dose-overdue-solid); --_ring:var(--dose-overdue-ring); }
+.dose-pill--solid { background: var(--_solid); color: #fff; box-shadow: none; }
+.dose-pill--solid::before { background: rgba(255,255,255,0.9); }
+
+/* Safety line — pairs with a dose pill; quiet, non-clinical guidance */
+.dose-safety { font-size: var(--fs-12); color: var(--fg-3); line-height: 1.4; }
+
+/* ---- Avatar (photo + monogram fallback) ---------------------------------
+   <span class="cap-avatar" style="--tint:var(--blue-500)">AM</span>
+   with photo: <span class="cap-avatar"><img src="…" alt="">AM</span>
+   sizes: add .cap-avatar--sm / --lg                                        */
+.cap-avatar {
+  --tint: var(--brand);
+  position: relative; flex: none; overflow: hidden;
+  width: 44px; height: 44px; border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-family: var(--font-display); font-weight: 700; font-size: var(--fs-16);
+  color: #fff; background: var(--tint);
+  box-shadow: inset 0 0 0 2px rgba(255,255,255,0.25);
+}
+.cap-avatar--sm { width: 32px; height: 32px; font-size: var(--fs-14); }
+.cap-avatar--lg { width: 64px; height: 64px; font-size: var(--fs-24); }
+.cap-avatar img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+
+/* ---- List row (tappable) -------------------------------------------------
+   <button class="cap-row-item">… avatar … text … chevron …</button>       */
+.cap-row-item {
+  display: flex; align-items: center; gap: var(--space-3); width: 100%;
+  min-height: 64px; padding: var(--space-3) var(--space-4);
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--radius-4); text-align: left; cursor: pointer; color: var(--fg-1);
+  transition: background var(--motion-fast), border-color var(--motion-fast);
+}
+.cap-row-item:hover { background: var(--bg-inset); }
+.cap-row-item:active { transform: none; }
+.cap-row-item__title { font-weight: 600; font-size: var(--fs-16); }
+.cap-row-item__sub { font-size: var(--fs-14); color: var(--fg-3); }
+.cap-row-item__chev { margin-left: auto; color: var(--fg-muted); flex: none; }
+
+/* ---- Segmented control ---------------------------------------------------
+   <div class="cap-segmented">
+     <button class="is-active">Day</button><button>Week</button>
+   </div>                                                                    */
+.cap-segmented {
+  display: inline-flex; gap: 2px; padding: 3px;
+  background: var(--bg-inset); border-radius: var(--radius-3); border: 1px solid var(--border);
+}
+.cap-segmented button {
+  min-height: 36px; padding: 0 var(--space-4); border: none; border-radius: var(--radius-2);
+  background: transparent; color: var(--fg-2); font-size: var(--fs-14); font-weight: 600;
+  box-shadow: none;
+}
+.cap-segmented button:hover { background: transparent; color: var(--fg-1); }
+.cap-segmented button.is-active { background: var(--bg-card); color: var(--brand); box-shadow: var(--shadow-1); }
+
+/* ---- Bottom tab bar ------------------------------------------------------
+   <nav class="cap-tabbar"> <a class="is-active">…</a> … </nav>             */
+.cap-tabbar {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 30;
+  height: var(--tabbar-h); padding: var(--space-2) var(--space-4) calc(var(--space-2) + env(safe-area-inset-bottom));
+  display: flex; align-items: flex-start; justify-content: space-around;
+  background: color-mix(in srgb, var(--bg-card) 88%, transparent);
+  backdrop-filter: saturate(180%) blur(18px);
+  border-top: 1px solid var(--border);
+}
+.cap-tabbar a {
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  padding: var(--space-2); min-width: 56px;
+  font-size: 11px; font-weight: 600; color: var(--fg-muted); text-decoration: none;
+}
+.cap-tabbar a.is-active { color: var(--brand); }
+.cap-tabbar a:hover { text-decoration: none; }
+
+/* ---- Pop-up / bottom sheet  (the dosing dashboard) ----------------------
+   <div class="cap-scrim is-open">
+     <div class="cap-sheet" role="dialog" aria-modal="true">
+       <div class="cap-sheet__grabber"></div>
+       … content …
+     </div>
+   </div>
+   Toggle the  .is-open  class on .cap-scrim to show/hide.                   */
+.cap-scrim {
+  position: fixed; inset: 0; z-index: 50;
+  display: flex; align-items: flex-end; justify-content: center;
+  background: var(--scrim); opacity: 0; visibility: hidden;
+  transition: opacity var(--motion-base) var(--ease-out-soft), visibility var(--motion-base);
+  -webkit-backdrop-filter: blur(2px); backdrop-filter: blur(2px);
+}
+.cap-scrim.is-open { opacity: 1; visibility: visible; }
+.cap-sheet {
+  width: 100%; max-width: 480px; max-height: 92vh; overflow-y: auto;
+  background: var(--bg-card);
+  border-radius: var(--sheet-radius) var(--sheet-radius) 0 0;
+  padding: var(--space-3) var(--space-5) calc(var(--space-6) + env(safe-area-inset-bottom));
+  box-shadow: var(--shadow-3);
+  transform: translateY(16px); transition: transform var(--motion-base) var(--ease-out-soft);
+}
+.cap-scrim.is-open .cap-sheet { transform: translateY(0); }
+.cap-sheet__grabber {
+  width: 40px; height: 5px; border-radius: var(--radius-pill);
+  background: var(--sheet-grabber); margin: 4px auto var(--space-4);
+}
+/* Center-modal variant (desktop / confirmations): add .cap-scrim--center */
+.cap-scrim--center { align-items: center; }
+.cap-scrim--center .cap-sheet { border-radius: var(--sheet-radius); max-width: 420px; margin: 0 var(--space-5); }
+
+/* ---- NFC tap target ------------------------------------------------------
+   <div class="cap-nfc"><img src="…/cappy-mark.png" alt=""></div>           */
+.cap-nfc {
+  position: relative; width: 132px; height: 132px; border-radius: 50%;
+  display: grid; place-items: center; flex: none;
+  background: var(--accent-2-tint); box-shadow: 0 0 0 1px var(--nfc-ring) inset;
+}
+.cap-nfc::before, .cap-nfc::after {
+  content: ""; position: absolute; inset: 0; border-radius: 50%;
+  box-shadow: 0 0 0 2px var(--nfc-ring); animation: cap-nfc-pulse 2.4s var(--ease-out-soft) infinite;
+}
+.cap-nfc::after { animation-delay: 1.2s; }
+.cap-nfc img { width: 92px; height: 92px; border-radius: 50%; object-fit: cover; position: relative; }
+@keyframes cap-nfc-pulse {
+  0%   { transform: scale(1);    opacity: 0.7; }
+  100% { transform: scale(1.45); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cap-nfc::before, .cap-nfc::after { animation: none; }
+}
+
+/* ---- "Cappy!" wordmark ---------------------------------------------------
+   <span class="cap-wordmark">
+     <img src="…/cappy-mark.png" alt=""> Cappy!
+   </span>                                                                    */
+.cap-wordmark {
+  display: inline-flex; align-items: center; gap: var(--space-3);
+  font-family: var(--font-brand); font-weight: 600; font-size: var(--fs-32);
+  color: var(--brand); letter-spacing: -0.005em; line-height: 1;
+}
+.cap-wordmark img { width: 1.25em; height: 1.25em; border-radius: 50%; flex: none; }
+
+/* ---- Divider ---- */
+.cap-hr, hr { border: none; border-top: 1px solid var(--border); margin: var(--space-4) 0; }

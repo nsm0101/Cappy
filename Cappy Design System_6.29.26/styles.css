@@ -1,0 +1,8 @@
+/* =========================================================================
+   Cappy Design System — root stylesheet.
+   Single entry point: consumers link THIS file and get the full token system.
+     1. CloseDose base (teal brand, neutrals, type scale, dark mode)
+     2. Cappy layer  (capybara-blue accent, dose-safety status, NFC, mobile)
+   ========================================================================= */
+@import url('./colors_and_type.css');
+@import url('./cappy-tokens.css');

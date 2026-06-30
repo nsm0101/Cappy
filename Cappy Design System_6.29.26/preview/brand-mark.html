@@ -1,0 +1,102 @@
+<!doctype html>
+<!-- @dsCard group="Cappy — Brand" name="Brand — Mark & Wordmark" subtitle="Cappy face badge + Baloo 2 wordmark lockups" viewport="700x360" -->
+<html><head><meta charset="utf-8"><title>Mark & Wordmark</title>
+<link rel="stylesheet" href="_base.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&display=swap">
+<style>
+.card-frame { background: var(--bg); padding: 0; }
+.lockups {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+.tile {
+  border-radius: 16px;
+  border: 1px solid rgba(11,30,29,0.08);
+  display: flex; align-items: center; justify-content: center;
+  padding: 28px;
+  min-height: 180px;
+  position: relative;
+}
+.tile.teal { background: #128873; }
+.tile.cream { background: #F6F1E7; }
+.tile.white { background: #ffffff; }
+.tile.ink { background: #0B1E1D; border-color: rgba(255,255,255,0.06); }
+.tile img.mark { height: 124px; width: auto; display: block; }
+.tile .meta {
+  position: absolute; left: 14px; bottom: 10px;
+  font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.tile.teal .meta, .tile.ink .meta { color: rgba(255,255,255,0.7); }
+.tile.cream .meta, .tile.white .meta { color: var(--fg-3); }
+
+/* Horizontal lockup: Cappy face + Baloo 2 wordmark */
+.wordmark-row {
+  border-radius: 16px;
+  border: 1px solid rgba(11,30,29,0.08);
+  padding: 26px 32px;
+  display: flex; align-items: center; justify-content: center;
+  position: relative;
+  margin-bottom: 14px;
+}
+.wordmark-row:last-child { margin-bottom: 0; }
+.wordmark-row.white { background: #ffffff; }
+.wordmark-row.teal { background: #128873; border-color: rgba(11,30,29,0.08); }
+.lockup { display: flex; align-items: center; gap: 18px; }
+.lockup .face { height: 72px; width: 72px; border-radius: 50%; display: block; }
+.lockup .word {
+  font-family: 'Baloo 2', system-ui, sans-serif;
+  font-weight: 800;
+  font-size: 60px;
+  letter-spacing: -0.01em;
+  line-height: 1;
+}
+.wordmark-row.white .word { color: #128873; }
+.wordmark-row.teal .word { color: #ffffff; }
+.wordmark-row .meta {
+  position: absolute; left: 14px; bottom: 10px;
+  font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.wordmark-row.white .meta { color: var(--fg-3); }
+.wordmark-row.teal .meta { color: rgba(255,255,255,0.7); }
+</style></head>
+<body><div class="card-frame" data-document-role="page" data-label="Cappy — Mark & Wordmark">
+<div class="lockups">
+  <div class="tile teal">
+    <img class="mark" src="../assets/cappy-mark.png" alt="Cappy face badge on teal">
+    <div class="meta">Primary · badge on Teal 600</div>
+  </div>
+  <div class="tile cream">
+    <img class="mark" src="../assets/cappy-mark.png" alt="Cappy face badge on cream">
+    <div class="meta">Badge on Cream</div>
+  </div>
+</div>
+<div class="wordmark-row white">
+  <div class="lockup">
+    <img class="face" src="../assets/cappy-mark.png" alt="Cappy">
+    <span class="word">Cappy!</span>
+  </div>
+  <div class="meta">Wordmark · Baloo 2, teal on white</div>
+</div>
+<div class="wordmark-row teal">
+  <div class="lockup">
+    <img class="face" src="../assets/cappy-mark.png" alt="Cappy">
+    <span class="word">Cappy!</span>
+  </div>
+  <div class="meta">Wordmark · reverse, white on Teal 600</div>
+</div>
+</div>
+<template id="__bundler_thumbnail">
+<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <rect width="100" height="100" fill="#128873"/>
+  <circle cx="50" cy="50" r="23" fill="#fff"/>
+  <circle cx="50" cy="50" r="19" fill="#1E6FC4"/>
+  <text x="50" y="51" font-family="'Baloo 2', sans-serif" font-size="24" font-weight="800" fill="#fff" text-anchor="middle" dominant-baseline="central">C</text>
+</svg>
+</template>
+</body></html>

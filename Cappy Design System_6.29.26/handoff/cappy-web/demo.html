@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Cappy Design System — demo</title>
+<link rel="stylesheet" href="cappy.css">
+<style>
+  /* page-only chrome for the demo, not part of the design system */
+  body { padding-bottom: 40px; }
+  .demo-bar { position: sticky; top: 0; z-index: 60; display: flex; justify-content: space-between;
+    align-items: center; padding: 12px var(--screen-gutter); background: color-mix(in srgb, var(--bg) 86%, transparent);
+    backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); }
+  .demo-sec { margin-top: var(--space-8); }
+  .demo-sec > h2 { margin-bottom: var(--space-4); }
+  .swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(72px,1fr)); gap: var(--space-3); }
+  .sw { height: 56px; border-radius: var(--radius-3); border: 1px solid var(--border); display: flex; align-items: flex-end; padding: 6px; font-size: 11px; font-weight: 600; color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,.3); }
+</style>
+</head>
+<body>
+<div class="demo-bar">
+  <span class="cap-wordmark" style="font-size: var(--fs-24)"><img src="assets/cappy-mark.png" alt="">Cappy!</span>
+  <button class="cap-btn cap-btn--secondary" id="themeBtn">🌙 Dark</button>
+</div>
+
+<div class="cap-app">
+
+  <div class="demo-sec">
+    <h2>Buttons</h2>
+    <div class="cap-row">
+      <button class="cap-btn">Primary</button>
+      <button class="cap-btn cap-btn--blue">Log dose</button>
+      <button class="cap-btn cap-btn--secondary">Cancel</button>
+      <button class="cap-btn cap-btn--ghost">Skip</button>
+      <button class="cap-btn" disabled>Disabled</button>
+    </div>
+  </div>
+
+  <div class="demo-sec">
+    <h2>Dose-safety status</h2>
+    <div class="cap-row">
+      <span class="dose-pill dose-pill--due">Due now</span>
+      <span class="dose-pill dose-pill--early">Too early</span>
+      <span class="dose-pill dose-pill--recent">Given recently</span>
+      <span class="dose-pill dose-pill--overdue">Overdue</span>
+    </div>
+    <p class="dose-safety" style="margin-top:12px">Cappy estimates timing from logged doses — always use your judgment and follow the label.</p>
+  </div>
+
+  <div class="demo-sec">
+    <h2>Avatars &amp; list rows</h2>
+    <div class="cap-stack">
+      <button class="cap-row-item">
+        <span class="cap-avatar" style="--tint:var(--blue-500)">AM</span>
+        <span>
+          <div class="cap-row-item__title">Ava M.</div>
+          <div class="cap-row-item__sub">38 lb · last dose 4h ago</div>
+        </span>
+        <span class="dose-pill dose-pill--due" style="margin-left:auto">Due now</span>
+      </button>
+      <button class="cap-row-item">
+        <span class="cap-avatar" style="--tint:var(--tan-500)">LM</span>
+        <span>
+          <div class="cap-row-item__title">Leo M.</div>
+          <div class="cap-row-item__sub">29 lb · last dose 1h ago</div>
+        </span>
+        <span class="dose-pill dose-pill--early" style="margin-left:auto">Too early</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="demo-sec">
+    <h2>Field &amp; card</h2>
+    <div class="cap-card">
+      <label class="cap-field">
+        <span class="cap-field__label">Email</span>
+        <input type="email" placeholder="you@example.com">
+      </label>
+      <div class="cap-row" style="margin-top:16px">
+        <button class="cap-btn cap-btn--block">Send magic link</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="demo-sec">
+    <h2>Segmented · badges</h2>
+    <div class="cap-row">
+      <div class="cap-segmented">
+        <button class="is-active">Day</button><button>Week</button><button>Month</button>
+      </div>
+      <span class="cap-badge cap-badge--brand">OTC</span>
+      <span class="cap-badge cap-badge--blue">Rx</span>
+    </div>
+  </div>
+
+  <div class="demo-sec">
+    <h2>NFC tap</h2>
+    <div class="cap-nfc"><img src="assets/cappy-mark.png" alt="Cappy"></div>
+  </div>
+
+  <div class="demo-sec">
+    <h2>Dosing dashboard pop-up</h2>
+    <button class="cap-btn cap-btn--blue cap-btn--lg" id="openSheet">Open dose pop-up</button>
+  </div>
+
+  <div class="demo-sec">
+    <h2>Color tokens</h2>
+    <div class="swatches">
+      <div class="sw" style="background:var(--teal-500)">teal-500</div>
+      <div class="sw" style="background:var(--blue-500)">blue-500</div>
+      <div class="sw" style="background:var(--tan-500)">tan-500</div>
+      <div class="sw" style="background:var(--amber-600)">amber-600</div>
+      <div class="sw" style="background:var(--coral-600)">coral-600</div>
+      <div class="sw" style="background:var(--sage-600)">sage-600</div>
+    </div>
+  </div>
+</div>
+
+<!-- Dosing dashboard pop-up -->
+<div class="cap-scrim" id="sheet">
+  <div class="cap-sheet" role="dialog" aria-modal="true" aria-label="Log a dose">
+    <div class="cap-sheet__grabber"></div>
+    <div class="cap-between">
+      <div class="cap-row">
+        <span class="cap-avatar cap-avatar--lg" style="--tint:var(--blue-500)">AM</span>
+        <span>
+          <h3 style="margin:0">Ava M.</h3>
+          <div class="cap-row-item__sub">38 lb · Children's acetaminophen</div>
+        </span>
+      </div>
+      <button class="cap-btn cap-btn--ghost" id="closeSheet" aria-label="Close">✕</button>
+    </div>
+
+    <div class="cap-card cap-card--inset" style="margin-top:20px; text-align:center">
+      <div class="caption" style="text-transform:uppercase; letter-spacing:.08em">Suggested dose</div>
+      <div class="dose-numeral" style="margin:6px 0 2px; color:var(--accent-2)">5 <span style="font-size:.4em" class="mono">mL</span></div>
+      <span class="dose-pill dose-pill--due">Due now</span>
+      <p class="dose-safety" style="margin-top:12px">Last dose 4h 10m ago. Minimum interval met. Confirm against the product label.</p>
+    </div>
+
+    <div class="cap-stack" style="margin-top:20px">
+      <button class="cap-btn cap-btn--blue cap-btn--lg cap-btn--block">Log 5 mL now</button>
+      <button class="cap-btn cap-btn--secondary cap-btn--block">Adjust amount</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const root = document.documentElement;
+  document.getElementById('themeBtn').addEventListener('click', (e) => {
+    const dark = root.getAttribute('data-theme') === 'dark';
+    root.setAttribute('data-theme', dark ? 'light' : 'dark');
+    e.target.textContent = dark ? '🌙 Dark' : '☀️ Light';
+  });
+  const sheet = document.getElementById('sheet');
+  document.getElementById('openSheet').addEventListener('click', () => sheet.classList.add('is-open'));
+  document.getElementById('closeSheet').addEventListener('click', () => sheet.classList.remove('is-open'));
+  sheet.addEventListener('click', (e) => { if (e.target === sheet) sheet.classList.remove('is-open'); });
+</script>
+</body>
+</html>

@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<!-- @template name="NFC quick-access" description="The dedicated screen a caregiver lands on right after tapping a medication tag: bold med identity, then scan-and-pick the child." -->
+<helmet>
+<script src="./ds-base.js"></script>
+<style>
+  @keyframes cappy-fade { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+  @keyframes cappy-ping { 0% { box-shadow:0 0 0 0 var(--nfc-ring); } 70%,100% { box-shadow:0 0 0 14px rgba(0,0,0,0); } }
+</style>
+</helmet>
+
+<div data-theme="{{ theme }}" style="position:relative; width:390px; height:844px; overflow:hidden; background:var(--bg); font-family:var(--font-sans); color:var(--fg); -webkit-font-smoothing:antialiased; display:flex; flex-direction:column;">
+
+  <!-- status bar -->
+  <div style="height:50px; flex:0 0 auto; display:flex; align-items:center; justify-content:space-between; padding:0 24px; font-size:14px; font-weight:700; color:var(--fg);">
+    <span>9:41</span>
+    <span style="font-size:11px; letter-spacing:0.5px; color:var(--fg-3);">●●● ◢ 100%</span>
+  </div>
+
+  <!-- NFC med hero -->
+  <div style="flex:0 0 auto; margin:6px 16px 0; border-radius:26px; background:linear-gradient(165deg,var(--blue-500),var(--blue-700)); color:#fff; padding:22px 22px 24px; position:relative; overflow:hidden; box-shadow:var(--shadow-3);">
+    <div style="position:absolute; right:-40px; top:-40px; width:180px; height:180px; border-radius:50%; background:rgba(255,255,255,0.08);"></div>
+    <div style="display:inline-flex; gap:9px; align-items:center; background:rgba(255,255,255,0.18); padding:7px 13px; border-radius:999px; font-size:12px; font-weight:700; white-space:nowrap;">
+      <span style="width:9px; height:9px; border-radius:50%; background:#fff; animation:cappy-ping 1.8s infinite;"></span>Tag detected
+    </div>
+    <div style="font-family:var(--font-display); font-weight:800; font-size:34px; letter-spacing:-0.025em; margin-top:16px; line-height:1;">Acetaminophen</div>
+    <div style="font-size:15px; opacity:0.92; margin-top:6px;">Children’s Tylenol</div>
+    <div style="display:flex; gap:9px; margin-top:16px;">
+      <div style="background:rgba(255,255,255,0.16); border-radius:12px; padding:9px 13px;">
+        <div style="font-family:var(--font-mono); font-size:9px; letter-spacing:0.06em; opacity:0.8;">CONCENTRATION</div>
+        <div style="font-family:var(--font-display); font-weight:800; font-size:15px; margin-top:2px;">160 mg / 5 mL</div>
+      </div>
+      <div style="background:rgba(255,255,255,0.16); border-radius:12px; padding:9px 13px;">
+        <div style="font-family:var(--font-mono); font-size:9px; letter-spacing:0.06em; opacity:0.8;">FORM</div>
+        <div style="font-family:var(--font-display); font-weight:800; font-size:15px; margin-top:2px;">Oral suspension</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- child picker -->
+  <div style="flex:1; min-height:0; overflow:auto; padding:22px 16px 120px;">
+    <div style="font-family:var(--font-display); font-weight:800; font-size:20px; letter-spacing:-0.01em; margin-bottom:3px;">Who is this for?</div>
+    <div style="font-size:13px; color:var(--fg-2); margin-bottom:16px;">Pick a child to see their dose status.</div>
+
+    <sc-for list="{{ kids }}" as="k" hint-placeholder-count="3">
+      <div onClick="{{ k.onSelect }}" style="display:flex; gap:14px; align-items:center; cursor:pointer; background:var(--bg-card); border:1px solid var(--border); border-radius:18px; padding:14px 15px; margin-bottom:12px; box-shadow:{{ k.shadow }};">
+        <div style="width:54px; height:54px; border-radius:50%; flex:0 0 auto; display:grid; place-items:center; color:#fff; font-family:var(--font-display); font-weight:800; font-size:18px; background:{{ k.grad }}; box-shadow:{{ k.ring }};">{{ k.mono }}</div>
+        <div style="flex:1; min-width:0;">
+          <div style="font-family:var(--font-display); font-weight:800; font-size:17px;">{{ k.name }}</div>
+          <div style="font-size:12.5px; color:var(--fg-3); margin-top:2px;">{{ k.sub }}</div>
+        </div>
+        <div style="display:inline-flex; gap:7px; align-items:center; white-space:nowrap; font-size:12px; font-weight:700; padding:7px 11px; border-radius:999px; background:{{ k.statusBg }}; color:{{ k.statusFg }}; border:1px solid {{ k.statusRing }};">
+          <span style="width:7px; height:7px; border-radius:50%; background:{{ k.statusSolid }};"></span>{{ k.statusLabel }}
+        </div>
+      </div>
+    </sc-for>
+
+    <div style="display:flex; gap:7px; align-items:center; justify-content:center; margin-top:8px; font-size:11px; color:var(--fg-3);">
+      <span style="width:13px; height:13px; border-radius:50%; border:2px solid var(--fg-muted);"></span>Always confirm dosing before administering medication.
+    </div>
+  </div>
+
+  <!-- sticky CTA -->
+  <div style="position:absolute; left:0; right:0; bottom:0; padding:16px 16px 30px; background:linear-gradient(to top, var(--bg) 62%, rgba(0,0,0,0)); ">
+    <button onClick="{{ go }}" style="width:100%; height:56px; border:none; border-radius:16px; background:{{ canGo.bg }}; color:{{ canGo.fg }}; font-family:var(--font-sans); font-weight:700; font-size:16px; cursor:pointer; box-shadow:var(--shadow-2); transition:background 180ms;">{{ ctaLabel }}</button>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:390,&quot;height&quot;:844},&quot;theme&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;light&quot;,&quot;dark&quot;],&quot;default&quot;:&quot;light&quot;,&quot;tsType&quot;:&quot;\&quot;light\&quot; | \&quot;dark\&quot;&quot;,&quot;section&quot;:&quot;Appearance&quot;}}">
+class Component extends DCLogic {
+  state = { sel: -1 };
+
+  renderVals() {
+    const theme = this.props.theme || 'light';
+    const STATUS = {
+      due:    { label:'Due now',        solid:'var(--dose-due-solid)',    bg:'var(--dose-due-bg)',    fg:'var(--dose-due-fg)',    ring:'var(--dose-due-ring)' },
+      early:  { label:'Too early',      solid:'var(--dose-early-solid)',  bg:'var(--dose-early-bg)',  fg:'var(--dose-early-fg)',  ring:'var(--dose-early-ring)' },
+      recent: { label:'Given 20m ago',  solid:'var(--dose-recent-solid)', bg:'var(--dose-recent-bg)', fg:'var(--dose-recent-fg)', ring:'var(--dose-recent-ring)' }
+    };
+    const KIDS = [
+      { name:'Emma', mono:'EM', grad:'linear-gradient(150deg,var(--teal-400),var(--teal-600))', sub:'6 yrs · 38 lb · last dose 5h ago', status:'due' },
+      { name:'Noah', mono:'NO', grad:'linear-gradient(150deg,var(--blue-400),var(--blue-600))', sub:'3 yrs · 31 lb · last dose 2h 20m ago', status:'early' },
+      { name:'Ava',  mono:'AV', grad:'linear-gradient(150deg,var(--amber-500),var(--amber-700))', sub:'18 mo · 24 lb · weight needs update', status:'recent' }
+    ];
+    const selIdx = this.state.sel;
+    const kids = KIDS.map((k, i) => {
+      const st = STATUS[k.status];
+      const selected = i === selIdx;
+      return {
+        name:k.name, mono:k.mono, grad:k.grad, sub:k.sub,
+        statusLabel:st.label, statusSolid:st.solid, statusBg:st.bg, statusFg:st.fg, statusRing:st.ring,
+        shadow: selected ? 'var(--shadow-2)' : 'var(--shadow-1)',
+        ring: selected ? ('0 0 0 3px var(--bg-card), 0 0 0 5px ' + st.solid) : 'none',
+        onSelect: () => this.setState({ sel: i })
+      };
+    });
+    const picked = selIdx >= 0;
+    return {
+      theme, kids,
+      ctaLabel: picked ? ('Continue with ' + KIDS[selIdx].name) : 'Choose a child to continue',
+      canGo: picked ? { bg:'var(--brand)', fg:'var(--fg-on-brand)' } : { bg:'var(--bg-inset)', fg:'var(--fg-muted)' },
+      go: () => {}
+    };
+  }
+}
+</script>
+</body>
+</html>
