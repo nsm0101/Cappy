@@ -79,10 +79,13 @@ export const verifyEmailOtp = async (
 export const signUpWithPassword = async (
   email: string,
   password: string,
+  displayName?: string,
 ): Promise<{ error: Error | null }> => {
+  const trimmedName = displayName?.trim();
   const { error } = await supabase.auth.signUp({
     email: email.trim().toLowerCase(),
     password,
+    options: trimmedName ? { data: { display_name: trimmedName } } : undefined,
   });
   return { error };
 };

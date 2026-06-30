@@ -234,6 +234,7 @@ export const HomeScreen: React.FC = () => {
                 />
               </Card>
             ) : (
+              <>
               <View style={{ gap: theme.spacing.md }}>
                 {childrenList.map((child) => (
                   <RowItem
@@ -272,6 +273,17 @@ export const HomeScreen: React.FC = () => {
                   />
                 ))}
               </View>
+              <View style={{ height: theme.spacing.md }} />
+              <Button
+                label="Add a child"
+                variant="secondary"
+                onPress={() =>
+                  activeFamily &&
+                  navigation.navigate('AddChild', { familyId: activeFamily.id })
+                }
+                block
+              />
+              </>
             )}
           </>
         )}

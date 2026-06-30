@@ -17,6 +17,7 @@ import { initialsFromName, brandsForGeneric, brandFor } from '@/lib';
 import {
   families as familiesApi,
   brands as brandsApi,
+  profiles as profilesApi,
   type FamilyWithRole,
   type CaregiverWithProfile,
 } from '@/api';
@@ -46,6 +47,30 @@ export const SettingsScreen: React.FC = () => {
   const [brandPrefs, setBrandPrefs] = useState<Record<string, string>>({});
   const [inviteSheet, setInviteSheet] = useState(false);
   const [brandSheetGeneric, setBrandSheetGeneric] = useState<string | null>(null);
+  const [caregiverName, setCaregiverName] = useState<string | null>(null);
+
+  useEffect(() => {
+    void profilesApi.getMyDisplayName().then(setCaregiverName);
+  }, []);
+
+  const handleEditName = () => {
+    Alert.prompt(
+      'Your name',
+      'This name is shown on the doses you log, so other caregivers know who gave a dose.',
+      async (value) => {
+        const n = (value ?? '').trim();
+        if (!n) return;
+        try {
+          await profilesApi.updateMyDisplayName(n);
+          setCaregiverName(n);
+        } catch (err) {
+          Alert.alert('Could not save name', err instanceof Error ? err.message : 'Try again.');
+        }
+      },
+      'plain-text',
+      caregiverName ?? '',
+    );
+  };
 
   const loadFamily = useCallback(async () => {
     try {
@@ -188,7 +213,7 @@ export const SettingsScreen: React.FC = () => {
                   fontWeight: '600',
                 }}
               >
-                Caregiver Profile
+                {caregiverName ?? 'Add your name'}
               </Text>
               <Text
                 style={{
@@ -202,6 +227,14 @@ export const SettingsScreen: React.FC = () => {
               </Text>
             </View>
           </Card>
+          <View style={{ height: theme.spacing.sm }} />
+          <RowItem
+            title="Your name"
+            subtitle={caregiverName ?? 'Set the name shown on doses you log'}
+            leftSlot={<Ionicons name="create-outline" size={20} color={t.brand} />}
+            onPress={handleEditName}
+            accessibilityLabel="Edit your name"
+          />
         </View>
 
         {/* Preferences Section */}

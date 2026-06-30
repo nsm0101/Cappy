@@ -21,6 +21,7 @@ export const SignInScreen: React.FC = () => {
   const t = theme.tokens;
   const { signInWithPassword, signUpWithPassword, signInWithApple } = useAuth();
   const [mode, setMode] = useState<Mode>('signin');
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [busy, setBusy] = useState(false);
@@ -46,11 +47,15 @@ export const SignInScreen: React.FC = () => {
       Alert.alert('Password too short', 'Use at least 6 characters.');
       return;
     }
+    if (isSignup && name.trim().length === 0) {
+      Alert.alert('Name needed', 'Enter your name so doses are attributed to you.');
+      return;
+    }
     setBusy(true);
     // On success the auth-state listener flips us into the app — no manual
     // navigation needed here.
     const { error } = isSignup
-      ? await signUpWithPassword(trimmed, password)
+      ? await signUpWithPassword(trimmed, password, name)
       : await signInWithPassword(trimmed, password);
     setBusy(false);
     if (error) {
@@ -95,6 +100,21 @@ export const SignInScreen: React.FC = () => {
           </Text>
 
           <Card>
+            {isSignup ? (
+              <>
+                <Field
+                  label="Your name"
+                  value={name}
+                  onChangeText={setName}
+                  placeholder="e.g. Alex"
+                  autoCapitalize="words"
+                  autoComplete="name"
+                  textContentType="name"
+                  editable={!busy}
+                />
+                <View style={{ height: theme.spacing.base }} />
+              </>
+            ) : null}
             <Field
               label="Email"
               value={email}

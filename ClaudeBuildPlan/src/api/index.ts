@@ -10,6 +10,7 @@ export * as realtime from './realtime';
 export * as avatars from './avatars';
 export * as allergies from './allergies';
 export * as brands from './brands';
+export * as profiles from './profiles';
 
 export type { Database } from './database.types';
 export type { ChildAllergy } from './allergies';
