@@ -1,0 +1,110 @@
+{
+  "expo": {
+    "name": "Cappy",
+    "slug": "cappy",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "icon": "./src/assets/cappy-icon.png",
+    "scheme": "cappy",
+    "userInterfaceStyle": "automatic",
+    "splash": {
+      "image": "./src/assets/cappy-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#FBF8F2"
+    },
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.closedose.cappy",
+      "buildNumber": "1",
+      "infoPlist": {
+        "NFCReaderUsageDescription": "Cappy reads the NFC sticker on your medication bottle to open the right child and medication instantly. We never read personal data from the tag.",
+        "NSFaceIDUsageDescription": "Face ID lets you confirm a dose without typing your password.",
+        "ITSAppUsesNonExemptEncryption": false,
+        "UIBackgroundModes": []
+      },
+      "associatedDomains": [
+        "applinks:cappy.closedose.com"
+      ],
+      "entitlements": {
+        "com.apple.developer.nfc.readersession.formats": ["NDEF", "TAG"]
+      },
+      "config": {
+        "usesNonExemptEncryption": false
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./src/assets/cappy-icon.png",
+        "backgroundColor": "#FBF8F2"
+      },
+      "package": "com.closedose.cappy",
+      "versionCode": 1,
+      "permissions": ["android.permission.NFC", "android.permission.VIBRATE"],
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "autoVerify": true,
+          "data": [
+            {
+              "scheme": "https",
+              "host": "cappy.closedose.com",
+              "pathPrefix": "/"
+            }
+          ],
+          "category": ["BROWSABLE", "DEFAULT"]
+        },
+        {
+          "action": "NDEF_DISCOVERED",
+          "category": ["DEFAULT"],
+          "data": [
+            {
+              "scheme": "https",
+              "host": "cappy.closedose.com"
+            }
+          ]
+        }
+      ]
+    },
+    "plugins": [
+      [
+        "expo-build-properties",
+        {
+          "ios": {
+            "deploymentTarget": "16.0",
+            "useFrameworks": "static"
+          },
+          "android": {
+            "minSdkVersion": 24,
+            "compileSdkVersion": 34,
+            "targetSdkVersion": 34
+          }
+        }
+      ],
+      [
+        "expo-font",
+        {
+          "fonts": []
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": false
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "0e2eeb80-067e-4a75-bd36-665e7486c744"
+      }
+    },
+    "owner": "closedose",
+    "runtimeVersion": {
+      "policy": "sdkVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/0e2eeb80-067e-4a75-bd36-665e7486c744"
+    }
+  }
+}

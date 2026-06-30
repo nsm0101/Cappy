@@ -1,0 +1,54 @@
+{
+  "cli": {
+    "version": ">= 12.0.0",
+    "appVersionSource": "remote"
+  },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal",
+      "ios": {
+        "simulator": false
+      },
+      "env": {
+        "EXPO_PUBLIC_SUPABASE_URL": "https://hyfmcwswtjlnxtdspggr.supabase.co",
+        "EXPO_PUBLIC_SUPABASE_ANON_KEY": "sb_publishable_RLYYTH08Wp1_eePf9b5ezA_-eeDw1vp",
+        "EXPO_PUBLIC_TAG_URL_HOST": "cappy.closedose.com",
+        "EXPO_PUBLIC_USE_MOCK_DATA": "false"
+      }
+    },
+    "preview": {
+      "distribution": "internal",
+      "ios": {
+        "simulator": false
+      },
+      "env": {
+        "EXPO_PUBLIC_SUPABASE_URL": "https://hyfmcwswtjlnxtdspggr.supabase.co",
+        "EXPO_PUBLIC_SUPABASE_ANON_KEY": "sb_publishable_RLYYTH08Wp1_eePf9b5ezA_-eeDw1vp",
+        "EXPO_PUBLIC_TAG_URL_HOST": "cappy.closedose.com",
+        "EXPO_PUBLIC_USE_MOCK_DATA": "false"
+      }
+    },
+    "production": {
+      "autoIncrement": true,
+      "ios": {
+        "resourceClass": "m-medium"
+      },
+      "env": {
+        "EXPO_PUBLIC_SUPABASE_URL": "https://hyfmcwswtjlnxtdspggr.supabase.co",
+        "EXPO_PUBLIC_SUPABASE_ANON_KEY": "sb_publishable_RLYYTH08Wp1_eePf9b5ezA_-eeDw1vp",
+        "EXPO_PUBLIC_TAG_URL_HOST": "cappy.closedose.com",
+        "EXPO_PUBLIC_USE_MOCK_DATA": "false"
+      }
+    }
+  },
+  "submit": {
+    "production": {
+      "ios": {
+        "appleId": "nickolas.mancini@gmail.com",
+        "ascAppId": "6785736197",
+        "appleTeamId": "H2AGCK2WB8"
+      }
+    }
+  }
+}

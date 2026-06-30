@@ -73,3 +73,4 @@ compliance/baas/*.pdf
 # Temp
 .tmp/
 tmp/
+.DS_Store
