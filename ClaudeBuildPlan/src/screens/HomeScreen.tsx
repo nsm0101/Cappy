@@ -10,7 +10,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { Avatar, Button, Card, DosePill, RowItem, Wordmark } from '@/components';
+import { MemberAvatar, Button, Card, DosePill, RowItem, Wordmark } from '@/components';
 import {
   families as familiesApi,
   children as childrenApi,
@@ -245,7 +245,8 @@ export const HomeScreen: React.FC = () => {
                         : 'no doses logged'
                     }`}
                     leftSlot={
-                      <Avatar
+                      <MemberAvatar
+                        avatarPath={child.avatar_url}
                         initials={initialsFromName(child.display_name)}
                         tint={theme.palette.blue[500]}
                       />

@@ -1,6 +1,9 @@
 export { Avatar } from './Avatar';
 export type { AvatarProps, AvatarSize } from './Avatar';
 
+export { MemberAvatar } from './MemberAvatar';
+export type { MemberAvatarProps } from './MemberAvatar';
+
 export { Badge } from './Badge';
 export type { BadgeProps, BadgeVariant } from './Badge';
 

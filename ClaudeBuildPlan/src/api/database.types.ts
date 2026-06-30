@@ -90,6 +90,48 @@ export type Database = {
           },
         ]
       }
+      child_allergies: {
+        Row: {
+          allergen: string
+          child_id: string
+          created_at: string
+          created_by: string
+          id: string
+          label: string
+        }
+        Insert: {
+          allergen: string
+          child_id: string
+          created_at?: string
+          created_by: string
+          id?: string
+          label: string
+        }
+        Update: {
+          allergen?: string
+          child_id?: string
+          created_at?: string
+          created_by?: string
+          id?: string
+          label?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "child_allergies_child_id_fkey"
+            columns: ["child_id"]
+            isOneToOne: false
+            referencedRelation: "children"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "child_allergies_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       children: {
         Row: {
           avatar_url: string | null

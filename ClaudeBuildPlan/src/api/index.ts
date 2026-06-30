@@ -7,8 +7,11 @@ export * as children from './children';
 export * as doses from './doses';
 export * as nfc from './nfc';
 export * as realtime from './realtime';
+export * as avatars from './avatars';
+export * as allergies from './allergies';
 
 export type { Database } from './database.types';
+export type { ChildAllergy } from './allergies';
 export type { Family, FamilyCaregiver, FamilyWithRole, CaregiverWithProfile } from './families';
 export type { Child } from './children';
 export type { DoseEvent, DoseStatus, DoseStatusResult, LogDoseInput, DoseEventWithDetails } from './doses';

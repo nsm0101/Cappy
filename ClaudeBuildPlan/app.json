@@ -17,9 +17,12 @@
       "supportsTablet": false,
       "bundleIdentifier": "com.closedose.cappy",
       "buildNumber": "1",
+      "usesAppleSignIn": true,
       "infoPlist": {
         "NFCReaderUsageDescription": "Cappy reads the NFC sticker on your medication bottle to open the right child and medication instantly. We never read personal data from the tag.",
         "NSFaceIDUsageDescription": "Face ID lets you confirm a dose without typing your password.",
+        "NSPhotoLibraryUsageDescription": "Cappy lets you choose a photo to identify each family member.",
+        "NSCameraUsageDescription": "Cappy lets you take a photo to identify each family member.",
         "ITSAppUsesNonExemptEncryption": false,
         "UIBackgroundModes": []
       },

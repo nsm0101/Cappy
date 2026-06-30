@@ -1,5 +1,37 @@
+import * as AppleAuthentication from 'expo-apple-authentication';
 import { supabase } from './client';
 import type { Session, User } from './client';
+
+/**
+ * Native Sign in with Apple. Uses the device's Apple ID to obtain an
+ * identity token, then exchanges it with Supabase. Requires the Apple
+ * provider to be enabled in Supabase Auth with the app's bundle ID
+ * (com.closedose.cappy) as an authorized client ID.
+ */
+export const signInWithApple = async (): Promise<{ error: Error | null }> => {
+  try {
+    const credential = await AppleAuthentication.signInAsync({
+      requestedScopes: [
+        AppleAuthentication.AppleAuthenticationScope.FULL_NAME,
+        AppleAuthentication.AppleAuthenticationScope.EMAIL,
+      ],
+    });
+    if (!credential.identityToken) {
+      return { error: new Error('No identity token returned from Apple.') };
+    }
+    const { error } = await supabase.auth.signInWithIdToken({
+      provider: 'apple',
+      token: credential.identityToken,
+    });
+    return { error };
+  } catch (e) {
+    // User cancelled the Apple sheet — not an error.
+    if (e && typeof e === 'object' && 'code' in e && e.code === 'ERR_REQUEST_CANCELED') {
+      return { error: null };
+    }
+    return { error: e instanceof Error ? e : new Error('Apple sign-in failed.') };
+  }
+};
 
 /**
  * Send a 6-digit email OTP code. We use the code (not a magic-link

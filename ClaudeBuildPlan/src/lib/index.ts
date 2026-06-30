@@ -1,6 +1,14 @@
 export { formatRelativeTime, formatTimeUntil, formatClockTime } from './time';
 export { formatDoseAmount, initialsFromName, formatWeightFromGrams } from './format';
 export { uuidv4 } from './uuid';
+export { pickAndCropSquareImage } from './imagePicker';
+export type { PickedImage } from './imagePicker';
+export {
+  ALLERGEN_CATALOG,
+  searchAllergens,
+  isAllergicToMedication,
+} from './allergens';
+export type { Allergen } from './allergens';
 export {
   computeDosing,
   doseForMedication,

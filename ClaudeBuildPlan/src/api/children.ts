@@ -66,6 +66,25 @@ export const getLatestWeight = async (childId: string): Promise<number | null> =
   return data?.value_grams ?? null;
 };
 
+export type LatestWeight = { valueGrams: number; recordedAt: string };
+
+/** Latest weight with its recorded date (for stale-weight warnings). */
+export const getLatestWeightRecord = async (
+  childId: string,
+): Promise<LatestWeight | null> => {
+  const { data, error } = await supabase
+    .from('weight_records')
+    .select('value_grams, recorded_at')
+    .eq('child_id', childId)
+    .order('recorded_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (error) throw error;
+  if (!data) return null;
+  return { valueGrams: data.value_grams, recordedAt: data.recorded_at };
+};
+
 export const getChild = async (childId: string): Promise<Child> => {
   const { data, error } = await supabase
     .from('children')

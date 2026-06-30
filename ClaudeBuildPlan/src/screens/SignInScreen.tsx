@@ -9,6 +9,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons';
 import { Button, Card, Field, Wordmark } from '@/components';
 import { useAuth } from '@/auth/AuthContext';
 import { useTheme } from '@/theme';
@@ -18,13 +19,22 @@ type Mode = 'signin' | 'signup';
 export const SignInScreen: React.FC = () => {
   const theme = useTheme();
   const t = theme.tokens;
-  const { signInWithPassword, signUpWithPassword } = useAuth();
+  const { signInWithPassword, signUpWithPassword, signInWithApple } = useAuth();
   const [mode, setMode] = useState<Mode>('signin');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [busy, setBusy] = useState(false);
 
   const isSignup = mode === 'signup';
+
+  const handleApple = async () => {
+    setBusy(true);
+    const { error } = await signInWithApple();
+    setBusy(false);
+    if (error) {
+      Alert.alert('Apple sign-in failed', error.message);
+    }
+  };
 
   const handleSubmit = async () => {
     const trimmed = email.trim().toLowerCase();
@@ -119,6 +129,39 @@ export const SignInScreen: React.FC = () => {
               block
             />
           </Card>
+
+          {Platform.OS === 'ios' ? (
+            <>
+              <View style={{ flexDirection: 'row', alignItems: 'center', marginVertical: theme.spacing.lg }}>
+                <View style={{ flex: 1, height: 1, backgroundColor: t.border }} />
+                <Text style={{ color: t.fg3, marginHorizontal: theme.spacing.md, fontSize: theme.fontSize.xs }}>
+                  or
+                </Text>
+                <View style={{ flex: 1, height: 1, backgroundColor: t.border }} />
+              </View>
+              <Pressable
+                onPress={handleApple}
+                disabled={busy}
+                accessibilityRole="button"
+                accessibilityLabel="Continue with Apple"
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 8,
+                  backgroundColor: '#000000',
+                  borderRadius: 12,
+                  paddingVertical: 14,
+                  opacity: busy ? 0.6 : 1,
+                }}
+              >
+                <Ionicons name="logo-apple" size={18} color="#FFFFFF" />
+                <Text style={{ color: '#FFFFFF', fontFamily: theme.fonts.sansSemibold, fontSize: theme.fontSize.base }}>
+                  Continue with Apple
+                </Text>
+              </Pressable>
+            </>
+          ) : null}
 
           <Pressable
             onPress={() => setMode(isSignup ? 'signin' : 'signup')}

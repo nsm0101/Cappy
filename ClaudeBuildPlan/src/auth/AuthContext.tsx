@@ -23,6 +23,7 @@ type AuthContextValue = AuthState & {
     email: string,
     password: string,
   ) => Promise<{ error: Error | null }>;
+  signInWithApple: () => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
 };
 
@@ -74,6 +75,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       },
       signInWithPassword: authApi.signInWithPassword,
       signUpWithPassword: authApi.signUpWithPassword,
+      signInWithApple: authApi.signInWithApple,
       signOut: async () => {
         await authApi.signOut();
       },
