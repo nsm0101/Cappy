@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   Alert,
   Linking,
@@ -13,7 +13,26 @@ import Constants from 'expo-constants';
 import { Avatar, Button, Card, RowItem, Sheet } from '@/components';
 import { useAuth } from '@/auth/AuthContext';
 import { useTheme, useThemeMode } from '@/theme';
-import { initialsFromName } from '@/lib';
+import { initialsFromName, brandsForGeneric, brandFor } from '@/lib';
+import {
+  families as familiesApi,
+  brands as brandsApi,
+  type FamilyWithRole,
+  type CaregiverWithProfile,
+} from '@/api';
+
+const ROLE_LABEL: Record<string, string> = {
+  admin: 'Admin',
+  caregiver: 'Caregiver',
+  readonly: 'Read-only',
+  guest: 'Guest',
+};
+
+const GENERICS = ['acetaminophen', 'ibuprofen'] as const;
+const GENERIC_LABEL: Record<string, string> = {
+  acetaminophen: 'Acetaminophen',
+  ibuprofen: 'Ibuprofen',
+};
 
 export const SettingsScreen: React.FC = () => {
   const theme = useTheme();
@@ -22,6 +41,64 @@ export const SettingsScreen: React.FC = () => {
   const { mode, setMode } = useThemeMode();
 
   const [themeSheetVisible, setThemeSheetVisible] = useState(false);
+  const [activeFamily, setActiveFamily] = useState<FamilyWithRole | null>(null);
+  const [caregivers, setCaregivers] = useState<CaregiverWithProfile[]>([]);
+  const [brandPrefs, setBrandPrefs] = useState<Record<string, string>>({});
+  const [inviteSheet, setInviteSheet] = useState(false);
+  const [brandSheetGeneric, setBrandSheetGeneric] = useState<string | null>(null);
+
+  const loadFamily = useCallback(async () => {
+    try {
+      const fams = await familiesApi.listMyFamilies();
+      const fam = fams[0] ?? null;
+      setActiveFamily(fam);
+      if (fam) {
+        const [cg, prefs] = await Promise.all([
+          familiesApi.listFamilyCaregivers(fam.id),
+          brandsApi.getFamilyBrandPrefs(fam.id),
+        ]);
+        setCaregivers(cg);
+        setBrandPrefs(prefs);
+      }
+    } catch {
+      // non-fatal in settings
+    }
+  }, []);
+
+  useEffect(() => {
+    void loadFamily();
+  }, [loadFamily]);
+
+  const isAdmin = activeFamily?.my_role === 'admin';
+
+  const handleInvite = async (role: 'caregiver' | 'guest', guestHours?: number) => {
+    if (!activeFamily) return;
+    setInviteSheet(false);
+    try {
+      const { code } = await familiesApi.createInvite(activeFamily.id, role, guestHours);
+      const guestNote = guestHours
+        ? ` Guest access ends ${guestHours >= 24 ? `${Math.round(guestHours / 24)} day(s)` : `${guestHours} hours`} after they join.`
+        : '';
+      Alert.alert(
+        role === 'guest' ? 'Guest invite created' : 'Caregiver invite created',
+        `Share this 6-digit code to add someone to your family. It expires in 24 hours.${guestNote}\n\nCode: ${code}`,
+      );
+      await loadFamily();
+    } catch (err) {
+      Alert.alert('Could not create invite', err instanceof Error ? err.message : 'Try again.');
+    }
+  };
+
+  const handleSetBrand = async (generic: string, brandKey: string) => {
+    if (!activeFamily) return;
+    setBrandSheetGeneric(null);
+    try {
+      await brandsApi.setFamilyBrand(activeFamily.id, generic, brandKey);
+      setBrandPrefs((p) => ({ ...p, [generic]: brandKey }));
+    } catch (err) {
+      Alert.alert('Could not save brand', err instanceof Error ? err.message : 'Try again.');
+    }
+  };
 
   const version = Constants.expoConfig?.version ?? '0.1.0';
 
@@ -142,6 +219,64 @@ export const SettingsScreen: React.FC = () => {
           />
         </View>
 
+        {/* Family & caregivers */}
+        {activeFamily ? (
+          <>
+            <Text style={[styles.sectionTitle, { color: t.fg3, fontSize: theme.fontSize.xs }]}>
+              FAMILY & CAREGIVERS
+            </Text>
+            <View style={{ gap: theme.spacing.sm, marginBottom: theme.spacing.xl }}>
+              {caregivers.map((c) => (
+                <RowItem
+                  key={c.id}
+                  title={c.display_name ?? 'Caregiver'}
+                  subtitle={
+                    ROLE_LABEL[c.role] +
+                    (c.role === 'guest' && c.expires_at
+                      ? ` · expires ${new Date(c.expires_at).toLocaleDateString()}`
+                      : '')
+                  }
+                  leftSlot={<Ionicons name="person-outline" size={20} color={t.brand} />}
+                  showChevron={false}
+                />
+              ))}
+              {isAdmin ? (
+                <Button
+                  label="Invite a caregiver or guest"
+                  variant="secondary"
+                  onPress={() => setInviteSheet(true)}
+                  block
+                />
+              ) : null}
+            </View>
+          </>
+        ) : null}
+
+        {/* Medication brands */}
+        {activeFamily ? (
+          <>
+            <Text style={[styles.sectionTitle, { color: t.fg3, fontSize: theme.fontSize.xs }]}>
+              MEDICATION BRANDS
+            </Text>
+            <View style={{ gap: theme.spacing.sm, marginBottom: theme.spacing.xl }}>
+              {GENERICS.map((g) => {
+                const b = brandFor(g, brandPrefs[g]);
+                return (
+                  <RowItem
+                    key={g}
+                    title={GENERIC_LABEL[g] ?? g}
+                    subtitle={b.name}
+                    leftSlot={
+                      <View style={{ width: 20, height: 20, borderRadius: 10, backgroundColor: b.accent }} />
+                    }
+                    onPress={() => setBrandSheetGeneric(g)}
+                  />
+                );
+              })}
+            </View>
+          </>
+        ) : null}
+
         {/* Legal & About Section */}
         <Text style={[styles.sectionTitle, { color: t.fg3, fontSize: theme.fontSize.xs }]}>
           ABOUT CAPPY
@@ -224,6 +359,79 @@ export const SettingsScreen: React.FC = () => {
           onPress={() => setThemeSheetVisible(false)}
           block
         />
+      </Sheet>
+
+      {/* Invite sheet */}
+      <Sheet visible={inviteSheet} onClose={() => setInviteSheet(false)}>
+        <Text
+          style={{
+            color: t.fg1,
+            fontFamily: theme.fonts.display,
+            fontSize: theme.fontSize.xl,
+            fontWeight: '700',
+            marginBottom: theme.spacing.md,
+          }}
+        >
+          Invite to {activeFamily?.name}
+        </Text>
+        <View style={{ gap: theme.spacing.sm }}>
+          <RowItem
+            title="Caregiver"
+            subtitle="Full, ongoing access to log and manage doses"
+            onPress={() => handleInvite('caregiver')}
+            showChevron={false}
+          />
+          <RowItem
+            title="Guest · 24 hours"
+            subtitle="Temporary access that auto-expires (e.g. a babysitter)"
+            onPress={() => handleInvite('guest', 24)}
+            showChevron={false}
+          />
+          <RowItem
+            title="Guest · 7 days"
+            subtitle="Temporary access that auto-expires"
+            onPress={() => handleInvite('guest', 24 * 7)}
+            showChevron={false}
+          />
+        </View>
+        <View style={{ height: theme.spacing.base }} />
+        <Button label="Cancel" variant="ghost" onPress={() => setInviteSheet(false)} block />
+      </Sheet>
+
+      {/* Brand selection sheet */}
+      <Sheet visible={brandSheetGeneric != null} onClose={() => setBrandSheetGeneric(null)}>
+        <Text
+          style={{
+            color: t.fg1,
+            fontFamily: theme.fonts.display,
+            fontSize: theme.fontSize.xl,
+            fontWeight: '700',
+            marginBottom: theme.spacing.md,
+          }}
+        >
+          {brandSheetGeneric ? GENERIC_LABEL[brandSheetGeneric] : ''} brand
+        </Text>
+        <View style={{ gap: theme.spacing.sm }}>
+          {(brandSheetGeneric ? brandsForGeneric(brandSheetGeneric) : []).map((b) => (
+            <RowItem
+              key={b.key}
+              title={b.name}
+              leftSlot={
+                <View style={{ width: 20, height: 20, borderRadius: 10, backgroundColor: b.accent }} />
+              }
+              rightSlot={
+                brandSheetGeneric &&
+                brandFor(brandSheetGeneric, brandPrefs[brandSheetGeneric]).key === b.key ? (
+                  <Ionicons name="checkmark" size={20} color={t.brand} />
+                ) : null
+              }
+              onPress={() => handleSetBrand(brandSheetGeneric as string, b.key)}
+              showChevron={false}
+            />
+          ))}
+        </View>
+        <View style={{ height: theme.spacing.base }} />
+        <Button label="Cancel" variant="ghost" onPress={() => setBrandSheetGeneric(null)} block />
       </Sheet>
     </SafeAreaView>
   );

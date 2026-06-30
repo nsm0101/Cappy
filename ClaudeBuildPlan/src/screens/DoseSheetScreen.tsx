@@ -10,6 +10,7 @@ import {
   doses as dosesApi,
   children as childrenApi,
   allergies as allergiesApi,
+  brands as brandsApi,
 } from '@/api';
 import { useTheme } from '@/theme';
 import {
@@ -18,6 +19,7 @@ import {
   doseForMedication,
   resolveAgeGate,
   isAllergicToMedication,
+  brandFor,
   formatClockTime,
   formatRelativeTime,
   formatTimeUntil,
@@ -56,7 +58,25 @@ export const DoseSheetScreen: React.FC = () => {
   const [weightLoading, setWeightLoading] = useState(false);
   const [allergens, setAllergens] = useState<string[]>([]);
   const [allergyLoading, setAllergyLoading] = useState(false);
+  const [brandKey, setBrandKey] = useState<string | undefined>(undefined);
   const [logging, setLogging] = useState(false);
+
+  // Family brand preference for this medication (drives the accent color).
+  useEffect(() => {
+    let mounted = true;
+    void brandsApi
+      .getFamilyBrandPrefs(resolved.family.id)
+      .then((prefs) => {
+        if (mounted) setBrandKey(prefs[med.generic_name]);
+      })
+      .catch(() => undefined);
+    return () => {
+      mounted = false;
+    };
+  }, [resolved.family.id, med.generic_name]);
+
+  const brand = brandFor(med.generic_name, brandKey);
+  const accent = brand.accent;
 
   // Fetch the selected child's latest weight (dosing is weight-based) and
   // their allergies (to gate the recommendation).
@@ -190,7 +210,7 @@ export const DoseSheetScreen: React.FC = () => {
       <View style={styles.headerRow}>
         {heading(
           'Log a dose',
-          med.brand_name ? `${med.brand_name} · ${med.concentration_label}` : med.concentration_label,
+          `${brand.key !== 'generic' ? brand.name : med.brand_name ?? med.generic_name} · ${med.concentration_label}`,
         )}
         <Button label="Close" variant="ghost" onPress={() => navigation.goBack()} />
       </View>
@@ -313,7 +333,7 @@ export const DoseSheetScreen: React.FC = () => {
         </Card>
       ) : medDose ? (
         <>
-          <Card inset style={{ alignItems: 'center' }}>
+          <Card inset style={{ alignItems: 'center', borderTopWidth: 3, borderTopColor: accent }}>
             <Text
               style={{
                 color: t.fg3,
@@ -327,7 +347,7 @@ export const DoseSheetScreen: React.FC = () => {
             </Text>
             <Text
               style={{
-                color: t.accent2,
+                color: accent,
                 fontFamily: theme.fonts.display,
                 fontSize: theme.fontSize.doseNumeral,
                 lineHeight: theme.lineHeight.doseNumeral,

@@ -1,4 +1,6 @@
-import type { MedicationFormulation } from '@/api/database.types';
+import type { Database } from '@/api/database.types';
+
+type MedicationFormulation = Database['public']['Enums']['medication_formulation'];
 
 /**
  * Format a dose amount for display, picking the most natural unit

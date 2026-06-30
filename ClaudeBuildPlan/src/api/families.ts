@@ -99,7 +99,8 @@ export const revokeCaregiver = async (caregiverId: string): Promise<void> => {
  */
 export const createInvite = async (
   familyId: string,
-  proposedRole: 'admin' | 'caregiver' | 'readonly',
+  proposedRole: 'admin' | 'caregiver' | 'readonly' | 'guest',
+  guestExpiresHours?: number,
 ): Promise<{ code: string; expires_at: string }> => {
   const { data: userData } = await supabase.auth.getUser();
   if (!userData.user) throw new Error('Not signed in');
@@ -117,6 +118,8 @@ export const createInvite = async (
       proposed_role: proposedRole,
       created_by: userData.user.id,
       expires_at,
+      guest_expires_hours:
+        proposedRole === 'guest' && guestExpiresHours ? guestExpiresHours : null,
     })
     .select('code, expires_at')
     .single();

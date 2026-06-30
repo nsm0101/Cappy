@@ -9,6 +9,8 @@ export {
   isAllergicToMedication,
 } from './allergens';
 export type { Allergen } from './allergens';
+export { BRANDS_BY_GENERIC, brandFor, brandsForGeneric } from './brands';
+export type { Brand } from './brands';
 export {
   computeDosing,
   doseForMedication,

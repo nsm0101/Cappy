@@ -11,8 +11,6 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instantiate createClient with right options
-  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "14.5"
   }
@@ -324,6 +322,7 @@ export type Database = {
       family_caregivers: {
         Row: {
           created_at: string
+          expires_at: string | null
           family_id: string
           id: string
           joined_at: string | null
@@ -334,6 +333,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          expires_at?: string | null
           family_id: string
           id?: string
           joined_at?: string | null
@@ -344,6 +344,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          expires_at?: string | null
           family_id?: string
           id?: string
           joined_at?: string | null
@@ -369,6 +370,45 @@ export type Database = {
           },
         ]
       }
+      family_med_brands: {
+        Row: {
+          brand_key: string
+          family_id: string
+          generic: string
+          updated_at: string
+          updated_by: string
+        }
+        Insert: {
+          brand_key: string
+          family_id: string
+          generic: string
+          updated_at?: string
+          updated_by: string
+        }
+        Update: {
+          brand_key?: string
+          family_id?: string
+          generic?: string
+          updated_at?: string
+          updated_by?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "family_med_brands_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "family_med_brands_updated_by_fkey"
+            columns: ["updated_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       invites: {
         Row: {
           accepted_at: string | null
@@ -378,6 +418,7 @@ export type Database = {
           created_by: string
           expires_at: string
           family_id: string
+          guest_expires_hours: number | null
           id: string
           proposed_role: Database["public"]["Enums"]["caregiver_role"]
         }
@@ -389,6 +430,7 @@ export type Database = {
           created_by: string
           expires_at: string
           family_id: string
+          guest_expires_hours?: number | null
           id?: string
           proposed_role: Database["public"]["Enums"]["caregiver_role"]
         }
@@ -400,6 +442,7 @@ export type Database = {
           created_by?: string
           expires_at?: string
           family_id?: string
+          guest_expires_hours?: number | null
           id?: string
           proposed_role?: Database["public"]["Enums"]["caregiver_role"]
         }
@@ -626,7 +669,7 @@ export type Database = {
       }
     }
     Enums: {
-      caregiver_role: "admin" | "caregiver" | "readonly"
+      caregiver_role: "admin" | "caregiver" | "readonly" | "guest"
       caregiver_status: "active" | "revoked" | "pending"
       dose_status: "active" | "superseded"
       medication_formulation:
@@ -763,7 +806,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      caregiver_role: ["admin", "caregiver", "readonly"],
+      caregiver_role: ["admin", "caregiver", "readonly", "guest"],
       caregiver_status: ["active", "revoked", "pending"],
       dose_status: ["active", "superseded"],
       medication_formulation: [
@@ -776,7 +819,4 @@ export const Constants = {
       tag_status: ["active", "revoked", "pending"],
     },
   },
-} as const;
-
-export type MedicationFormulation = Database["public"]["Enums"]["medication_formulation"];
-
+} as const
