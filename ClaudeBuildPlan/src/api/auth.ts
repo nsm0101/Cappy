@@ -38,6 +38,35 @@ export const verifyEmailOtp = async (
   return { session: data.session, error };
 };
 
+/**
+ * Create an account with email + password. With "Confirm email" disabled
+ * in Supabase Auth settings, this returns a session immediately (the user
+ * is signed in). With confirmation enabled, session is null until they
+ * confirm via email.
+ */
+export const signUpWithPassword = async (
+  email: string,
+  password: string,
+): Promise<{ error: Error | null }> => {
+  const { error } = await supabase.auth.signUp({
+    email: email.trim().toLowerCase(),
+    password,
+  });
+  return { error };
+};
+
+/** Sign in with an existing email + password. */
+export const signInWithPassword = async (
+  email: string,
+  password: string,
+): Promise<{ error: Error | null }> => {
+  const { error } = await supabase.auth.signInWithPassword({
+    email: email.trim().toLowerCase(),
+    password,
+  });
+  return { error };
+};
+
 export const signOut = async (): Promise<{ error: Error | null }> => {
   const { error } = await supabase.auth.signOut();
   return { error };

@@ -193,8 +193,8 @@ Run the 10-step "minimum viable test" in `HOW-TO-FINISH.md`: sign up → create 
 
 # P2 — Before beta / external testers
 
-### BE-4 · Confirm Supabase Auth (email OTP) config — **P2 · S · Backend**
-**Status:** IN PROGRESS (2026-06-29) — **Code done:** sign-in switched from the (non-functional) magic-link redirect to a robust **6-digit email OTP code** path. `SignInScreen` now has a code-entry UI; `auth.ts signInWithEmail` drops `emailRedirectTo` (code-only, no deep-link dependency); session is established by `verifyEmailOtp`. Typecheck clean. **Remaining (founder, dashboard):** Authentication → Emails → "Magic Link" template must include `{{ .Token }}` so the recipient sees the code (see chat for snippet). Built-in SMTP is rate-limited (~3-4/hr) — fine for self-testing; custom SMTP needed before external testers.
+### BE-4 · Auth method for alpha — **P1 · S · Backend/App**
+**Status:** DONE (2026-06-29) — Pivoted to **email + password** for the alpha after email OTP hit an SMTP `535 Authentication credentials invalid` (custom SMTP creds wrong). `auth.ts` adds `signUpWithPassword`/`signInWithPassword`; `AuthContext` exposes them; `SignInScreen` rebuilt with email+password + sign-in/create-account toggle. Pure JS — works on the current build, no rebuild. Typecheck clean. **Founder dashboard step:** Authentication → Providers → Email → turn **OFF "Confirm email"** so sign-up returns a session immediately (no email send needed). OTP helpers remain in `auth.ts` (unused) if we revisit passwordless once SMTP is fixed. Next: **AUTH-APPLE** (Sign in with Apple) on the next native build.
 The app uses magic-link / OTP auth. In the dashboard, set the Site URL and additional redirect URLs (`cappy://`, `https://cappy.closedose.com`), confirm the email template, and verify rate limits for alpha.
 **Acceptance:** A magic link / OTP delivered to a test inbox signs the device in.
 **Depends on:** ENV-1.

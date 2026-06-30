@@ -15,6 +15,14 @@ type AuthContextValue = AuthState & {
     email: string,
     token: string,
   ) => Promise<{ error: Error | null }>;
+  signInWithPassword: (
+    email: string,
+    password: string,
+  ) => Promise<{ error: Error | null }>;
+  signUpWithPassword: (
+    email: string,
+    password: string,
+  ) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
 };
 
@@ -64,6 +72,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const result = await authApi.verifyEmailOtp(email, token);
         return { error: result.error };
       },
+      signInWithPassword: authApi.signInWithPassword,
+      signUpWithPassword: authApi.signUpWithPassword,
       signOut: async () => {
         await authApi.signOut();
       },

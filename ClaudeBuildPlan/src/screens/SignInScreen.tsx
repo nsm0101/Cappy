@@ -1,49 +1,50 @@
 import React, { useState } from 'react';
-import { Alert, KeyboardAvoidingView, Platform, StyleSheet, Text, View } from 'react-native';
+import {
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button, Card, Field, Wordmark } from '@/components';
 import { useAuth } from '@/auth/AuthContext';
 import { useTheme } from '@/theme';
 
+type Mode = 'signin' | 'signup';
+
 export const SignInScreen: React.FC = () => {
   const theme = useTheme();
   const t = theme.tokens;
-  const { signInWithEmail, verifyEmailOtp } = useAuth();
+  const { signInWithPassword, signUpWithPassword } = useAuth();
+  const [mode, setMode] = useState<Mode>('signin');
   const [email, setEmail] = useState('');
-  const [sending, setSending] = useState(false);
-  const [sent, setSent] = useState(false);
-  const [code, setCode] = useState('');
-  const [verifying, setVerifying] = useState(false);
+  const [password, setPassword] = useState('');
+  const [busy, setBusy] = useState(false);
 
-  const handleSend = async () => {
+  const isSignup = mode === 'signup';
+
+  const handleSubmit = async () => {
     const trimmed = email.trim().toLowerCase();
     if (!trimmed.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
       Alert.alert('Email needed', 'Please enter a valid email address.');
       return;
     }
-    setSending(true);
-    const { error } = await signInWithEmail(trimmed);
-    setSending(false);
-    if (error) {
-      Alert.alert("Couldn't send", error.message);
+    if (password.length < 6) {
+      Alert.alert('Password too short', 'Use at least 6 characters.');
       return;
     }
-    setSent(true);
-  };
-
-  const handleVerify = async () => {
-    const trimmed = code.trim();
-    if (!/^[0-9]{6}$/.test(trimmed)) {
-      Alert.alert('Enter the code', 'Type the 6-digit code from the email.');
-      return;
-    }
-    setVerifying(true);
-    // On success, the auth state listener flips us into the app — no
-    // manual navigation needed here.
-    const { error } = await verifyEmailOtp(email.trim().toLowerCase(), trimmed);
-    setVerifying(false);
+    setBusy(true);
+    // On success the auth-state listener flips us into the app — no manual
+    // navigation needed here.
+    const { error } = isSignup
+      ? await signUpWithPassword(trimmed, password)
+      : await signInWithPassword(trimmed, password);
+    setBusy(false);
     if (error) {
-      Alert.alert("That code didn't work", error.message);
+      Alert.alert(isSignup ? "Couldn't create account" : "Couldn't sign in", error.message);
     }
   };
 
@@ -67,7 +68,7 @@ export const SignInScreen: React.FC = () => {
               marginBottom: theme.spacing.sm,
             }}
           >
-            {sent ? 'Check your email' : 'Welcome'}
+            {isSignup ? 'Create your account' : 'Welcome back'}
           </Text>
           <Text
             style={{
@@ -78,69 +79,66 @@ export const SignInScreen: React.FC = () => {
               marginBottom: theme.spacing.xl,
             }}
           >
-            {sent
-              ? `We emailed a 6-digit code to ${email}. Enter it below to sign in.`
-              : "Sign in with your email — we'll send you a 6-digit code."}
+            {isSignup
+              ? 'Set up Cappy to coordinate doses with your family.'
+              : 'Sign in to coordinate doses with your family.'}
           </Text>
 
-          {!sent ? (
-            <Card>
-              <Field
-                label="Email"
-                value={email}
-                onChangeText={setEmail}
-                placeholder="you@example.com"
-                keyboardType="email-address"
-                autoCapitalize="none"
-                autoComplete="email"
-                autoCorrect={false}
-                editable={!sending}
-              />
-              <View style={{ height: theme.spacing.base }} />
-              <Button
-                label={sending ? 'Sending…' : 'Send sign-in link'}
-                onPress={handleSend}
-                disabled={sending}
-                loading={sending}
-                block
-              />
-            </Card>
-          ) : (
-            <View style={{ gap: theme.spacing.md }}>
-              <Card>
-                <Field
-                  label="6-digit code"
-                  value={code}
-                  onChangeText={(text) => setCode(text.replace(/[^0-9]/g, '').slice(0, 6))}
-                  placeholder="123456"
-                  keyboardType="number-pad"
-                  autoComplete="one-time-code"
-                  textContentType="oneTimeCode"
-                  maxLength={6}
-                  editable={!verifying}
-                />
-                <View style={{ height: theme.spacing.base }} />
-                <Button
-                  label={verifying ? 'Verifying…' : 'Verify code'}
-                  onPress={handleVerify}
-                  disabled={verifying || code.length < 6}
-                  loading={verifying}
-                  block
-                />
-              </Card>
-              <Button
-                variant="secondary"
-                label="Use a different email"
-                onPress={() => {
-                  setSent(false);
-                  setEmail('');
-                  setCode('');
-                }}
-                disabled={verifying}
-                block
-              />
-            </View>
-          )}
+          <Card>
+            <Field
+              label="Email"
+              value={email}
+              onChangeText={setEmail}
+              placeholder="you@example.com"
+              keyboardType="email-address"
+              autoCapitalize="none"
+              autoComplete="email"
+              textContentType="emailAddress"
+              autoCorrect={false}
+              editable={!busy}
+            />
+            <View style={{ height: theme.spacing.base }} />
+            <Field
+              label="Password"
+              value={password}
+              onChangeText={setPassword}
+              placeholder="At least 6 characters"
+              secureTextEntry
+              autoCapitalize="none"
+              autoComplete={isSignup ? 'new-password' : 'current-password'}
+              textContentType={isSignup ? 'newPassword' : 'password'}
+              autoCorrect={false}
+              editable={!busy}
+            />
+            <View style={{ height: theme.spacing.base }} />
+            <Button
+              label={busy ? 'Please wait…' : isSignup ? 'Create account' : 'Sign in'}
+              onPress={handleSubmit}
+              disabled={busy || !email || password.length < 6}
+              loading={busy}
+              block
+            />
+          </Card>
+
+          <Pressable
+            onPress={() => setMode(isSignup ? 'signin' : 'signup')}
+            disabled={busy}
+            style={{ marginTop: theme.spacing.lg, alignItems: 'center' }}
+            accessibilityRole="button"
+            accessibilityLabel={
+              isSignup ? 'Switch to sign in' : 'Switch to create an account'
+            }
+          >
+            <Text
+              style={{
+                color: t.brand,
+                fontFamily: theme.fonts.sansSemibold,
+                fontSize: theme.fontSize.base,
+              }}
+            >
+              {isSignup ? 'Already have an account? Sign in' : 'New here? Create an account'}
+            </Text>
+          </Pressable>
 
           <View style={{ marginTop: theme.spacing.xxl }}>
             <Text
