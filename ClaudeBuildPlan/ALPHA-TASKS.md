@@ -175,7 +175,8 @@ Fill the real identifiers so `eas build` can sign for a device.
 **Depends on:** APP-1, NAV-1 (app must compile). External: Apple account (done — enrolled).
 
 ### UL-1 · Stand up Universal Links (AASA) — **P1 · L · iOS deploy**
-**Status:** DONE
+**Status:** DONE (verified live 2026-06-30) — AASA served at https://cappy.closedose.com/.well-known/apple-app-site-association via a Cloudflare Worker (`/aasa-worker.js` + `/wrangler.jsonc`, deployed with `npx wrangler deploy`; custom domain on Cloudflare). Returns correct body (`H2AGCK2WB8.com.closedose.cappy`, `/t/*`) with `Content-Type: application/json`. App side already wired (`applinks:cappy.closedose.com` entitlement + navigation linking). Device verification (tap-to-open) pending reinstall under QA-1.
+**Original status:** DONE
 Per TICKET-UL. NFC cold-launch via HTTPS needs the Apple App Site Association file served at the tag host.
 - Create `public/.well-known/apple-app-site-association` (no extension) with `"appIDs": ["H2AGCK2WB8.com.closedose.cappy"]` and component `/t/*`.
 - DNS: point `cappy.closedose.com` at a host (Cloudflare Pages / GitHub Pages / redirect) that serves the AASA over HTTPS with `Content-Type: application/json` and no redirect.
