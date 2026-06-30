@@ -1,4 +1,5 @@
 import React from 'react';
+import { Pressable } from 'react-native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import {
   createBottomTabNavigator,
@@ -7,6 +8,7 @@ import {
 import type { RouteProp } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 
+import { useTheme } from '@/theme';
 import { TabBar, type TabItem } from '@/components';
 import { HomeScreen } from '@/screens/HomeScreen';
 import { ScanScreen } from '@/screens/ScanScreen';
@@ -83,20 +85,50 @@ const Tabs: React.FC = () => (
   </Tab.Navigator>
 );
 
-export const AppNavigator: React.FC = () => (
-  <Stack.Navigator screenOptions={{ headerShown: false }}>
-    <Stack.Screen name="Tabs" component={Tabs} />
+export const AppNavigator: React.FC = () => {
+  const theme = useTheme();
+  const t = theme.tokens;
 
-    {/* Modal-presentation flows */}
-    <Stack.Group screenOptions={{ presentation: 'modal' }}>
-      <Stack.Screen name="DoseSheet" component={DoseSheetScreen} />
-      <Stack.Screen name="CreateFamily" component={CreateFamilyScreen} />
-      <Stack.Screen name="AcceptInvite" component={AcceptInviteScreen} />
-      <Stack.Screen name="AddChild" component={AddChildScreen} />
-    </Stack.Group>
+  return (
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="Tabs" component={Tabs} />
 
-    {/* Card-presentation screens */}
-    <Stack.Screen name="ChildDetail" component={ChildDetailScreen} />
-    <Stack.Screen name="Scan" component={ScanDeepLinkScreen} />
-  </Stack.Navigator>
-);
+      {/* Modal-presentation flows */}
+      <Stack.Group screenOptions={{ presentation: 'modal' }}>
+        <Stack.Screen name="DoseSheet" component={DoseSheetScreen} />
+        <Stack.Screen name="CreateFamily" component={CreateFamilyScreen} />
+        <Stack.Screen name="AcceptInvite" component={AcceptInviteScreen} />
+        <Stack.Screen name="AddChild" component={AddChildScreen} />
+      </Stack.Group>
+
+      {/* Card-presentation screens */}
+      <Stack.Screen name="ChildDetail" component={ChildDetailScreen} />
+
+      {/* Scan via NFC cold-launch — show a header with a Home button so the
+          user can always get back to the tabs (this screen lives outside the
+          tab navigator, so there's no tab bar otherwise). */}
+      <Stack.Screen
+        name="Scan"
+        component={ScanDeepLinkScreen}
+        options={({ navigation }) => ({
+          headerShown: true,
+          title: 'Scan tag',
+          headerStyle: { backgroundColor: t.bgCard },
+          headerTintColor: t.fg1,
+          headerShadowVisible: false,
+          headerLeft: () => (
+            <Pressable
+              onPress={() => navigation.navigate('Tabs')}
+              accessibilityRole="button"
+              accessibilityLabel="Go to Home"
+              hitSlop={12}
+              style={{ paddingHorizontal: 4 }}
+            >
+              <Ionicons name="home-outline" size={22} color={t.brand} />
+            </Pressable>
+          ),
+        })}
+      />
+    </Stack.Navigator>
+  );
+};

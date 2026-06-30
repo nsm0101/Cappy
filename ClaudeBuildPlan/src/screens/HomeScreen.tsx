@@ -11,7 +11,12 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Avatar, Button, Card, DosePill, RowItem, Wordmark } from '@/components';
-import { families as familiesApi, children as childrenApi, doses as dosesApi } from '@/api';
+import {
+  families as familiesApi,
+  children as childrenApi,
+  doses as dosesApi,
+  realtime as realtimeApi,
+} from '@/api';
 import type { FamilyWithRole, Child, DoseStatus } from '@/api';
 import { useAuth } from '@/auth/AuthContext';
 import { useTheme } from '@/theme';
@@ -106,6 +111,21 @@ export const HomeScreen: React.FC = () => {
       void loadChildren(activeFamily.id);
     }
   }, [activeFamily, loadChildren]);
+
+  // RT-1: live updates. Subscribe to dose_events for the active family's
+  // children; when any caregiver logs a dose, refetch so Home reflects it
+  // without a manual pull-to-refresh. Re-subscribes if the family or the
+  // set of children changes.
+  const childIdsKey = childrenList.map((c) => c.id).join(',');
+  useEffect(() => {
+    if (!activeFamily || childIdsKey.length === 0) return;
+    const childIds = childIdsKey.split(',');
+    const familyId = activeFamily.id;
+    const dispose = realtimeApi.subscribeFamilyDoses(familyId, childIds, () => {
+      void loadChildren(familyId);
+    });
+    return dispose;
+  }, [activeFamily, childIdsKey, loadChildren]);
 
   const handleRefresh = async () => {
     setRefreshing(true);
