@@ -1,0 +1,619 @@
+openapi: 3.1.0
+info:
+  title: Cappy Backend API
+  version: 0.1.0-alpha
+  description: |
+    Backend API for Cappy alpha. All endpoints require authentication
+    via Supabase JWT in the Authorization header except where noted.
+
+    Error responses follow RFC 9457 Problem Details.
+
+    Authorization failures and "resource not found in your scope" both
+    return 404 to avoid existence leaks.
+  contact:
+    name: Cappy Engineering
+servers:
+  - url: https://api-staging.cappy.app/v1
+    description: Staging
+  - url: https://api.cappy.app/v1
+    description: Production
+
+security:
+  - BearerAuth: []
+
+tags:
+  - name: identity
+  - name: family
+  - name: children
+  - name: medications
+  - name: doses
+  - name: nfc
+  - name: invites
+  - name: weight
+
+paths:
+
+  /healthz:
+    get:
+      summary: Liveness probe
+      security: []
+      tags: [identity]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: { type: string, enum: [ok] }
+                  version: { type: string }
+
+  /me:
+    get:
+      summary: Current user profile
+      tags: [identity]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/User' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /families:
+    post:
+      summary: Create a family (caller becomes admin)
+      tags: [family]
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                name:
+                  type: string
+                  minLength: 1
+                  maxLength: 100
+              example:
+                name: The Smiths
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Family' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /families/{familyId}:
+    parameters:
+      - $ref: '#/components/parameters/FamilyId'
+    get:
+      summary: Get family details
+      tags: [family]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Family' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /families/{familyId}/caregivers:
+    parameters:
+      - $ref: '#/components/parameters/FamilyId'
+    get:
+      summary: List caregivers in a family
+      tags: [family]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  caregivers:
+                    type: array
+                    items: { $ref: '#/components/schemas/Caregiver' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /families/{familyId}/caregivers/{caregiverId}:
+    parameters:
+      - $ref: '#/components/parameters/FamilyId'
+      - name: caregiverId
+        in: path
+        required: true
+        schema: { type: string, format: uuid }
+    delete:
+      summary: Revoke a caregiver's access (soft-delete)
+      tags: [family]
+      responses:
+        '204': { description: Revoked }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /families/{familyId}/invites:
+    parameters:
+      - $ref: '#/components/parameters/FamilyId'
+    post:
+      summary: Generate a 6-digit invite code (admin only)
+      tags: [invites]
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [proposedRole]
+              properties:
+                proposedRole:
+                  type: string
+                  enum: [admin, caregiver, readonly]
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Invite' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /invites/accept:
+    post:
+      summary: Accept an invite using its code
+      tags: [invites]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [code]
+              properties:
+                code:
+                  type: string
+                  pattern: '^[0-9]{6}$'
+      responses:
+        '200':
+          description: Accepted
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Caregiver' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '410':
+          description: Invite expired or already used
+          content:
+            application/problem+json:
+              schema: { $ref: '#/components/schemas/Problem' }
+
+  /families/{familyId}/children:
+    parameters:
+      - $ref: '#/components/parameters/FamilyId'
+    get:
+      summary: List children in a family
+      tags: [children]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  children:
+                    type: array
+                    items: { $ref: '#/components/schemas/Child' }
+    post:
+      summary: Add a child to the family (admin only)
+      tags: [children]
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [displayName, dateOfBirth]
+              properties:
+                displayName: { type: string, minLength: 1, maxLength: 50 }
+                dateOfBirth: { type: string, format: date }
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Child' }
+
+  /children/{childId}/weight:
+    parameters:
+      - name: childId
+        in: path
+        required: true
+        schema: { type: string, format: uuid }
+    post:
+      summary: Record a weight measurement
+      tags: [weight]
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [valueGrams, recordedAt]
+              properties:
+                valueGrams: { type: integer, minimum: 1000, maximum: 200000 }
+                recordedAt: { type: string, format: date-time }
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/WeightRecord' }
+    get:
+      summary: List weight history for a child
+      tags: [weight]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  weights:
+                    type: array
+                    items: { $ref: '#/components/schemas/WeightRecord' }
+
+  /medications:
+    get:
+      summary: List the medication catalog
+      tags: [medications]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  medications:
+                    type: array
+                    items: { $ref: '#/components/schemas/Medication' }
+
+  /nfc/resolve:
+    post:
+      summary: Resolve an NFC tag UID to its medication+family context
+      tags: [nfc]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [tagUid]
+              properties:
+                tagUid: { type: string, minLength: 1, maxLength: 32 }
+      responses:
+        '200':
+          description: Resolved
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/NfcResolution' }
+        '404':
+          description: Unknown tag, or known but not in caller's scope
+          content:
+            application/problem+json:
+              schema: { $ref: '#/components/schemas/Problem' }
+
+  /nfc/tags:
+    post:
+      summary: Register a new tag (admin only)
+      tags: [nfc]
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [tagUid, familyId, medicationId]
+              properties:
+                tagUid: { type: string }
+                familyId: { type: string, format: uuid }
+                medicationId: { type: string, format: uuid }
+                label: { type: string, maxLength: 100 }
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/NfcTag' }
+
+  /doses:
+    post:
+      summary: Log a dose
+      tags: [doses]
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [childId, medicationId, givenAt, amountMg]
+              properties:
+                childId: { type: string, format: uuid }
+                medicationId: { type: string, format: uuid }
+                givenAt: { type: string, format: date-time }
+                amountMg: { type: number, minimum: 0 }
+                amountVolumeMl: { type: number, minimum: 0, nullable: true }
+                unitCount: { type: integer, minimum: 1, nullable: true }
+                note: { type: string, maxLength: 500, nullable: true }
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DoseEvent' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+
+  /children/{childId}/doses:
+    parameters:
+      - name: childId
+        in: path
+        required: true
+        schema: { type: string, format: uuid }
+    get:
+      summary: List recent doses for a child
+      tags: [doses]
+      parameters:
+        - name: limit
+          in: query
+          schema: { type: integer, minimum: 1, maximum: 100, default: 50 }
+        - name: before
+          in: query
+          schema: { type: string, format: date-time }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  doses:
+                    type: array
+                    items: { $ref: '#/components/schemas/DoseEvent' }
+                  nextBefore: { type: string, format: date-time, nullable: true }
+
+  /doses/{doseId}/correction:
+    parameters:
+      - name: doseId
+        in: path
+        required: true
+        schema: { type: string, format: uuid }
+    post:
+      summary: Correct a previously logged dose
+      tags: [doses]
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [correction]
+              properties:
+                correction:
+                  type: object
+                  required: [givenAt, amountMg]
+                  properties:
+                    givenAt: { type: string, format: date-time }
+                    amountMg: { type: number, minimum: 0 }
+                    amountVolumeMl: { type: number, nullable: true }
+                    unitCount: { type: integer, nullable: true }
+                    note: { type: string, maxLength: 500, nullable: true }
+                reason: { type: string, maxLength: 500, nullable: true }
+      responses:
+        '201':
+          description: Correction recorded
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  original: { $ref: '#/components/schemas/DoseEvent' }
+                  correction: { $ref: '#/components/schemas/DoseEvent' }
+
+components:
+
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+    FamilyId:
+      name: familyId
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: true
+      schema: { type: string, format: uuid }
+
+  responses:
+    BadRequest:
+      description: Validation error
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+    Unauthorized:
+      description: Missing or invalid token
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+    Forbidden:
+      description: Authenticated but not allowed
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+    NotFound:
+      description: Resource not found, or not in caller's scope
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+
+  schemas:
+
+    Problem:
+      type: object
+      required: [type, title, status]
+      properties:
+        type: { type: string, format: uri }
+        title: { type: string }
+        status: { type: integer }
+        detail: { type: string }
+        instance: { type: string }
+
+    User:
+      type: object
+      required: [id, email, mfaEnrolled, createdAt]
+      properties:
+        id: { type: string, format: uuid }
+        email: { type: string, format: email }
+        displayName: { type: string, nullable: true }
+        mfaEnrolled: { type: boolean }
+        createdAt: { type: string, format: date-time }
+
+    Family:
+      type: object
+      required: [id, name, createdAt, role]
+      properties:
+        id: { type: string, format: uuid }
+        name: { type: string }
+        createdAt: { type: string, format: date-time }
+        role:
+          type: string
+          enum: [admin, caregiver, readonly]
+          description: The caller's role in this family
+
+    Caregiver:
+      type: object
+      required: [id, userId, familyId, role, status]
+      properties:
+        id: { type: string, format: uuid }
+        userId: { type: string, format: uuid }
+        familyId: { type: string, format: uuid }
+        role: { type: string, enum: [admin, caregiver, readonly] }
+        status: { type: string, enum: [active, revoked, pending] }
+        displayName: { type: string, nullable: true }
+
+    Invite:
+      type: object
+      required: [code, expiresAt, proposedRole]
+      properties:
+        code: { type: string, pattern: '^[0-9]{6}$' }
+        expiresAt: { type: string, format: date-time }
+        proposedRole: { type: string, enum: [admin, caregiver, readonly] }
+
+    Child:
+      type: object
+      required: [id, familyId, displayName, dateOfBirth]
+      properties:
+        id: { type: string, format: uuid }
+        familyId: { type: string, format: uuid }
+        displayName: { type: string }
+        dateOfBirth: { type: string, format: date }
+        avatarUrl: { type: string, nullable: true }
+
+    WeightRecord:
+      type: object
+      required: [id, childId, valueGrams, recordedAt]
+      properties:
+        id: { type: string, format: uuid }
+        childId: { type: string, format: uuid }
+        valueGrams: { type: integer }
+        recordedAt: { type: string, format: date-time }
+
+    Medication:
+      type: object
+      required: [id, genericName, concentrationLabel, formulation]
+      properties:
+        id: { type: string, format: uuid }
+        genericName: { type: string }
+        brandName: { type: string, nullable: true }
+        concentrationLabel: { type: string }
+        concentrationMgPerMl: { type: number }
+        formulation:
+          type: string
+          enum: [liquid_suspension, infant_drops, chewable, oral_disintegrating]
+        rxStatus: { type: string, enum: [otc, rx] }
+        minAgeMonths: { type: integer }
+
+    NfcTag:
+      type: object
+      required: [id, tagUid, familyId, medicationId, status]
+      properties:
+        id: { type: string, format: uuid }
+        tagUid: { type: string }
+        familyId: { type: string, format: uuid }
+        medicationId: { type: string, format: uuid }
+        status: { type: string, enum: [active, revoked, pending] }
+        label: { type: string, nullable: true }
+
+    NfcResolution:
+      type: object
+      required: [tagId, family, medication, children]
+      properties:
+        tagId: { type: string, format: uuid }
+        family: { $ref: '#/components/schemas/Family' }
+        medication: { $ref: '#/components/schemas/Medication' }
+        children:
+          type: array
+          items:
+            type: object
+            required: [child, lastDose, status]
+            properties:
+              child: { $ref: '#/components/schemas/Child' }
+              lastDose: { $ref: '#/components/schemas/DoseEvent', nullable: true }
+              status:
+                type: string
+                enum: [safe, due_soon, too_early]
+
+    DoseEvent:
+      type: object
+      required: [id, childId, medicationId, givenAt, amountMg, loggedBy, status]
+      properties:
+        id: { type: string, format: uuid }
+        childId: { type: string, format: uuid }
+        medicationId: { type: string, format: uuid }
+        givenAt: { type: string, format: date-time }
+        amountMg: { type: number }
+        amountVolumeMl: { type: number, nullable: true }
+        unitCount: { type: integer, nullable: true }
+        note: { type: string, nullable: true }
+        loggedBy:
+          type: object
+          properties:
+            userId: { type: string, format: uuid }
+            displayName: { type: string, nullable: true }
+        status: { type: string, enum: [active, superseded] }
+        loggedAt: { type: string, format: date-time }

@@ -1,0 +1,75 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build artifacts
+dist/
+build/
+*.tsbuildinfo
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Test artifacts
+coverage/
+*.lcov
+.nyc_output/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Editor
+.vscode/
+!.vscode/settings.json
+!.vscode/extensions.json
+.idea/
+*.swp
+*.swo
+*~
+
+# iOS
+ios/build/
+ios/DerivedData/
+ios/*.xcworkspace/xcuserdata/
+ios/*.xcodeproj/xcuserdata/
+ios/*.xcodeproj/project.xcworkspace/xcuserdata/
+ios/Pods/
+
+# Android (when built)
+android/build/
+android/.gradle/
+android/local.properties
+android/app/build/
+android/captures/
+android/app/release/
+android/app/debug/
+
+# Compliance — never commit signed PDFs of BAAs to git
+compliance/baas/*.pdf
+
+# Secrets — defensive
+*.pem
+*.key
+*.p12
+*.mobileprovision
+*.cer
+
+# Output of database dumps
+*.sql.gz
+*.dump
+
+# Temp
+.tmp/
+tmp/

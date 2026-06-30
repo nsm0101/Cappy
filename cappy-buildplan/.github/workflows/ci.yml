@@ -1,0 +1,137 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+
+  server:
+    name: Server (lint, typecheck, test)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: server
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: cappy_test
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+          cache-dependency-path: server/pnpm-lock.yaml
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Generate test keys
+        run: |
+          echo "CAPPY_MASTER_KEY_BASE64=$(openssl rand -base64 32)" >> $GITHUB_ENV
+          echo "CAPPY_LOOKUP_HMAC_KEY_BASE64=$(openssl rand -base64 32)" >> $GITHUB_ENV
+
+      - name: Test
+        run: pnpm test
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/cappy_test
+          NODE_ENV: test
+
+      - name: Upload coverage
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-server
+          path: server/coverage/
+
+  contracts:
+    name: Contracts (OpenAPI lint)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '20' }
+      - name: Lint OpenAPI
+        run: npx --yes @redocly/cli@latest lint contracts/openapi/cappy.yaml
+
+  security:
+    name: Security scans
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Gitleaks (secret scan)
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Semgrep
+        uses: returntocorp/semgrep-action@v1
+        with:
+          config: >-
+            p/typescript
+            p/owasp-top-ten
+            p/secrets
+
+      - name: OSV dependency scan
+        uses: google/osv-scanner-action/osv-scanner-action@v1
+        with:
+          scan-args: |-
+            --recursive
+            ./
+
+  policy:
+    name: Healthcare policy checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check for forbidden patterns
+        run: |
+          # Block PHI in URL parameters
+          if grep -rn 'req.query.\(email\|phone\|name\|dob\|note\)' server/src/; then
+            echo "::error::PHI in query parameters detected"
+            exit 1
+          fi
+          # Block console.log in server code
+          if grep -rn '^[^/]*console\.log' server/src/; then
+            echo "::error::console.log in server code (use logger)"
+            exit 1
+          fi
+          # Block raw SQL outside repository files
+          if grep -rn 'sql`' server/src/modules/*/service.ts \
+               server/src/modules/*/routes.ts; then
+            echo "::error::raw SQL outside repository (use Drizzle queries)"
+            exit 1
+          fi
