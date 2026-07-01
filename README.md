@@ -37,13 +37,12 @@ To start a working session:
 ## Repository map
 
 ```
+/app/            The Cappy mobile app (Expo/React Native + Supabase) — start here
 /agents/         Specialist agent system prompts
 /project/        Plans, tickets, retros, founder feedback
 /docs/           Product brief, ADRs, runbooks
 /contracts/      API specs, event specs, schema specs
-/server/         Backend application code
-/ios/            iOS application code (created in Milestone 2)
-/android/        Android application code (created in Milestone 4)
+/server/         Backend application code (legacy HIPAA-track scaffold, not in active use — see /app)
 /infra/          Terraform / Pulumi for production infrastructure
 /security/       Threat models, security findings, scanning config
 /compliance/     Internal HIPAA policies and procedures
@@ -53,6 +52,10 @@ To start a working session:
 /.github/        CI/CD workflows
 ```
 
+`/app` is an Expo (React Native) app backed by Supabase (Postgres + Auth +
+Storage + Edge Functions, project `cappy-dev`). See `/app/README.md` and
+`/app/ALPHA-TASKS.md` for current build status and how to run it.
+
 ## Where to find specific things
 
 | You want to know | Look here |
@@ -61,8 +64,9 @@ To start a working session:
 | Why we made some decision | `/docs/adr/` |
 | The data model | `/contracts/schema/` |
 | What an agent is allowed to do | `/AGENTS.md` and `/agents/{role}.md` |
-| What the API looks like | `/contracts/openapi/cappy.yaml` |
-| How to run the server locally | `/server/README.md` |
+| What the API looks like | `/contracts/openapi/cappy.yaml` (legacy `/server` design) |
+| How to run the app locally | `/app/README.md` |
+| The live database schema | `/app/supabase/migrations/` (Supabase project `cappy-dev`) |
 | Our list of vendors with BAAs | `/compliance/baa-register.md` |
 
 ## License and ownership

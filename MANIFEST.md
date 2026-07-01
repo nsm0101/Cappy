@@ -104,8 +104,14 @@ A complete listing of every file in this kit and what it does.
 - `deploy-staging.yml` — runs on merge to main
 - `deploy-prod.yml` — runs on tag push
 
-## /ios/ — iOS app (created in Milestone 2)
-- `README.md` — placeholder explaining what goes here
+## /app/ — the real Cappy app (superseded the original /ios + /server plan)
+
+The original plan below (native iOS in `/ios`, Fastify backend in `/server`)
+was superseded by a Posture-C decision to ship Expo/React Native + Supabase
+instead. The actual app lives in `/app` — see `/app/README.md`,
+`/app/BUILD-STATUS.md`, and `/app/ALPHA-TASKS.md` for what's built. This
+manifest below still describes the original foundation-kit scaffold as a
+historical record; it does not reflect the current file layout.
 
 ## What this kit does NOT contain (to be built later)
 
