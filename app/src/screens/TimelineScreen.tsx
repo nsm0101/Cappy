@@ -19,6 +19,7 @@ import {
 import { useTheme } from '@/theme';
 import { useActiveFamily } from '@/family/ActiveFamilyContext';
 import {
+  brandFor,
   formatClockTime,
   formatDoseAmount,
   formatRelativeTime,
@@ -212,12 +213,25 @@ export const TimelineScreen: React.FC = () => {
                       const medicationName = dose.medication.brand_name ?? dose.medication.generic_name;
                       const loggerName = dose.profiles?.display_name ?? 'Caregiver';
                       const isSuperseded = dose.status === 'superseded';
+                      // Color-code by medication: brand accent when a brand is
+                      // named, otherwise generic-level color (Tylenol red /
+                      // Motrin blue family) so acetaminophen vs ibuprofen is
+                      // scannable at a glance.
+                      const medKey = (dose.medication.brand_name ?? '').toLowerCase().includes('motrin')
+                        ? 'motrin'
+                        : (dose.medication.brand_name ?? '').toLowerCase().includes('advil')
+                          ? 'advil'
+                          : (dose.medication.brand_name ?? '').toLowerCase().includes('tylenol')
+                            ? 'tylenol'
+                            : undefined;
+                      const accent = brandFor(dose.medication.generic_name, medKey).accent;
 
                       return (
                         <Card
                           key={dose.id}
                           style={[
                             styles.doseCard,
+                            { borderLeftWidth: 3, borderLeftColor: accent },
                             isSuperseded && { opacity: 0.5, backgroundColor: t.bgMuted },
                           ]}
                         >
@@ -242,9 +256,10 @@ export const TimelineScreen: React.FC = () => {
                                 </Text>
                                 <Text
                                   style={{
-                                    color: t.fg3,
-                                    fontFamily: theme.fonts.sans,
+                                    color: accent,
+                                    fontFamily: theme.fonts.sansSemibold,
                                     fontSize: theme.fontSize.xs,
+                                    fontWeight: '600',
                                     marginTop: 2,
                                   }}
                                 >

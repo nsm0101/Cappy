@@ -315,3 +315,56 @@ Reviewer (senior agent) will: audit each diff against the ticket, run the checks
 5. All rows accessible; design-system components only; minimal diff to HomeScreen (extract the card into `OnboardingSteps.tsx` taking the four booleans + nav callbacks as props).
 
 **Acceptance:** tsc + eslint + jest pass; fresh account sees the checklist and each tap lands on the right screen; fully set-up account sees no checklist.
+
+---
+
+## D10 · Caregiver profile card + avatar upload — **(UX) · M**
+**Status:** TODO · Mostly JS; needs one storage-RLS migration (SENIOR applies it — junior writes client only)
+
+**Context:** Children get photo upload on ChildDetail; caregivers have no profile surface and no avatar, so dose attribution ("logged by") is text-only. Give every caregiver a durable profile.
+
+**Steps:**
+1. SENIOR (not junior): storage RLS policy allowing a user to write `avatars/profiles/{auth.uid()}.jpg` and family members to read it; `profiles.avatar_url` column already exists.
+2. `src/api/avatars.ts`: add `uploadMyAvatar(base64)` mirroring `uploadChildAvatar` (path above, upsert, update `profiles.avatar_url`).
+3. Settings: add a profile Card at top — `MemberAvatar` (camera badge overlay exactly like ChildDetail's `handleChangePhoto` pattern) + display name + email. Tap avatar → `pickAndCropSquareImage` → `uploadMyAvatar`.
+4. Show caregiver avatars where attribution appears: Timeline "logged by" row and DoseSheet recipient picker already use `MemberAvatar` — verify they render `profiles.avatar_url` once it exists; fix any spot passing only initials.
+5. Regression-check child photo upload on the new build (it shipped Phase 2 but predates today's refactors): ChildDetail → change photo → verify signed-URL render after reload.
+
+**Acceptance:** tsc/eslint/jest pass; caregiver sets a photo in Settings; their avatar appears on doses they log; child upload still works.
+
+---
+
+## D12 · "Schedule" screen — dosing clock + 24h timeline — **(UX) · L**
+**Status:** TODO · JS-only (`react-native-svg` 15.2.0 already installed)
+
+**Context:** Visual answer to "when can I give the next dose?". Reference image (from founder): a 12-hour analog face where each hour position carries a stacked dual label — AM hour (e.g. `09:00`, blue) above PM hour (e.g. `21:00`, dark) — with the AM half of the field white and the PM half shaded. We adapt that design to show dose windows.
+
+**Steps:**
+1. New tab `Schedule` between Timeline and Settings (`AppNavigator` TAB_ICONS: `calendar-outline`/`calendar`); new `src/screens/ScheduleScreen.tsx`.
+2. Controls (top): child picker (avatar row, same pattern as DoseSheet recipient picker, from `useActiveFamily` → `listChildrenInFamily`); med toggle `Segmented`: Tylenol / Motrin / Both (labels via `brandFor(generic, familyBrandPref).name`; values `acetaminophen` / `ibuprofen` / `both`); view toggle `Segmented`: Clock / Timeline.
+3. Data per child+generic: last dose + `next_safe_at` from `dosesApi.getDoseStatus(childId, medicationId)` (resolve each generic's medication id from `nfcApi.listMedications()` — use the family's preferred brand row per generic, else the first row of that generic) + doses in last 24h from `dosesApi.listDosesForChild`.
+4. **Clock view** (SVG, ~340px square): 12-hour face per the reference image — outer ring, tick marks, stacked dual hour labels (AM `HH:00` in `palette.blue[500]`-style over PM `HH:00` in `t.fg1`; use theme tokens), AM/PM halves subtly shaded (`t.bgInset` on the PM half). Overlays:
+   - Dose markers: small filled dot at each logged dose's clock position (last 24h), colored by med accent (`brandFor(...).accent` — Tylenol red / Motrin blue), inner radius for AM doses, outer radius for PM doses.
+   - Safe-from arc: from `next_safe_at` clockwise to the last dose's position, rendered as a thin accent-colored arc; the hour numerals falling inside the *allowed* window get the accent color + semibold, numerals in the too-early window stay muted (`t.fgMuted`). "Both" mode renders two arcs at slightly different radii.
+   - Center caption: `Next {Tylenol|Motrin} dose safe at {formatClockTime(next_safe_at)}` (or "OK to give now" / "No prior dose"); "Both" shows both lines.
+5. **Timeline view**: horizontal 24h bar (now-centered ±12h or midnight-to-midnight — pick midnight-to-midnight), hour gridlines every 2h with `HH` labels; logged doses as accent-colored dots with time labels; shaded accent-tinted region from each last dose to its `next_safe_at` ("too early" zone), open/clear after. One lane per med in Both mode, lane label = brand name.
+6. Both views: `DoseSafetyText` disclaimer at bottom; statuses `unknown`/`max_reached` render a plain message card instead of arcs (never imply "safe"). Realtime: subscribe like Home so a new dose redraws.
+7. All controls accessible; tokens only; typecheck/lint/test clean.
+
+**Acceptance:** Schedule tab renders both views for a child with dose history; toggling meds/views works; numerals/arc match `next_safe_at` from the RPC (spot-check against the DoseSheet banner); empty/no-dose states are sensible.
+
+---
+
+## D13 · Import weight from Apple Health — **(feature) · M · NATIVE (next EAS build)**
+**Status:** TODO · Blocked on a native module — batch with the next build
+
+**Context:** Reduce weight-entry friction: offer "Import from Apple Health" in the weight InputSheet.
+
+**Steps:**
+1. SENIOR decision executed as spec'd: use `@kingstinct/react-native-healthkit`; `npx expo install` it; add HealthKit entitlement + `NSHealthShareUsageDescription` ("Cappy reads weight to keep dosing accurate.") via its config plugin in `app.json`; rebuild required.
+2. `src/lib/health.ts`: `getLatestBodyMassKg(): Promise<{ kg: number; recordedAt: string } | null>` — request read-only `bodyMass` permission lazily, return most recent sample; null on denial/none (never throw to UI).
+3. Weight InputSheet (ChildDetail): add a ghost "Import from Apple Health" button; on success prefill the field (converted to the active unit) + show sampled date as hint; user still reviews + taps Save (imports NEVER auto-save).
+4. Provenance caveat in the hint: Health data on this phone is usually the *phone owner's* weight — the caregiver must confirm it is the child's before saving. Same range validation applies.
+5. Graceful no-op on simulator/denied permission (button shows "Health data unavailable").
+
+**Acceptance:** on a device with a bodyMass sample: import prefills, save works; denial path silent; child-safety caveat visible before save.
