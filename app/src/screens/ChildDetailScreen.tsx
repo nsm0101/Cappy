@@ -13,15 +13,18 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
-import { Button, Card, Field, MemberAvatar, InputSheet } from '@/components';
+import { Button, Card, Field, MemberAvatar, InputSheet, RowItem, Sheet } from '@/components';
 import {
   children as childrenApi,
   doses as dosesApi,
   avatars as avatarsApi,
   allergies as allergiesApi,
+  nfc as nfcApi,
   type Child,
   type DoseEventWithDetails,
   type ChildAllergy,
+  type DoseStatus,
+  type ResolvedTag,
 } from '@/api';
 import { pickAndCropSquareImage, searchAllergens, kgFromLbs, lbsFromKg } from '@/lib';
 
@@ -110,6 +113,66 @@ export const ChildDetailScreen: React.FC = () => {
 
   const [showAddAllergy, setShowAddAllergy] = useState(false);
   const [allergyQuery, setAllergyQuery] = useState('');
+
+  // FLOW-1: manual dose logging — pick a medication, then reuse the exact
+  // same DoseSheet (and its SAFE-1/2/3 checks) the NFC flow uses, by
+  // building a resolved payload without a tag.
+  const [medSheetVisible, setMedSheetVisible] = useState(false);
+  const [meds, setMeds] = useState<ResolvedTag['medication'][]>([]);
+  const [medsLoading, setMedsLoading] = useState(false);
+
+  const handleOpenLogDose = async () => {
+    setMedSheetVisible(true);
+    if (meds.length === 0) {
+      setMedsLoading(true);
+      try {
+        setMeds(await nfcApi.listMedications());
+      } catch (err) {
+        setMedSheetVisible(false);
+        Alert.alert(
+          'Could not load medications',
+          err instanceof Error ? err.message : 'Try again.',
+        );
+      } finally {
+        setMedsLoading(false);
+      }
+    }
+  };
+
+  const handlePickMedication = async (medication: ResolvedTag['medication']) => {
+    if (!child) return;
+    setMedSheetVisible(false);
+    // Fetch the current safety status; fall back to 'unknown' (never 'due')
+    // so the sheet stays conservative and re-checks at log time (SAFE-3).
+    let status: {
+      status: DoseStatus;
+      last_dose_at: string | null;
+      next_safe_at: string | null;
+      doses_in_last_24h: number;
+    } = { status: 'unknown', last_dose_at: null, next_safe_at: null, doses_in_last_24h: 0 };
+    try {
+      status = await dosesApi.getDoseStatus(child.id, medication.id);
+    } catch {
+      // keep 'unknown'
+    }
+    navigation.navigate('DoseSheet', {
+      resolved: {
+        tag: { id: 'manual', label: 'Manual entry', status: 'active' },
+        family: { id: child.family_id, name: '' },
+        medication,
+        children: [
+          {
+            id: child.id,
+            display_name: child.display_name,
+            date_of_birth: child.date_of_birth,
+            avatar_url: child.avatar_url,
+            ...status,
+          },
+        ],
+        caregivers: [],
+      },
+    });
+  };
 
   const getInitialWeightDisplay = useCallback(() => {
     if (weightGrams == null) return '';
@@ -401,6 +464,15 @@ export const ChildDetailScreen: React.FC = () => {
           ) : null}
         </Card>
 
+        {/* FLOW-1: manual dose logging entry point */}
+        <Button
+          label="Log a dose"
+          size="lg"
+          onPress={() => void handleOpenLogDose()}
+          block
+          style={{ marginBottom: theme.spacing.xl }}
+        />
+
         {/* Dose History Title */}
         <Text
           style={{
@@ -530,6 +602,36 @@ export const ChildDetailScreen: React.FC = () => {
           </View>
         )}
       </ScrollView>
+
+      {/* Medication picker for manual dose logging */}
+      <Sheet visible={medSheetVisible} onClose={() => setMedSheetVisible(false)}>
+        <Text
+          style={{
+            color: t.fg1,
+            fontFamily: theme.fonts.displaySemibold,
+            fontSize: theme.fontSize.lg,
+            fontWeight: '700',
+            marginBottom: theme.spacing.md,
+          }}
+        >
+          Choose a medication
+        </Text>
+        {medsLoading ? (
+          <Text style={{ color: t.fg2, marginBottom: theme.spacing.md }}>Loading…</Text>
+        ) : (
+          <View style={{ gap: theme.spacing.sm, marginBottom: theme.spacing.md }}>
+            {meds.map((m) => (
+              <RowItem
+                key={m.id}
+                title={m.brand_name ?? m.generic_name}
+                subtitle={m.concentration_label}
+                onPress={() => void handlePickMedication(m)}
+              />
+            ))}
+          </View>
+        )}
+        <Button label="Cancel" variant="ghost" onPress={() => setMedSheetVisible(false)} block />
+      </Sheet>
 
       {/* Weight input sheet */}
       <InputSheet

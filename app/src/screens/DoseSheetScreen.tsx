@@ -570,9 +570,11 @@ export const DoseSheetScreen: React.FC = () => {
                   ? selectedChild.last_dose_at
                     ? 'OK to give now'
                     : 'No prior dose'
-                  : 'Too early'
+                  : selectedChild.status === 'unknown'
+                    ? 'Status unavailable'
+                    : 'Too early'
               }
-              status={safety?.safe ? 'due' : 'early'}
+              status={safety?.safe ? 'due' : selectedChild.status === 'unknown' ? 'unknown' : 'early'}
             />
             <View style={{ height: theme.spacing.sm }} />
             <DoseSafetyText style={{ textAlign: 'center' }}>
@@ -584,7 +586,9 @@ export const DoseSheetScreen: React.FC = () => {
                   ? `Last dose too recent. Next dose is safe ${formatTimeUntil(
                       safety.nextSafeAt.toISOString(),
                     )} (at ${formatClockTime(safety.nextSafeAt.toISOString())}).`
-                  : ''}
+                  : selectedChild.status === 'unknown'
+                    ? "Couldn't check the last dose right now — Cappy will re-check when you log."
+                    : ''}
             </DoseSafetyText>
             <DoseSafetyText style={{ textAlign: 'center', marginTop: 6 }}>
               {`${selectedChild.doses_in_last_24h} of ${med.max_doses_per_24h} doses in the last 24 hours.`}

@@ -51,6 +51,20 @@ export const resolveNfcTag = async (tagUid: string): Promise<ResolvedTag | null>
 };
 
 /**
+ * List the medication catalog (FLOW-1: manual dose logging without a tag).
+ * RLS: medications are readable by any authenticated user.
+ */
+export const listMedications = async (): Promise<ResolvedTag['medication'][]> => {
+  const { data, error } = await supabase
+    .from('medications')
+    .select('*')
+    .order('generic_name')
+    .order('brand_name');
+  if (error) throw error;
+  return data ?? [];
+};
+
+/**
  * Register a new tag binding. Admin-only; RLS enforces this.
  */
 export const registerTag = async (input: {
