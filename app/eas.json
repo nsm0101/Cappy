@@ -35,8 +35,8 @@
         "resourceClass": "m-medium"
       },
       "env": {
-        "EXPO_PUBLIC_SUPABASE_URL": "https://hyfmcwswtjlnxtdspggr.supabase.co",
-        "EXPO_PUBLIC_SUPABASE_ANON_KEY": "sb_publishable_RLYYTH08Wp1_eePf9b5ezA_-eeDw1vp",
+        "EXPO_PUBLIC_SUPABASE_URL": "https://msjmnvegjrycwoedrwym.supabase.co",
+        "EXPO_PUBLIC_SUPABASE_ANON_KEY": "sb_publishable_mIqDeSdJdpSgolgpBs1VfA_H_zev7WJ",
         "EXPO_PUBLIC_TAG_URL_HOST": "cappy.closedose.com",
         "EXPO_PUBLIC_USE_MOCK_DATA": "false"
       }

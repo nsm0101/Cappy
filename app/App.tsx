@@ -29,8 +29,12 @@ import { ActiveFamilyProvider } from '@/family/ActiveFamilyContext';
 import { RootNavigator } from '@/navigation';
 import { useTagLinkObserver } from '@/navigation/useTagLinkObserver';
 import * as Notifications from 'expo-notifications';
+import { initMonitoring } from '@/lib/monitoring';
 
 SplashScreen.preventAutoHideAsync().catch(() => undefined);
+
+// M3: Sentry crash reporting — no-op until the package + DSN exist.
+initMonitoring();
 
 // FLOW-2: present "next dose is safe" local reminders even when the app is
 // foregrounded. Reminders are nudges only — the dose sheet re-checks safety.
