@@ -46,7 +46,7 @@ The resolved payload is a **snapshot at scan time**. The exact scenario Cappy ex
 **Depends on:** SAFE-2 (uses the unified status).
 
 ### SAFE-4 · Never fail open to "Due now" — **P0 · S · Home**
-**Status:** DONE (2026-07-02) — `unknown` status in type/DosePill/Home error paths (ticket D1). Remaining: nfc-resolve DUE_STATUS fallback still coerces RPC errors to due (edge-function redeploy — pending).
+**Status:** DONE (2026-07-02) — `unknown` status in type/DosePill/Home error paths (ticket D1). nfc-resolve fallback now returns 'unknown' too (v5 deployed to cappy-dev 2026-07-02). Fully closed.
 `HomeScreen.loadChildren` catches RPC/network errors and silently defaults `status: 'due'` — a dead network renders the most permissive possible answer. Same fallback lives in `nfc-resolve` (`DUE_STATUS` on RPC error).
 - Add an `unknown` status: gray pill, label "Status unavailable", tap explains why. Use it in every catch path that currently coerces to `due`.
 **Acceptance:** Airplane-mode Home shows gray "Status unavailable" pills, never "Due now."

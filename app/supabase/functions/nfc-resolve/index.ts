@@ -34,15 +34,18 @@ type DoseStatusRow = {
   doses_in_last_24h: number;
 };
 
-const DUE_STATUS: DoseStatusRow = {
-  status: 'due',
+// SAFE-4: never fail open. If the status RPC errors, report 'unknown' so the
+// client renders "Status unavailable" (and re-checks at log time) instead of
+// the most permissive possible answer, "due".
+const UNKNOWN_STATUS: DoseStatusRow = {
+  status: 'unknown',
   last_dose_at: null,
   next_safe_at: null,
   doses_in_last_24h: 0,
 };
 
-/** Calls compute_dose_status for one recipient, falling back to "due" (and
- * logging) on RPC error so one bad row doesn't fail the whole tag resolve. */
+/** Calls compute_dose_status for one recipient, falling back to "unknown"
+ * (and logging) on RPC error so one bad row doesn't fail the whole resolve. */
 const fetchDoseStatus = async (
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   supabase: any,
@@ -52,11 +55,11 @@ const fetchDoseStatus = async (
   const { data, error } = await supabase.rpc('compute_dose_status', rpcArgs);
   if (error) {
     console.error('compute_dose_status RPC error', logLabel, error);
-    return DUE_STATUS;
+    return UNKNOWN_STATUS;
   }
   const row = Array.isArray(data) ? data[0] : data;
   return {
-    status: row?.status ?? 'due',
+    status: row?.status ?? 'unknown',
     last_dose_at: row?.last_dose_at ?? null,
     next_safe_at: row?.next_safe_at ?? null,
     doses_in_last_24h: row?.doses_in_last_24h ?? 0,
