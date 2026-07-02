@@ -69,3 +69,41 @@ export const formatClockTime = (value: Date | string): string => {
   const date = typeof value === 'string' ? new Date(value) : value;
   return date.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
 };
+
+/**
+ * Format a timestamp as a day heading for grouping.
+ * Returns 'Today', 'Yesterday', or a formatted date like 'Mon, Jun 29'
+ * based on the local calendar day of the given ISO timestamp.
+ *
+ * Examples:
+ *   given_at = '2026-07-02T14:00:00Z', now = '2026-07-02T18:00:00Z' (same local day) → 'Today'
+ *   given_at = '2026-07-01T23:00:00Z', now = '2026-07-02T02:00:00Z' (yesterday) → 'Yesterday'
+ *   given_at = '2026-06-29T10:00:00Z' → 'Mon, Jun 29'
+ */
+export const formatDayHeading = (
+  value: Date | string | null | undefined,
+  now: Date = new Date(),
+): string => {
+  if (!value) return '—';
+  const date = typeof value === 'string' ? new Date(value) : value;
+  if (Number.isNaN(date.getTime())) return '—';
+
+  // Get midnight of both dates in local time for day comparison
+  const localNow = new Date(now);
+  const localDate = new Date(date);
+
+  const todayMidnight = new Date(localNow.getFullYear(), localNow.getMonth(), localNow.getDate());
+  const dateMidnight = new Date(
+    localDate.getFullYear(),
+    localDate.getMonth(),
+    localDate.getDate(),
+  );
+
+  const diffMs = todayMidnight.getTime() - dateMidnight.getTime();
+  const days = Math.round(diffMs / (24 * 60 * 60 * 1000));
+
+  if (days === 0) return 'Today';
+  if (days === 1) return 'Yesterday';
+
+  return date.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
+};

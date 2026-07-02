@@ -3,7 +3,7 @@ import type { Database } from './database.types';
 
 export type DoseEvent = Database['public']['Tables']['dose_events']['Row'];
 
-export type DoseStatus = 'due' | 'early' | 'recent' | 'overdue';
+export type DoseStatus = 'due' | 'early' | 'recent' | 'overdue' | 'max_reached' | 'unknown';
 
 export type DoseStatusResult = {
   status: DoseStatus;

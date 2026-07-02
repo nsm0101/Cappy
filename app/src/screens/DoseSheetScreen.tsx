@@ -56,6 +56,8 @@ const CAREGIVER_STATUS_LABEL: Record<ResolvedCaregiver['status'], string> = {
   early: 'Too early',
   recent: 'Given recently',
   overdue: 'Window passed — check before giving',
+  max_reached: '24-hour limit reached',
+  unknown: 'Status unavailable',
 };
 
 const round1 = (n: number): number => Math.round(n * 10) / 10;
@@ -160,17 +162,18 @@ export const DoseSheetScreen: React.FC = () => {
   );
   const medDose = dosing ? doseForMedication(dosing, kind) : null;
 
-  // Safe-to-give-now, using the age-appropriate interval from the engine.
+  // SAFE-2: timing comes from the server (compute_dose_status, via the
+  // resolved payload) so the Home pill and this sheet can never disagree.
+  // The dosing engine still owns the *amount* (mg/mL); the server owns
+  // the *clock* (age-aware interval + 24h cap).
   const safety = useMemo(() => {
-    if (!medDose) return null;
-    const last = selectedChild?.last_dose_at;
-    if (!last) {
-      return { safe: true, nextSafeAt: null as Date | null, lastAt: null as Date | null };
-    }
-    const lastAt = new Date(last);
-    const nextSafeAt = new Date(lastAt.getTime() + medDose.intervalHours * 3600 * 1000);
-    return { safe: Date.now() >= nextSafeAt.getTime(), nextSafeAt, lastAt };
-  }, [medDose, selectedChild?.last_dose_at]);
+    if (!selectedChild) return null;
+    const lastAt = selectedChild.last_dose_at ? new Date(selectedChild.last_dose_at) : null;
+    const nextSafeAt = selectedChild.next_safe_at ? new Date(selectedChild.next_safe_at) : null;
+    const safe = selectedChild.status === 'due' || selectedChild.status === 'overdue';
+    return { safe, nextSafeAt, lastAt };
+  }, [selectedChild]);
+  const maxReached = selectedChild?.status === 'max_reached';
 
   const volumeMl =
     medDose && med.concentration_mg_per_ml > 0
@@ -180,12 +183,46 @@ export const DoseSheetScreen: React.FC = () => {
   const manualAmountValue = parseFloat(manualAmountMg);
   const manualAmountValid = Number.isFinite(manualAmountValue) && manualAmountValue > 0;
 
-  const doLog = async () => {
+  /**
+   * SAFE-3: `force` skips the fresh status re-check — only set after the
+   * caregiver has explicitly confirmed an override. The default path
+   * re-runs compute_dose_status immediately before the insert to close
+   * the two-caregiver race (the resolved payload is a scan-time snapshot).
+   */
+  const doLog = async (force = false) => {
     if (!selectedRecipient) return;
     setLogging(true);
     try {
       if (selectedRecipient.kind === 'child') {
         if (!medDose) return;
+        if (!force) {
+          try {
+            const fresh = await dosesApi.getDoseStatus(selectedRecipient.child.id, med.id);
+            if (fresh.status === 'early' || fresh.status === 'recent' || fresh.status === 'max_reached') {
+              setLogging(false);
+              Alert.alert(
+                'A dose was just logged',
+                fresh.status === 'max_reached'
+                  ? 'This child has reached the 24-hour maximum for this medication. Log anyway?'
+                  : `Another caregiver logged a dose ${
+                      fresh.last_dose_at ? formatRelativeTime(fresh.last_dose_at) : 'moments ago'
+                    }.${
+                      fresh.next_safe_at
+                        ? ` The next dose is safe ${formatTimeUntil(fresh.next_safe_at)} (at ${formatClockTime(fresh.next_safe_at)}).`
+                        : ''
+                    } Log anyway?`,
+                [
+                  { text: 'Cancel', style: 'cancel' },
+                  { text: 'Log anyway', style: 'destructive', onPress: () => void doLog(true) },
+                ],
+              );
+              return;
+            }
+          } catch {
+            // Status check unavailable (offline etc.) — proceed; the insert
+            // itself is still RLS-guarded and the sheet showed scan-time state.
+          }
+        }
         await dosesApi.logDose({
           id: uuidv4(),
           childId: selectedRecipient.child.id,
@@ -228,7 +265,7 @@ export const DoseSheetScreen: React.FC = () => {
           )} (at ${formatClockTime(safety.nextSafeAt.toISOString())}). Log anyway?`,
           [
             { text: 'Cancel', style: 'cancel' },
-            { text: 'Log anyway', style: 'destructive', onPress: () => void doLog() },
+            { text: 'Log anyway', style: 'destructive', onPress: () => void doLog(true) },
           ],
         );
         return;
@@ -237,7 +274,7 @@ export const DoseSheetScreen: React.FC = () => {
     } else {
       if (!manualAmountValid) return;
       const caregiver = selectedRecipient.caregiver;
-      if (caregiver.status === 'early' || caregiver.status === 'recent') {
+      if (caregiver.status === 'early' || caregiver.status === 'recent' || caregiver.status === 'max_reached') {
         Alert.alert(
           'Given recently',
           caregiver.next_safe_at
@@ -436,6 +473,40 @@ export const DoseSheetScreen: React.FC = () => {
             this is incorrect.
           </Text>
         </Card>
+      ) : maxReached ? (
+        <Card style={{ borderWidth: 1, borderColor: t.error }}>
+          <Text style={{ color: t.error, fontFamily: theme.fonts.displaySemibold, fontSize: theme.fontSize.lg, fontWeight: '700', marginBottom: 6 }}>
+            24-hour limit reached
+          </Text>
+          <Text style={{ color: t.fg2, lineHeight: 20 }}>
+            {`${selectedChild.display_name} has had ${selectedChild.doses_in_last_24h} dose${
+              selectedChild.doses_in_last_24h === 1 ? '' : 's'
+            } of ${med.generic_name} in the last 24 hours — the maximum is ${med.max_doses_per_24h}.${
+              selectedChild.next_safe_at
+                ? ` The next dose is safe ${formatTimeUntil(selectedChild.next_safe_at)} (at ${formatClockTime(selectedChild.next_safe_at)}).`
+                : ''
+            } If fever or pain persists, contact your pediatrician.`}
+          </Text>
+          {medDose ? (
+            <View style={{ marginTop: theme.spacing.md }}>
+              <Button
+                label="Log anyway"
+                variant="ghost"
+                onPress={() =>
+                  Alert.alert(
+                    'Exceed the 24-hour maximum?',
+                    'Only log this if the dose was actually given. This exceeds the labeled daily limit.',
+                    [
+                      { text: 'Cancel', style: 'cancel' },
+                      { text: 'Log anyway', style: 'destructive', onPress: () => void doLog(true) },
+                    ],
+                  )
+                }
+                block
+              />
+            </View>
+          ) : null}
+        </Card>
       ) : kind === 'ibuprofen' && ageGate === 'infant' ? (
         <Card style={{ borderWidth: 1, borderColor: t.error }}>
           <Text style={{ color: t.fg1, fontFamily: theme.fonts.displaySemibold, fontSize: theme.fontSize.lg, fontWeight: '700', marginBottom: 6 }}>
@@ -514,6 +585,9 @@ export const DoseSheetScreen: React.FC = () => {
                       safety.nextSafeAt.toISOString(),
                     )} (at ${formatClockTime(safety.nextSafeAt.toISOString())}).`
                   : ''}
+            </DoseSafetyText>
+            <DoseSafetyText style={{ textAlign: 'center', marginTop: 6 }}>
+              {`${selectedChild.doses_in_last_24h} of ${med.max_doses_per_24h} doses in the last 24 hours.`}
             </DoseSafetyText>
             {medDose.capped ? (
               <DoseSafetyText style={{ textAlign: 'center', marginTop: 6 }}>

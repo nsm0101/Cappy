@@ -1,4 +1,4 @@
-export { formatRelativeTime, formatTimeUntil, formatClockTime } from './time';
+export { formatRelativeTime, formatTimeUntil, formatClockTime, formatDayHeading } from './time';
 export { formatDoseAmount, initialsFromName, formatWeightFromGrams } from './format';
 export { uuidv4 } from './uuid';
 export { pickAndCropSquareImage } from './imagePicker';

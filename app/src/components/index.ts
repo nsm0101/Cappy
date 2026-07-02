@@ -39,3 +39,6 @@ export type { TabBarProps, TabItem } from './TabBar';
 
 export { Wordmark } from './Wordmark';
 export type { WordmarkProps } from './Wordmark';
+
+export { InputSheet } from './InputSheet';
+export type { InputSheetProps } from './InputSheet';

@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import {
   ActivityIndicator,
+  Pressable,
   RefreshControl,
   ScrollView,
   StyleSheet,
@@ -10,16 +11,18 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { MemberAvatar, Button, Card, DosePill, RowItem, Wordmark } from '@/components';
+import { Ionicons } from '@expo/vector-icons';
+import { MemberAvatar, Button, Card, DosePill, RowItem, Sheet, Wordmark } from '@/components';
 import {
-  families as familiesApi,
   children as childrenApi,
   doses as dosesApi,
   realtime as realtimeApi,
+  profiles as profilesApi,
 } from '@/api';
-import type { FamilyWithRole, Child, DoseStatus } from '@/api';
+import type { Child, DoseStatus } from '@/api';
 import { useAuth } from '@/auth/AuthContext';
 import { useTheme } from '@/theme';
+import { useActiveFamily } from '@/family/ActiveFamilyContext';
 import {
   formatRelativeTime,
   formatWeightFromGrams,
@@ -35,31 +38,28 @@ type ChildWithStatus = Child & {
 
 type Nav = NativeStackNavigationProp<AppStackParamList>;
 
+const STATUS_LABEL: Record<DoseStatus, string> = {
+  due: 'Due now',
+  early: 'Too early',
+  recent: 'Given recently',
+  overdue: 'Overdue',
+  max_reached: '24-hour limit reached',
+  unknown: 'Status unavailable',
+};
+
 export const HomeScreen: React.FC = () => {
   const theme = useTheme();
   const t = theme.tokens;
   const { user } = useAuth();
   const navigation = useNavigation<Nav>();
+  const { families, activeFamily, loading: familiesLoading, refreshFamilies, setActiveFamily } =
+    useActiveFamily();
 
-  const [families, setFamilies] = useState<FamilyWithRole[]>([]);
-  const [activeFamily, setActiveFamily] = useState<FamilyWithRole | null>(null);
   const [childrenList, setChildrenList] = useState<ChildWithStatus[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-
-  const loadFamilies = useCallback(async () => {
-    try {
-      const fams = await familiesApi.listMyFamilies();
-      setFamilies(fams);
-      const firstFam = fams[0];
-      if (firstFam && !activeFamily) {
-        setActiveFamily(firstFam);
-      }
-    } catch (err) {
-      // eslint-disable-next-line no-console
-      console.warn('listMyFamilies error', err);
-    }
-  }, [activeFamily]);
+  const [displayName, setDisplayName] = useState<string | null>(null);
+  const [familySwitcherVisible, setFamilySwitcherVisible] = useState(false);
 
   const loadChildren = useCallback(async (familyId: string) => {
     try {
@@ -82,7 +82,7 @@ export const HomeScreen: React.FC = () => {
                 const result = await dosesApi.getDoseStatus(child.id, last.medication_id);
                 status = result.status;
               } catch {
-                status = 'due';
+                status = 'unknown';
               }
             }
             return {
@@ -92,7 +92,7 @@ export const HomeScreen: React.FC = () => {
               weightGrams: weight,
             };
           } catch {
-            return { ...child, status: 'due', lastDoseAt: null, weightGrams: null };
+            return { ...child, status: 'unknown', lastDoseAt: null, weightGrams: null };
           }
         }),
       );
@@ -104,12 +104,12 @@ export const HomeScreen: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    void (async () => {
-      setLoading(true);
-      await loadFamilies();
-      setLoading(false);
-    })();
-  }, [loadFamilies]);
+    void profilesApi.getMyDisplayName().then(setDisplayName).catch(() => undefined);
+  }, []);
+
+  useEffect(() => {
+    setLoading(familiesLoading);
+  }, [familiesLoading]);
 
   useEffect(() => {
     if (activeFamily) {
@@ -134,10 +134,12 @@ export const HomeScreen: React.FC = () => {
 
   const handleRefresh = async () => {
     setRefreshing(true);
-    await loadFamilies();
+    await refreshFamilies();
     if (activeFamily) await loadChildren(activeFamily.id);
     setRefreshing(false);
   };
+
+  const who = displayName ?? user?.email?.split('@')[0] ?? null;
 
   if (loading) {
     return (
@@ -169,7 +171,7 @@ export const HomeScreen: React.FC = () => {
             marginTop: theme.spacing.lg,
           }}
         >
-          Welcome back{user?.email ? `, ${user.email.split('@')[0]}` : ''}.
+          {`Welcome back${who ? `, ${who}` : ''}.`}
         </Text>
 
         {families.length === 0 ? (
@@ -211,16 +213,37 @@ export const HomeScreen: React.FC = () => {
           <>
             {activeFamily && (
               <View style={{ marginTop: theme.spacing.lg, marginBottom: theme.spacing.base }}>
-                <Text
-                  style={{
-                    color: t.fg1,
-                    fontFamily: theme.fonts.display,
-                    fontSize: theme.fontSize.xxl,
-                    fontWeight: '800',
-                  }}
-                >
-                  {activeFamily.name}
-                </Text>
+                {families.length > 1 ? (
+                  <Pressable
+                    onPress={() => setFamilySwitcherVisible(true)}
+                    accessibilityRole="button"
+                    accessibilityLabel="Switch family"
+                    style={{ flexDirection: 'row', alignItems: 'center', gap: theme.spacing.base }}
+                  >
+                    <Text
+                      style={{
+                        color: t.fg1,
+                        fontFamily: theme.fonts.display,
+                        fontSize: theme.fontSize.xxl,
+                        fontWeight: '800',
+                      }}
+                    >
+                      {activeFamily.name}
+                    </Text>
+                    <Ionicons name="chevron-down" size={24} color={t.fg1} />
+                  </Pressable>
+                ) : (
+                  <Text
+                    style={{
+                      color: t.fg1,
+                      fontFamily: theme.fonts.display,
+                      fontSize: theme.fontSize.xxl,
+                      fontWeight: '800',
+                    }}
+                  >
+                    {activeFamily.name}
+                  </Text>
+                )}
               </View>
             )}
 
@@ -259,15 +282,7 @@ export const HomeScreen: React.FC = () => {
                     }
                     rightSlot={
                       <DosePill
-                        label={
-                          child.status === 'due'
-                            ? 'Due now'
-                            : child.status === 'recent'
-                              ? 'Given recently'
-                              : child.status === 'early'
-                                ? 'Too early'
-                                : 'Overdue'
-                        }
+                        label={STATUS_LABEL[child.status]}
                         status={child.status}
                       />
                     }
@@ -293,6 +308,53 @@ export const HomeScreen: React.FC = () => {
           </>
         )}
       </ScrollView>
+
+      {/* Family Switcher Sheet */}
+      <Sheet visible={familySwitcherVisible} onClose={() => setFamilySwitcherVisible(false)}>
+        <Text
+          style={{
+            color: t.fg1,
+            fontFamily: theme.fonts.display,
+            fontSize: theme.fontSize.xl,
+            fontWeight: '700',
+            marginBottom: theme.spacing.md,
+          }}
+        >
+          Switch family
+        </Text>
+        <View style={{ gap: theme.spacing.sm }}>
+          {families.map((fam) => (
+            <RowItem
+              key={fam.id}
+              title={fam.name}
+              subtitle={
+                fam.my_role === 'admin'
+                  ? 'Admin'
+                  : fam.my_role === 'caregiver'
+                    ? 'Caregiver'
+                    : fam.my_role === 'readonly'
+                      ? 'Read-only'
+                      : 'Guest'
+              }
+              rightSlot={
+                activeFamily?.id === fam.id ? <Ionicons name="checkmark" size={20} color={t.brand} /> : null
+              }
+              onPress={async () => {
+                await setActiveFamily(fam);
+                setFamilySwitcherVisible(false);
+              }}
+              showChevron={false}
+            />
+          ))}
+        </View>
+        <View style={{ height: theme.spacing.base }} />
+        <Button
+          label="Cancel"
+          variant="ghost"
+          onPress={() => setFamilySwitcherVisible(false)}
+          block
+        />
+      </Sheet>
     </SafeAreaView>
   );
 };

@@ -13,7 +13,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
-import { Button, Card, Field, MemberAvatar } from '@/components';
+import { Button, Card, Field, MemberAvatar, InputSheet } from '@/components';
 import {
   children as childrenApi,
   doses as dosesApi,
@@ -54,6 +54,9 @@ export const ChildDetailScreen: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [errorText, setErrorText] = useState('');
+
+  const [weightSheetVisible, setWeightSheetVisible] = useState(false);
+  const [weightUnit, setWeightUnit] = useState<'lb' | 'kg'>('lb');
 
   const loadData = useCallback(async () => {
     try {
@@ -108,29 +111,40 @@ export const ChildDetailScreen: React.FC = () => {
   const [showAddAllergy, setShowAddAllergy] = useState(false);
   const [allergyQuery, setAllergyQuery] = useState('');
 
-  const handleUpdateWeight = () => {
-    Alert.prompt(
-      'Update weight',
-      'Enter current weight in pounds (lb).',
-      async (value) => {
-        const lb = parseFloat(value ?? '');
-        if (!Number.isFinite(lb) || lb <= 0) {
-          Alert.alert('Invalid weight', 'Please enter a number in pounds.');
-          return;
-        }
-        try {
-          const grams = Math.round(kgFromLbs(lb) * 1000);
-          await childrenApi.recordWeight(childId, grams);
-          await loadData();
-        } catch (err) {
-          Alert.alert('Could not save weight', err instanceof Error ? err.message : 'Try again.');
-        }
-      },
-      'plain-text',
-      weightGrams != null ? lbsFromKg(weightGrams / 1000).toFixed(1) : '',
-      'decimal-pad',
-    );
-  };
+  const getInitialWeightDisplay = useCallback(() => {
+    if (weightGrams == null) return '';
+    const kg = weightGrams / 1000;
+    return weightUnit === 'lb' ? lbsFromKg(kg).toFixed(1) : kg.toFixed(1);
+  }, [weightGrams, weightUnit]);
+
+  const validateWeight = useCallback((value: string): string | null => {
+    const num = parseFloat(value);
+    if (!Number.isFinite(num) || num <= 0) {
+      return `Enter a number in ${weightUnit}.`;
+    }
+    const [min, max] = weightUnit === 'lb' ? [4, 330] : [2, 150];
+    if (num < min || num > max) {
+      return "That doesn't look right — check the unit.";
+    }
+    return null;
+  }, [weightUnit]);
+
+  const handleUpdateWeight = useCallback(() => {
+    setWeightUnit('lb');
+    setWeightSheetVisible(true);
+  }, []);
+
+  const handleWeightSubmit = useCallback(async (value: string) => {
+    const num = parseFloat(value);
+    const kg = weightUnit === 'lb' ? kgFromLbs(num) : num;
+    const grams = Math.round(kg * 1000);
+    try {
+      await childrenApi.recordWeight(childId, grams);
+      await loadData();
+    } catch (err) {
+      Alert.alert('Could not save weight', err instanceof Error ? err.message : 'Try again.');
+    }
+  }, [weightUnit, childId, loadData]);
 
   const handleAddAllergy = async (allergen: string, label: string) => {
     try {
@@ -516,6 +530,28 @@ export const ChildDetailScreen: React.FC = () => {
           </View>
         )}
       </ScrollView>
+
+      {/* Weight input sheet */}
+      <InputSheet
+        visible={weightSheetVisible}
+        title="Update weight"
+        hint={`Enter current weight in ${weightUnit}.`}
+        initialValue={getInitialWeightDisplay()}
+        placeholder={weightUnit === 'lb' ? 'e.g., 50' : 'e.g., 23'}
+        keyboardType="decimal-pad"
+        validate={validateWeight}
+        submitLabel="Save"
+        onSubmit={handleWeightSubmit}
+        onClose={() => setWeightSheetVisible(false)}
+        segments={{
+          options: [
+            { label: 'lb', value: 'lb' },
+            { label: 'kg', value: 'kg' },
+          ],
+          value: weightUnit,
+          onChange: (v) => setWeightUnit(v as 'lb' | 'kg'),
+        }}
+      />
     </SafeAreaView>
   );
 };

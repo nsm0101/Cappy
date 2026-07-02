@@ -25,6 +25,7 @@ import { Baloo2_600SemiBold, Baloo2_700Bold } from '@expo-google-fonts/baloo-2';
 
 import { ThemeProvider } from '@/theme';
 import { AuthProvider } from '@/auth/AuthContext';
+import { ActiveFamilyProvider } from '@/family/ActiveFamilyContext';
 import { RootNavigator } from '@/navigation';
 import { useTagLinkObserver } from '@/navigation/useTagLinkObserver';
 
@@ -63,8 +64,10 @@ export default function App() {
       <SafeAreaProvider>
         <ThemeProvider>
           <AuthProvider>
-            <StatusBar style="auto" />
-            <RootNavigator />
+            <ActiveFamilyProvider>
+              <StatusBar style="auto" />
+              <RootNavigator />
+            </ActiveFamilyProvider>
           </AuthProvider>
         </ThemeProvider>
       </SafeAreaProvider>

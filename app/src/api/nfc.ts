@@ -1,8 +1,9 @@
 import { supabase } from './client';
 import type { Database } from './database.types';
+import type { DoseStatus } from './doses';
 
 export type ResolvedDoseStatus = {
-  status: 'due' | 'early' | 'recent' | 'overdue';
+  status: DoseStatus;
   last_dose_at: string | null;
   next_safe_at: string | null;
   doses_in_last_24h: number;

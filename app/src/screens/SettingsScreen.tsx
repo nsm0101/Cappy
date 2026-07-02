@@ -10,15 +10,15 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import Constants from 'expo-constants';
-import { Avatar, Button, Card, RowItem, Sheet } from '@/components';
+import { Avatar, Button, Card, RowItem, Sheet, InputSheet } from '@/components';
 import { useAuth } from '@/auth/AuthContext';
 import { useTheme, useThemeMode } from '@/theme';
+import { useActiveFamily } from '@/family/ActiveFamilyContext';
 import { initialsFromName, brandsForGeneric, brandFor } from '@/lib';
 import {
   families as familiesApi,
   brands as brandsApi,
   profiles as profilesApi,
-  type FamilyWithRole,
   type CaregiverWithProfile,
 } from '@/api';
 
@@ -40,59 +40,66 @@ export const SettingsScreen: React.FC = () => {
   const t = theme.tokens;
   const { user, signOut } = useAuth();
   const { mode, setMode } = useThemeMode();
+  const { activeFamily } = useActiveFamily();
 
   const [themeSheetVisible, setThemeSheetVisible] = useState(false);
-  const [activeFamily, setActiveFamily] = useState<FamilyWithRole | null>(null);
   const [caregivers, setCaregivers] = useState<CaregiverWithProfile[]>([]);
   const [brandPrefs, setBrandPrefs] = useState<Record<string, string>>({});
   const [inviteSheet, setInviteSheet] = useState(false);
   const [brandSheetGeneric, setBrandSheetGeneric] = useState<string | null>(null);
   const [caregiverName, setCaregiverName] = useState<string | null>(null);
+  const [nameSheetVisible, setNameSheetVisible] = useState(false);
 
   useEffect(() => {
     void profilesApi.getMyDisplayName().then(setCaregiverName);
   }, []);
 
-  const handleEditName = () => {
-    Alert.prompt(
-      'Your name',
-      'This name is shown on the doses you log, so other caregivers know who gave a dose.',
-      async (value) => {
-        const n = (value ?? '').trim();
-        if (!n) return;
-        try {
-          await profilesApi.updateMyDisplayName(n);
-          setCaregiverName(n);
-        } catch (err) {
-          Alert.alert('Could not save name', err instanceof Error ? err.message : 'Try again.');
-        }
-      },
-      'plain-text',
-      caregiverName ?? '',
-    );
+  const validateName = (value: string): string | null => {
+    const trimmed = value.trim();
+    if (!trimmed) {
+      return 'Please enter a name.';
+    }
+    if (trimmed.length > 60) {
+      return 'Name must be 60 characters or fewer.';
+    }
+    return null;
   };
 
-  const loadFamily = useCallback(async () => {
+  const handleEditName = useCallback(() => {
+    setNameSheetVisible(true);
+  }, []);
+
+  const handleNameSubmit = useCallback(async (value: string) => {
+    const n = value.trim();
     try {
-      const fams = await familiesApi.listMyFamilies();
-      const fam = fams[0] ?? null;
-      setActiveFamily(fam);
-      if (fam) {
-        const [cg, prefs] = await Promise.all([
-          familiesApi.listFamilyCaregivers(fam.id),
-          brandsApi.getFamilyBrandPrefs(fam.id),
-        ]);
-        setCaregivers(cg);
-        setBrandPrefs(prefs);
-      }
-    } catch {
-      // non-fatal in settings
+      await profilesApi.updateMyDisplayName(n);
+      setCaregiverName(n);
+    } catch (err) {
+      Alert.alert('Could not save name', err instanceof Error ? err.message : 'Try again.');
     }
   }, []);
 
+  const loadFamily = useCallback(async () => {
+    if (!activeFamily) {
+      setCaregivers([]);
+      setBrandPrefs({});
+      return;
+    }
+    try {
+      const [cg, prefs] = await Promise.all([
+        familiesApi.listFamilyCaregivers(activeFamily.id),
+        brandsApi.getFamilyBrandPrefs(activeFamily.id),
+      ]);
+      setCaregivers(cg);
+      setBrandPrefs(prefs);
+    } catch {
+      // non-fatal in settings
+    }
+  }, [activeFamily]);
+
   useEffect(() => {
     void loadFamily();
-  }, [loadFamily]);
+  }, [loadFamily, activeFamily?.id]);
 
   const isAdmin = activeFamily?.my_role === 'admin';
 
@@ -466,6 +473,20 @@ export const SettingsScreen: React.FC = () => {
         <View style={{ height: theme.spacing.base }} />
         <Button label="Cancel" variant="ghost" onPress={() => setBrandSheetGeneric(null)} block />
       </Sheet>
+
+      {/* Name input sheet */}
+      <InputSheet
+        visible={nameSheetVisible}
+        title="Your name"
+        hint="This name is shown on the doses you log, so other caregivers know who gave a dose."
+        initialValue={caregiverName ?? ''}
+        placeholder="Enter your name"
+        keyboardType="default"
+        validate={validateName}
+        submitLabel="Save"
+        onSubmit={handleNameSubmit}
+        onClose={() => setNameSheetVisible(false)}
+      />
     </SafeAreaView>
   );
 };

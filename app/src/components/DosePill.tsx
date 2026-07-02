@@ -2,7 +2,7 @@ import React from 'react';
 import { StyleSheet, Text, View, ViewStyle } from 'react-native';
 import { useTheme } from '@/theme';
 
-export type DoseStatus = 'due' | 'early' | 'recent' | 'overdue';
+export type DoseStatus = 'due' | 'early' | 'recent' | 'overdue' | 'max_reached' | 'unknown';
 
 export type DosePillProps = {
   label: string;
@@ -92,6 +92,23 @@ const statusColor = (t: ReturnType<typeof useTheme>['tokens'], status: DoseStatu
           : slot === 'bg'
             ? t.doseOverdueBg
             : t.doseOverdueRing;
+    case 'max_reached':
+      // 24-hour cap hit — same red family as overdue: this is a hard stop.
+      return slot === 'solid'
+        ? t.doseOverdueSolid
+        : slot === 'fg'
+          ? t.doseOverdueFg
+          : slot === 'bg'
+            ? t.doseOverdueBg
+            : t.doseOverdueRing;
+    case 'unknown':
+      return slot === 'solid'
+        ? t.fgMuted
+        : slot === 'fg'
+          ? t.fg2
+          : slot === 'bg'
+            ? t.bgInset
+            : t.border;
   }
 };
 
