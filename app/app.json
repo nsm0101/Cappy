@@ -12,7 +12,9 @@
       "resizeMode": "contain",
       "backgroundColor": "#FBF8F2"
     },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "com.closedose.cappy",
@@ -24,13 +26,18 @@
         "NSPhotoLibraryUsageDescription": "Cappy lets you choose a photo to identify each family member.",
         "NSCameraUsageDescription": "Cappy lets you take a photo to identify each family member.",
         "ITSAppUsesNonExemptEncryption": false,
-        "UIBackgroundModes": []
+        "UIBackgroundModes": [],
+        "NSHealthShareUsageDescription": "Cappy reads weight from Apple Health (with your permission) to keep dosing accurate. Weight is only imported when you tap Import, and you review it before saving."
       },
       "associatedDomains": [
         "applinks:cappy.closedose.com"
       ],
       "entitlements": {
-        "com.apple.developer.nfc.readersession.formats": ["NDEF", "TAG"]
+        "com.apple.developer.nfc.readersession.formats": [
+          "NDEF",
+          "TAG"
+        ],
+        "com.apple.developer.healthkit": true
       },
       "config": {
         "usesNonExemptEncryption": false
@@ -43,7 +50,10 @@
       },
       "package": "com.closedose.cappy",
       "versionCode": 1,
-      "permissions": ["android.permission.NFC", "android.permission.VIBRATE"],
+      "permissions": [
+        "android.permission.NFC",
+        "android.permission.VIBRATE"
+      ],
       "intentFilters": [
         {
           "action": "VIEW",
@@ -55,11 +65,16 @@
               "pathPrefix": "/"
             }
           ],
-          "category": ["BROWSABLE", "DEFAULT"]
+          "category": [
+            "BROWSABLE",
+            "DEFAULT"
+          ]
         },
         {
           "action": "NDEF_DISCOVERED",
-          "category": ["DEFAULT"],
+          "category": [
+            "DEFAULT"
+          ],
           "data": [
             {
               "scheme": "https",

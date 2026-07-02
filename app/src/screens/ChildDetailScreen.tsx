@@ -32,6 +32,7 @@ import {
   kgFromLbs,
   lbsFromKg,
   ageMonthsFromDob,
+  getLatestBodyMassKg,
 } from '@/lib';
 
 const STALE_WEIGHT_DAYS = 90;
@@ -85,6 +86,32 @@ export const ChildDetailScreen: React.FC = () => {
 
   const [weightSheetVisible, setWeightSheetVisible] = useState(false);
   const [weightUnit, setWeightUnit] = useState<'lb' | 'kg'>('lb');
+  // D13: a Health-imported value seeds the weight field; the caregiver still
+  // reviews it against the provenance caveat and saves through validation.
+  const [healthSeed, setHealthSeed] = useState<string | null>(null);
+
+  const handleImportFromHealth = async () => {
+    const sample = await getLatestBodyMassKg();
+    if (!sample || !child) {
+      Alert.alert(
+        'Health data unavailable',
+        'No weight sample was found, or Health access is not available on this build.',
+      );
+      return;
+    }
+    const display =
+      weightUnit === 'lb' ? lbsFromKg(sample.kg).toFixed(1) : sample.kg.toFixed(1);
+    Alert.alert(
+      'Confirm before importing',
+      `Apple Health usually contains the phone owner's weight — confirm this reading (${display} ${weightUnit}, recorded ${new Date(
+        sample.recordedAt,
+      ).toLocaleDateString()}) is ${child.display_name}'s before saving.`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Use this weight', onPress: () => setHealthSeed(display) },
+      ],
+    );
+  };
   const [nameSheetVisible, setNameSheetVisible] = useState(false);
   const [doseStatus, setDoseStatus] = useState<DoseStatus>('due');
 
@@ -729,20 +756,35 @@ export const ChildDetailScreen: React.FC = () => {
         visible={weightSheetVisible}
         title="Update weight"
         hint={`Enter current weight in ${weightUnit}.`}
-        initialValue={getInitialWeightDisplay()}
+        initialValue={healthSeed ?? getInitialWeightDisplay()}
+        footer={
+          <Button
+            label="Import from Apple Health"
+            variant="ghost"
+            onPress={() => void handleImportFromHealth()}
+            block
+          />
+        }
         placeholder={weightUnit === 'lb' ? 'e.g., 50' : 'e.g., 23'}
         keyboardType="decimal-pad"
         validate={validateWeight}
         submitLabel="Save"
         onSubmit={handleWeightSubmit}
-        onClose={() => setWeightSheetVisible(false)}
+        onClose={() => {
+          setWeightSheetVisible(false);
+          setHealthSeed(null);
+        }}
         segments={{
           options: [
             { label: 'lb', value: 'lb' },
             { label: 'kg', value: 'kg' },
           ],
           value: weightUnit,
-          onChange: (v) => setWeightUnit(v as 'lb' | 'kg'),
+          onChange: (v) => {
+            setWeightUnit(v as 'lb' | 'kg');
+            // A Health-imported seed is unit-specific — clear on toggle.
+            setHealthSeed(null);
+          },
         }}
       />
 

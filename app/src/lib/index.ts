@@ -9,6 +9,8 @@ export {
   scheduleNextDoseReminder,
   cancelDoseReminder,
 } from './reminders';
+export { getLatestBodyMassKg } from './health';
+export type { HealthWeightSample } from './health';
 export {
   ALLERGEN_CATALOG,
   searchAllergens,

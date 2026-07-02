@@ -25,6 +25,9 @@ export type InputSheetProps = {
     value: string;
     onChange: (v: string) => void;
   };
+  /** Optional content rendered between the field and the action buttons
+   * (e.g. an "Import from Apple Health" button). */
+  footer?: React.ReactNode;
 };
 
 /**
@@ -43,6 +46,7 @@ export const InputSheet: React.FC<InputSheetProps> = ({
   onSubmit,
   onClose,
   segments,
+  footer,
 }) => {
   const theme = useTheme();
 
@@ -110,6 +114,8 @@ export const InputSheet: React.FC<InputSheetProps> = ({
           selectTextOnFocus
           autoFocus={visible}
         />
+
+        {footer ?? null}
 
         {/* Action buttons */}
         <View style={[styles.buttons, { gap: theme.spacing.sm }]}>
