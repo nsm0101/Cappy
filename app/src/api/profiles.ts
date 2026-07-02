@@ -13,6 +13,22 @@ export const getMyDisplayName = async (): Promise<string | null> => {
   return data?.display_name ?? null;
 };
 
+/** The signed-in caregiver's full profile including display name and avatar. */
+export const getMyProfile = async (): Promise<{
+  display_name: string | null;
+  avatar_url: string | null;
+} | null> => {
+  const { data: userData } = await supabase.auth.getUser();
+  if (!userData.user) return null;
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('display_name, avatar_url')
+    .eq('id', userData.user.id)
+    .maybeSingle();
+  if (error) return null;
+  return data ?? null;
+};
+
 export const updateMyDisplayName = async (displayName: string): Promise<void> => {
   const { data: userData } = await supabase.auth.getUser();
   if (!userData.user) throw new Error('Not signed in');

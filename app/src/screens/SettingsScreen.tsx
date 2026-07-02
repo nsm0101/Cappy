@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import {
   Alert,
   Linking,
+  Pressable,
   ScrollView,
   StyleSheet,
   Text,
@@ -10,15 +11,16 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import Constants from 'expo-constants';
-import { Avatar, Button, Card, RowItem, Sheet, InputSheet } from '@/components';
+import { Button, Card, MemberAvatar, RowItem, Sheet, InputSheet } from '@/components';
 import { useAuth } from '@/auth/AuthContext';
 import { useTheme, useThemeMode } from '@/theme';
 import { useActiveFamily } from '@/family/ActiveFamilyContext';
-import { initialsFromName, brandsForGeneric, brandFor } from '@/lib';
+import { initialsFromName, brandsForGeneric, brandFor, pickAndCropSquareImage } from '@/lib';
 import {
   families as familiesApi,
   brands as brandsApi,
   profiles as profilesApi,
+  avatars as avatarsApi,
   type CaregiverWithProfile,
 } from '@/api';
 
@@ -48,10 +50,18 @@ export const SettingsScreen: React.FC = () => {
   const [inviteSheet, setInviteSheet] = useState(false);
   const [brandSheetGeneric, setBrandSheetGeneric] = useState<string | null>(null);
   const [caregiverName, setCaregiverName] = useState<string | null>(null);
+  const [caregiverAvatarUrl, setCaregiverAvatarUrl] = useState<string | null>(null);
   const [nameSheetVisible, setNameSheetVisible] = useState(false);
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
 
   useEffect(() => {
-    void profilesApi.getMyDisplayName().then(setCaregiverName);
+    void (async () => {
+      const profile = await profilesApi.getMyProfile();
+      if (profile) {
+        setCaregiverName(profile.display_name);
+        setCaregiverAvatarUrl(profile.avatar_url);
+      }
+    })();
   }, []);
 
   const validateName = (value: string): string | null => {
@@ -78,6 +88,24 @@ export const SettingsScreen: React.FC = () => {
       Alert.alert('Could not save name', err instanceof Error ? err.message : 'Try again.');
     }
   }, []);
+
+  const handleChangePhoto = useCallback(async () => {
+    if (!activeFamily) return;
+    try {
+      const picked = await pickAndCropSquareImage();
+      if (!picked) return;
+      setUploadingPhoto(true);
+      await avatarsApi.uploadMyAvatar(activeFamily.id, picked.base64);
+      const profile = await profilesApi.getMyProfile();
+      if (profile) {
+        setCaregiverAvatarUrl(profile.avatar_url);
+      }
+    } catch (err) {
+      Alert.alert('Photo upload failed', err instanceof Error ? err.message : 'Please try again.');
+    } finally {
+      setUploadingPhoto(false);
+    }
+  }, [activeFamily]);
 
   const loadFamily = useCallback(async () => {
     if (!activeFamily) {
@@ -206,11 +234,39 @@ export const SettingsScreen: React.FC = () => {
         {/* User Account Section */}
         <View style={{ marginBottom: theme.spacing.xl }}>
           <Card inset style={styles.profileCard}>
-            <Avatar
-              initials={user?.email ? initialsFromName(user.email.split('@')[0] ?? '') : '?'}
-              tint={theme.palette.teal[500]}
-              size="lg"
-            />
+            <Pressable
+              onPress={handleChangePhoto}
+              disabled={uploadingPhoto || !activeFamily}
+              accessibilityRole="button"
+              accessibilityLabel="Change your photo"
+            >
+              <MemberAvatar
+                avatarPath={caregiverAvatarUrl}
+                initials={user?.email ? initialsFromName(user.email.split('@')[0] ?? '') : '?'}
+                tint={theme.palette.teal[500]}
+                size="lg"
+              />
+              {activeFamily ? (
+                <View
+                  style={{
+                    position: 'absolute',
+                    right: -2,
+                    bottom: -2,
+                    backgroundColor: t.brand,
+                    borderRadius: 999,
+                    padding: 5,
+                    borderWidth: 2,
+                    borderColor: t.bgCard,
+                  }}
+                >
+                  <Ionicons
+                    name={uploadingPhoto ? 'hourglass-outline' : 'camera'}
+                    size={12}
+                    color="#FFFFFF"
+                  />
+                </View>
+              ) : null}
+            </Pressable>
             <View style={styles.profileText}>
               <Text
                 style={{

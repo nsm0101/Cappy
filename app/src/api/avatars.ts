@@ -29,6 +29,33 @@ export const uploadChildAvatar = async (
 };
 
 /**
+ * Upload the current user's avatar (base64 JPEG) to the private `avatars` bucket at
+ * `{familyId}/caregiver-{userId}.jpg` and store that path on the user's profile record.
+ * Returns the storage path. Display goes through `signedAvatarUrl`.
+ */
+export const uploadMyAvatar = async (
+  familyId: string,
+  base64Jpeg: string,
+): Promise<string> => {
+  const { data: userData } = await supabase.auth.getUser();
+  if (!userData.user) throw new Error('Not signed in');
+
+  const path = `${familyId}/caregiver-${userData.user.id}.jpg`;
+  const { error } = await supabase.storage
+    .from(BUCKET)
+    .upload(path, decode(base64Jpeg), { contentType: 'image/jpeg', upsert: true });
+  if (error) throw error;
+
+  const { error: updateError } = await supabase
+    .from('profiles')
+    .update({ avatar_url: path })
+    .eq('id', userData.user.id);
+  if (updateError) throw updateError;
+
+  return path;
+};
+
+/**
  * Resolve a stored avatar path to a short-lived signed URL for display.
  * Children's photos are never public — every view fetches its own URL.
  */

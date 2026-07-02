@@ -42,3 +42,9 @@ export type { WordmarkProps } from './Wordmark';
 
 export { InputSheet } from './InputSheet';
 export type { InputSheetProps } from './InputSheet';
+
+export { DoseClock, captionForStatus } from './DoseClock';
+export type { DoseClockProps, ClockDoseMarker, ClockSafeArc } from './DoseClock';
+
+export { DoseDayBar } from './DoseDayBar';
+export type { DoseDayBarProps, DayBarLane } from './DoseDayBar';

@@ -13,6 +13,7 @@ import { TabBar, type TabItem } from '@/components';
 import { HomeScreen } from '@/screens/HomeScreen';
 import { ScanScreen } from '@/screens/ScanScreen';
 import { TimelineScreen } from '@/screens/TimelineScreen';
+import { ScheduleScreen } from '@/screens/ScheduleScreen';
 import { SettingsScreen } from '@/screens/SettingsScreen';
 import { DoseSheetScreen } from '@/screens/DoseSheetScreen';
 import { CreateFamilyScreen } from '@/screens/CreateFamilyScreen';
@@ -33,6 +34,7 @@ const TAB_ICONS: Record<
   Home: { label: 'Home', icon: 'home-outline', iconActive: 'home' },
   ScanTab: { label: 'Scan', icon: 'scan-outline', iconActive: 'scan' },
   Timeline: { label: 'Timeline', icon: 'time-outline', iconActive: 'time' },
+  Schedule: { label: 'Schedule', icon: 'calendar-outline', iconActive: 'calendar' },
   Settings: { label: 'Settings', icon: 'settings-outline', iconActive: 'settings' },
 };
 
@@ -81,6 +83,7 @@ const Tabs: React.FC = () => (
     <Tab.Screen name="Home" component={HomeScreen} />
     <Tab.Screen name="ScanTab" component={ScanTabScreen} />
     <Tab.Screen name="Timeline" component={TimelineScreen} />
+    <Tab.Screen name="Schedule" component={ScheduleScreen} />
     <Tab.Screen name="Settings" component={SettingsScreen} />
   </Tab.Navigator>
 );

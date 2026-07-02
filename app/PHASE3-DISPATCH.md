@@ -319,7 +319,7 @@ Reviewer (senior agent) will: audit each diff against the ticket, run the checks
 ---
 
 ## D10 · Caregiver profile card + avatar upload — **(UX) · M**
-**Status:** TODO · Mostly JS; needs one storage-RLS migration (SENIOR applies it — junior writes client only)
+**Status:** DONE (2026-07-02) — junior agent + senior review. No migration needed: caregiver photos live at {familyId}/caregiver-{userId}.jpg under existing family-scoped policies.
 
 **Context:** Children get photo upload on ChildDetail; caregivers have no profile surface and no avatar, so dose attribution ("logged by") is text-only. Give every caregiver a durable profile.
 
@@ -335,7 +335,7 @@ Reviewer (senior agent) will: audit each diff against the ticket, run the checks
 ---
 
 ## D12 · "Schedule" screen — dosing clock + 24h timeline — **(UX) · L**
-**Status:** TODO · JS-only (`react-native-svg` 15.2.0 already installed)
+**Status:** DONE (2026-07-02) — Sonnet agent + senior review. Senior fix: arc span derived from next_safe_at−last_dose_at (age-aware) instead of min_interval_hours (label floor). Device-verify the clock visuals.
 
 **Context:** Visual answer to "when can I give the next dose?". Reference image (from founder): a 12-hour analog face where each hour position carries a stacked dual label — AM hour (e.g. `09:00`, blue) above PM hour (e.g. `21:00`, dark) — with the AM half of the field white and the PM half shaded. We adapt that design to show dose windows.
 

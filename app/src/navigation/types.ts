@@ -16,5 +16,6 @@ export type TabParamList = {
   Home: undefined;
   ScanTab: undefined;
   Timeline: undefined;
+  Schedule: undefined;
   Settings: undefined;
 };
