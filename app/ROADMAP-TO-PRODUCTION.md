@@ -3,6 +3,8 @@
 **Generated:** 2026-07-02, immediately after the Phase 3 sprint.
 **Where we are:** All P0 safety items shipped and live (24h cap, age-aware intervals, log-time race check, no fail-open). Manual logging + backdating, family switcher, Schedule tab (clock + 24h timeline), caregiver profiles/avatars, photo upload fixed at the root (audit-trigger bug), realtime multi-screen, timeline med colors, validated inputs, 32 tests, CI. Device-verified through tonight's build.
 
+**Progress (2026-07-02, end of day):** M1 ✅ COMPLETE (D8/D9/FLOW-2/UX-4 shipped + device-QA'd). M2 ✅ code-complete — SDK 57/RN 0.86 migration green (tsc/eslint/jest), HealthKit + Sentry staged, build 3 submitted to EAS. M3 ✅ infra ready — cappy-prod live (ref msjmnvegjrycwoedrwym), prod env wired in eas.json; remaining: PROD-RUNBOOK.md steps (db push, functions deploy, dashboard checklist, SEC-1 rotation). M4 in flight — guideline 1.4.2 verified; counsel next.
+
 Milestones are ordered; each has an exit criterion. Bracketed owners: [You] = founder actions, [Claude] = agent work sessions, [Counsel] = lawyer.
 
 ---
