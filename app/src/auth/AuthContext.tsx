@@ -23,7 +23,7 @@ type AuthContextValue = AuthState & {
     email: string,
     password: string,
     displayName?: string,
-  ) => Promise<{ error: Error | null }>;
+  ) => Promise<{ error: Error | null; needsEmailConfirm?: boolean }>;
   signInWithApple: () => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
 };

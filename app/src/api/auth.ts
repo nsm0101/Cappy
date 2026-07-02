@@ -80,14 +80,16 @@ export const signUpWithPassword = async (
   email: string,
   password: string,
   displayName?: string,
-): Promise<{ error: Error | null }> => {
+): Promise<{ error: Error | null; needsEmailConfirm: boolean }> => {
   const trimmedName = displayName?.trim();
-  const { error } = await supabase.auth.signUp({
+  const { data, error } = await supabase.auth.signUp({
     email: email.trim().toLowerCase(),
     password,
     options: trimmedName ? { data: { display_name: trimmedName } } : undefined,
   });
-  return { error };
+  // When "Confirm email" is enabled on the project, signUp succeeds but
+  // returns no session - the user must click the emailed link, then sign in.
+  return { error, needsEmailConfirm: !error && !data.session };
 };
 
 /** Sign in with an existing email + password. */

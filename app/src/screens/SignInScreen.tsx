@@ -54,12 +54,27 @@ export const SignInScreen: React.FC = () => {
     setBusy(true);
     // On success the auth-state listener flips us into the app — no manual
     // navigation needed here.
-    const { error } = isSignup
-      ? await signUpWithPassword(trimmed, password, name)
-      : await signInWithPassword(trimmed, password);
+    if (isSignup) {
+      const { error, needsEmailConfirm } = await signUpWithPassword(trimmed, password, name);
+      setBusy(false);
+      if (error) {
+        Alert.alert("Couldn't create account", error.message);
+        return;
+      }
+      if (needsEmailConfirm) {
+        // Email confirmation is enabled on this project: no session yet.
+        setMode('signin');
+        Alert.alert(
+          'Check your email',
+          `We sent a confirmation link to ${trimmed}. Tap it, then come back and sign in.`,
+        );
+      }
+      return;
+    }
+    const { error } = await signInWithPassword(trimmed, password);
     setBusy(false);
     if (error) {
-      Alert.alert(isSignup ? "Couldn't create account" : "Couldn't sign in", error.message);
+      Alert.alert("Couldn't sign in", error.message);
     }
   };
 
