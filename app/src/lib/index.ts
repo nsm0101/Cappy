@@ -4,6 +4,12 @@ export { uuidv4 } from './uuid';
 export { pickAndCropSquareImage } from './imagePicker';
 export type { PickedImage } from './imagePicker';
 export {
+  getReminderPref,
+  setReminderPref,
+  scheduleNextDoseReminder,
+  cancelDoseReminder,
+} from './reminders';
+export {
   ALLERGEN_CATALOG,
   searchAllergens,
   isAllergicToMedication,

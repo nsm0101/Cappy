@@ -141,13 +141,13 @@ export const HomeScreen: React.FC = () => {
 
   const who = displayName ?? user?.email?.split('@')[0] ?? null;
 
-  // D9: Onboarding complete when all four steps are done
-  const shouldHideOnboarding = () => {
-    if (families.length === 0) return true;
-    if (childrenList.length === 0) return true;
-    if (!childrenList.some((c) => c.weightGrams !== null)) return true;
-    if (!childrenList.some((c) => c.lastDoseAt !== null)) return true;
-    return false;
+  // D9: Show onboarding checklist when any step is incomplete
+  const showOnboarding = () => {
+    if (families.length === 0) return false; // Show no-families card instead
+    if (childrenList.length === 0) return true; // No children yet
+    if (!childrenList.some((c) => c.weightGrams !== null)) return true; // No weight recorded
+    if (!childrenList.some((c) => c.lastDoseAt !== null)) return true; // No dose logged
+    return false; // All complete
   };
 
   if (loading) {
@@ -184,7 +184,7 @@ export const HomeScreen: React.FC = () => {
         </Text>
 
         {/* D9: Onboarding checklist — show when signed in, loading complete, and any step incomplete */}
-        {user && !loading && families.length > 0 && !shouldHideOnboarding() && (
+        {user && !loading && showOnboarding() && (
           <View style={{ marginTop: theme.spacing.lg }}>
             <OnboardingSteps
               hasFamily={families.length > 0}
@@ -203,7 +203,7 @@ export const HomeScreen: React.FC = () => {
                   navigation.navigate('ChildDetail', { childId: firstWithoutWeight.id });
                 }
               }}
-              onLogDose={() => navigation.navigate('ScanTab')}
+              onLogDose={() => navigation.navigate('ScanTab' as never)}
             />
           </View>
         )}

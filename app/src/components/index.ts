@@ -51,3 +51,6 @@ export type { DoseDayBarProps, DayBarLane } from './DoseDayBar';
 
 export { OnboardingSteps } from './OnboardingSteps';
 export type { OnboardingStepsProps } from './OnboardingSteps';
+
+export { SuccessOverlay } from './SuccessOverlay';
+export type { SuccessOverlayProps, SuccessOverlayReminder } from './SuccessOverlay';

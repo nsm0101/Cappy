@@ -4,7 +4,16 @@ import * as Haptics from 'expo-haptics';
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
-import { MemberAvatar, Button, Card, DosePill, DoseSafetyText, Field, Segmented } from '@/components';
+import {
+  MemberAvatar,
+  Button,
+  Card,
+  DosePill,
+  DoseSafetyText,
+  Field,
+  Segmented,
+  SuccessOverlay,
+} from '@/components';
 import type { ResolvedTag } from '@/api';
 import {
   doses as dosesApi,
@@ -25,6 +34,10 @@ import {
   formatTimeUntil,
   initialsFromName,
   uuidv4,
+  getReminderPref,
+  setReminderPref,
+  scheduleNextDoseReminder,
+  cancelDoseReminder,
   type MedicationKind,
 } from '@/lib';
 
@@ -96,6 +109,22 @@ export const DoseSheetScreen: React.FC = () => {
   const [manualAmountMg, setManualAmountMg] = useState('');
   // FLOW-1 backdating: "I gave it earlier and forgot to log it."
   const [givenAgoMin, setGivenAgoMin] = useState('0');
+  // D8: brief success confirmation shown after a dose is logged, before
+  // navigating back. `successSubtitle` is null when there's no next-safe
+  // line to show (e.g. caregiver recipients — see doLog below).
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [successSubtitle, setSuccessSubtitle] = useState<string | undefined>(undefined);
+  // FLOW-2: reminder opt-in (persisted preference) + the context needed to
+  // schedule/cancel from the overlay's toggle.
+  const [reminderEnabled, setReminderEnabled] = useState(false);
+  const [reminderCtx, setReminderCtx] = useState<{
+    childId: string;
+    name: string;
+    nextSafeAt: string;
+  } | null>(null);
+  useEffect(() => {
+    void getReminderPref().then(setReminderEnabled).catch(() => undefined);
+  }, []);
 
   // Family brand preference for this medication (drives the accent color).
   useEffect(() => {
@@ -113,6 +142,7 @@ export const DoseSheetScreen: React.FC = () => {
 
   const brand = brandFor(med.generic_name, brandKey);
   const accent = brand.accent;
+  const medDisplayName = brand.key !== 'generic' ? brand.name : med.brand_name ?? med.generic_name;
 
   // Fetch the selected child's latest weight (dosing is weight-based) and
   // their allergies (to gate the recommendation). Caregivers don't go
@@ -247,7 +277,42 @@ export const DoseSheetScreen: React.FC = () => {
         });
       }
       await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-      navigation.goBack();
+
+      // D8: authoritative post-log next_safe_at. `getDoseStatus` is
+      // child-only (src/api/doses.ts) — there is no caregiver variant, so
+      // caregiver recipients show the overlay without a next-safe line.
+      let nextSafeAt: string | null = null;
+      if (selectedRecipient.kind === 'child') {
+        try {
+          const post = await dosesApi.getDoseStatus(selectedRecipient.child.id, med.id);
+          nextSafeAt = post.next_safe_at;
+        } catch {
+          // Best-effort — the overlay still shows without a next-safe line.
+          nextSafeAt = null;
+        }
+      }
+      setSuccessSubtitle(nextSafeAt ? `Next dose safe at ${formatClockTime(nextSafeAt)}` : undefined);
+      // FLOW-2: stash reminder context; auto-schedule when already opted in.
+      if (selectedRecipient.kind === 'child' && nextSafeAt) {
+        const ctx = {
+          childId: selectedRecipient.child.id,
+          name: selectedRecipient.child.display_name,
+          nextSafeAt,
+        };
+        setReminderCtx(ctx);
+        if (reminderEnabled) {
+          void scheduleNextDoseReminder({
+            childId: ctx.childId,
+            medicationId: med.id,
+            recipientName: ctx.name,
+            medName: medDisplayName,
+            nextSafeAt: ctx.nextSafeAt,
+          });
+        }
+      } else {
+        setReminderCtx(null);
+      }
+      setShowSuccess(true);
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Could not log dose.';
       Alert.alert("Couldn't log", message);
@@ -315,6 +380,7 @@ export const DoseSheetScreen: React.FC = () => {
   );
 
   return (
+    <>
     <ScrollView
       contentContainerStyle={{ padding: theme.spacing.lg, paddingBottom: theme.spacing.xxxl }}
       style={{ backgroundColor: t.bg }}
@@ -675,6 +741,38 @@ export const DoseSheetScreen: React.FC = () => {
         </>
       ) : null}
     </ScrollView>
+    <SuccessOverlay
+      visible={showSuccess}
+      subtitle={successSubtitle}
+      reminder={
+        reminderCtx
+          ? {
+              enabled: reminderEnabled,
+              label: 'Remind me when the next dose is safe',
+              onToggle: (enabled: boolean) => {
+                setReminderEnabled(enabled);
+                void setReminderPref(enabled);
+                if (enabled) {
+                  void scheduleNextDoseReminder({
+                    childId: reminderCtx.childId,
+                    medicationId: med.id,
+                    recipientName: reminderCtx.name,
+                    medName: medDisplayName,
+                    nextSafeAt: reminderCtx.nextSafeAt,
+                  });
+                } else {
+                  void cancelDoseReminder(reminderCtx.childId, med.id);
+                }
+              },
+            }
+          : undefined
+      }
+      onDone={() => {
+        setShowSuccess(false);
+        navigation.goBack();
+      }}
+    />
+    </>
   );
 };
 

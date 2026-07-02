@@ -1,5 +1,5 @@
 import React from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Card } from './Card';
 import { useTheme } from '@/theme';
@@ -150,5 +150,3 @@ const StepRow: React.FC<StepRowProps> = ({ step, theme }) => {
     </Pressable>
   );
 };
-
-const styles = StyleSheet.create({});

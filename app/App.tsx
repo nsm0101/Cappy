@@ -28,8 +28,19 @@ import { AuthProvider } from '@/auth/AuthContext';
 import { ActiveFamilyProvider } from '@/family/ActiveFamilyContext';
 import { RootNavigator } from '@/navigation';
 import { useTagLinkObserver } from '@/navigation/useTagLinkObserver';
+import * as Notifications from 'expo-notifications';
 
 SplashScreen.preventAutoHideAsync().catch(() => undefined);
+
+// FLOW-2: present "next dose is safe" local reminders even when the app is
+// foregrounded. Reminders are nudges only — the dose sheet re-checks safety.
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: false,
+    shouldSetBadge: false,
+  }),
+});
 
 export default function App() {
   // COLD-1: observe NFC tag cold-launch / warm links. Routing itself is

@@ -13,7 +13,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
-import { Button, Card, Field, MemberAvatar, InputSheet, RowItem, Sheet } from '@/components';
+import { Button, Card, Field, MemberAvatar, InputSheet, RowItem, Sheet, DosePill } from '@/components';
 import {
   children as childrenApi,
   doses as dosesApi,
@@ -107,10 +107,11 @@ export const ChildDetailScreen: React.FC = () => {
       // Fetch the most recent dose status for the status pill
       try {
         const recentDoses = await dosesApi.listDosesForChild(childId, { limit: 1 });
-        if (recentDoses.length === 0) {
+        const lastDose = recentDoses[0];
+        if (!lastDose) {
           setDoseStatus('due');
         } else {
-          const result = await dosesApi.getDoseStatus(childId, recentDoses[0].medication_id);
+          const result = await dosesApi.getDoseStatus(childId, lastDose.medication_id);
           setDoseStatus(result.status);
         }
       } catch {
@@ -743,6 +744,19 @@ export const ChildDetailScreen: React.FC = () => {
           value: weightUnit,
           onChange: (v) => setWeightUnit(v as 'lb' | 'kg'),
         }}
+      />
+
+      {/* Name edit input sheet */}
+      <InputSheet
+        visible={nameSheetVisible}
+        title="Edit name"
+        initialValue={child?.display_name ?? ''}
+        placeholder="Enter child's name"
+        keyboardType="default"
+        validate={validateName}
+        submitLabel="Save"
+        onSubmit={handleNameSubmit}
+        onClose={() => setNameSheetVisible(false)}
       />
     </SafeAreaView>
   );
