@@ -26,7 +26,13 @@ import {
   type DoseStatus,
   type ResolvedTag,
 } from '@/api';
-import { pickAndCropSquareImage, searchAllergens, kgFromLbs, lbsFromKg } from '@/lib';
+import {
+  pickAndCropSquareImage,
+  searchAllergens,
+  kgFromLbs,
+  lbsFromKg,
+  ageMonthsFromDob,
+} from '@/lib';
 
 const STALE_WEIGHT_DAYS = 90;
 import { useTheme } from '@/theme';
@@ -38,6 +44,25 @@ import {
   initialsFromName,
 } from '@/lib';
 import type { AppStackParamList } from '@/navigation/types';
+
+const formatAge = (dobISO: string | null): string => {
+  if (!dobISO) return '';
+  const ageMonths = ageMonthsFromDob(dobISO);
+  if (ageMonths < 24) {
+    return `${ageMonths} months old`;
+  }
+  const years = Math.floor(ageMonths / 12);
+  return `${years} years old`;
+};
+
+const STATUS_LABEL: Record<DoseStatus, string> = {
+  due: 'Due now',
+  early: 'Too early',
+  recent: 'Given recently',
+  overdue: 'Overdue',
+  max_reached: '24-hour limit reached',
+  unknown: 'Status unavailable',
+};
 
 type Nav = NativeStackNavigationProp<AppStackParamList>;
 type Rt = RouteProp<AppStackParamList, 'ChildDetail'>;
@@ -60,6 +85,8 @@ export const ChildDetailScreen: React.FC = () => {
 
   const [weightSheetVisible, setWeightSheetVisible] = useState(false);
   const [weightUnit, setWeightUnit] = useState<'lb' | 'kg'>('lb');
+  const [nameSheetVisible, setNameSheetVisible] = useState(false);
+  const [doseStatus, setDoseStatus] = useState<DoseStatus>('due');
 
   const loadData = useCallback(async () => {
     try {
@@ -76,6 +103,19 @@ export const ChildDetailScreen: React.FC = () => {
 
       const doseHistory = await dosesApi.listDosesWithDetailsForChild(childId);
       setDoses(doseHistory);
+
+      // Fetch the most recent dose status for the status pill
+      try {
+        const recentDoses = await dosesApi.listDosesForChild(childId, { limit: 1 });
+        if (recentDoses.length === 0) {
+          setDoseStatus('due');
+        } else {
+          const result = await dosesApi.getDoseStatus(childId, recentDoses[0].medication_id);
+          setDoseStatus(result.status);
+        }
+      } catch {
+        setDoseStatus('unknown');
+      }
     } catch (err) {
       setErrorText(err instanceof Error ? err.message : 'Could not load details.');
     }
@@ -196,6 +236,29 @@ export const ChildDetailScreen: React.FC = () => {
     setWeightUnit('lb');
     setWeightSheetVisible(true);
   }, []);
+
+  const validateName = useCallback((value: string): string | null => {
+    const trimmed = value.trim();
+    if (!trimmed) {
+      return 'Name cannot be empty.';
+    }
+    if (trimmed.length > 40) {
+      return 'Name must be 40 characters or less.';
+    }
+    return null;
+  }, []);
+
+  const handleNameSubmit = useCallback(
+    async (value: string) => {
+      try {
+        await childrenApi.updateChildName(childId, value.trim());
+        await loadData();
+      } catch (err) {
+        Alert.alert('Could not save name', err instanceof Error ? err.message : 'Try again.');
+      }
+    },
+    [childId, loadData],
+  );
 
   const handleWeightSubmit = useCallback(async (value: string) => {
     const num = parseFloat(value);
@@ -333,22 +396,49 @@ export const ChildDetailScreen: React.FC = () => {
               </View>
             </Pressable>
             <View style={styles.profileInfo}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: theme.spacing.sm }}>
+                <Text
+                  style={{
+                    color: t.fg1,
+                    fontFamily: theme.fonts.display,
+                    fontSize: theme.fontSize.xxl,
+                    fontWeight: '800',
+                  }}
+                >
+                  {child.display_name}
+                </Text>
+                <Pressable
+                  onPress={() => setNameSheetVisible(true)}
+                  accessibilityRole="button"
+                  accessibilityLabel="Edit name"
+                >
+                  <Ionicons name="pencil-outline" size={18} color={t.fg2} />
+                </Pressable>
+              </View>
               <Text
                 style={{
-                  color: t.fg1,
-                  fontFamily: theme.fonts.display,
-                  fontSize: theme.fontSize.xxl,
-                  fontWeight: '800',
+                  color: t.fg3,
+                  fontFamily: theme.fonts.sans,
+                  fontSize: theme.fontSize.sm,
+                  marginTop: 4,
                 }}
               >
-                {child.display_name}
+                {formatAge(child.date_of_birth)} · born{' '}
+                {new Date(child.date_of_birth).toLocaleDateString(undefined, {
+                  year: 'numeric',
+                  month: 'short',
+                  day: 'numeric',
+                })}
               </Text>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: theme.spacing.sm, marginTop: theme.spacing.sm }}>
+                <DosePill label={STATUS_LABEL[doseStatus]} status={doseStatus} />
+              </View>
               <Text
                 style={{
                   color: t.fg2,
                   fontFamily: theme.fonts.sans,
                   fontSize: theme.fontSize.sm,
-                  marginTop: 4,
+                  marginTop: theme.spacing.sm,
                 }}
               >
                 Weight: {formatWeightFromGrams(weightGrams)}

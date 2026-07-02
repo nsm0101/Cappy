@@ -12,7 +12,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
-import { MemberAvatar, Button, Card, DosePill, RowItem, Sheet, Wordmark } from '@/components';
+import { MemberAvatar, Button, Card, DosePill, RowItem, Sheet, Wordmark, OnboardingSteps } from '@/components';
 import {
   children as childrenApi,
   doses as dosesApi,
@@ -141,6 +141,15 @@ export const HomeScreen: React.FC = () => {
 
   const who = displayName ?? user?.email?.split('@')[0] ?? null;
 
+  // D9: Onboarding complete when all four steps are done
+  const shouldHideOnboarding = () => {
+    if (families.length === 0) return true;
+    if (childrenList.length === 0) return true;
+    if (!childrenList.some((c) => c.weightGrams !== null)) return true;
+    if (!childrenList.some((c) => c.lastDoseAt !== null)) return true;
+    return false;
+  };
+
   if (loading) {
     return (
       <SafeAreaView style={[styles.center, { backgroundColor: t.bg }]}>
@@ -173,6 +182,31 @@ export const HomeScreen: React.FC = () => {
         >
           {`Welcome back${who ? `, ${who}` : ''}.`}
         </Text>
+
+        {/* D9: Onboarding checklist — show when signed in, loading complete, and any step incomplete */}
+        {user && !loading && families.length > 0 && !shouldHideOnboarding() && (
+          <View style={{ marginTop: theme.spacing.lg }}>
+            <OnboardingSteps
+              hasFamily={families.length > 0}
+              hasChild={childrenList.length > 0}
+              hasWeight={childrenList.some((c) => c.weightGrams !== null)}
+              hasDose={childrenList.some((c) => c.lastDoseAt !== null)}
+              onCreateFamily={() => navigation.navigate('CreateFamily')}
+              onAddChild={() => {
+                if (activeFamily) {
+                  navigation.navigate('AddChild', { familyId: activeFamily.id });
+                }
+              }}
+              onAddWeight={() => {
+                const firstWithoutWeight = childrenList.find((c) => c.weightGrams === null);
+                if (firstWithoutWeight) {
+                  navigation.navigate('ChildDetail', { childId: firstWithoutWeight.id });
+                }
+              }}
+              onLogDose={() => navigation.navigate('ScanTab')}
+            />
+          </View>
+        )}
 
         {families.length === 0 ? (
           <View style={{ marginTop: theme.spacing.xl }}>

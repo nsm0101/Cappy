@@ -48,3 +48,6 @@ export type { DoseClockProps, ClockDoseMarker, ClockSafeArc } from './DoseClock'
 
 export { DoseDayBar } from './DoseDayBar';
 export type { DoseDayBarProps, DayBarLane } from './DoseDayBar';
+
+export { OnboardingSteps } from './OnboardingSteps';
+export type { OnboardingStepsProps } from './OnboardingSteps';

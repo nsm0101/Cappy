@@ -96,3 +96,19 @@ export const getChild = async (childId: string): Promise<Child> => {
   return data;
 };
 
+export const updateChildName = async (
+  childId: string,
+  displayName: string,
+): Promise<void> => {
+  const { data, error } = await supabase
+    .from('children')
+    .update({ display_name: displayName })
+    .eq('id', childId)
+    .select('id');
+
+  if (error) throw error;
+  if (!data || data.length === 0) {
+    throw new Error('Only family admins can rename a child.');
+  }
+};
+
