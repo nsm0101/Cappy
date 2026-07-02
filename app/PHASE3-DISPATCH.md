@@ -280,3 +280,38 @@
 - **Wave 2:** D3 → D5 · D7 (after D6)
 
 Reviewer (senior agent) will: audit each diff against the ticket, run the checks, exercise dark mode + accessibility on changed screens, and merge. Anything ambiguous → stop and ask; do not improvise beyond the spec.
+
+---
+
+## D8 · Dose-logged success moment — **(UX) · M**
+**Status:** TODO · JS-only (works on reload, no rebuild)
+
+**Context:** Logging a dose instantly `goBack()`s with only a haptic. Show a brief confirmation that closes the loop and hosts the future reminder opt-in (FLOW-2).
+
+**Files:** `src/screens/DoseSheetScreen.tsx`, new `src/components/SuccessOverlay.tsx` (+ export in `components/index.ts`)
+
+**Steps:**
+1. `SuccessOverlay`: full-screen semi-transparent view (theme tokens only) with a checkmark `Ionicons`, title "Dose logged", and a subtitle line passed as a prop. Auto-dismiss after 2.5 s via `onDone` callback; also dismiss on tap (accessibilityRole `button`, label "Dismiss"). Respect Reduce Motion (no entrance animation if enabled — see `NfcTarget` for the pattern).
+2. In `doLog` success path (both child and caregiver): instead of immediate `goBack()`, fetch the fresh `next_safe_at` you already have from the SAFE-3 re-check (or call `dosesApi.getDoseStatus` once for the override path), then show the overlay with subtitle `Next dose safe at {formatClockTime(next_safe_at)}` (omit the line if null). `goBack()` in `onDone`.
+3. Add a disabled placeholder row under the subtitle: "Remind me when it's safe — coming with the next app update" (fg3, xs). FLOW-2 replaces this with a real toggle; keep the layout slot.
+4. Keep the success haptic. Do not touch the safety logic above the insert.
+
+**Acceptance:** tsc + eslint + jest pass; logging shows the overlay with the correct next-safe time, dismisses to the previous screen; VoiceOver reads it.
+
+---
+
+## D9 · First-run onboarding path — **(UX) · L**
+**Status:** TODO · JS-only
+
+**Context:** New users land on an empty Home with no guidance. Guide the first two minutes: create family → add child (with weight) → program/register a tag → try a scan.
+
+**Files:** `src/screens/HomeScreen.tsx`, optionally new `src/components/OnboardingSteps.tsx`
+
+**Steps:**
+1. Derive onboarding state on Home from existing data — no new storage: `hasFamily` (families.length>0), `hasChild` (childrenList.length>0), `hasWeight` (any child weightGrams != null), `hasDose` (any child lastDoseAt != null).
+2. When signed in and any of those is false, render a checklist Card at the top of Home ("Get set up" heading): four rows with checkmark/circle `Ionicons`, each incomplete row tappable → navigates to the right action (CreateFamily / AddChild / ChildDetail weight sheet / ScanTab). Completed rows get fgMuted strikethrough-free checked style.
+3. Hide the card entirely once all four are true. No celebration screen (keep it quiet).
+4. Copy (normative): "Create your family" / "Add your first child" / "Record a current weight — dosing depends on it" / "Log a first dose (tap a Cappy tag or use Log a dose)".
+5. All rows accessible; design-system components only; minimal diff to HomeScreen (extract the card into `OnboardingSteps.tsx` taking the four booleans + nav callbacks as props).
+
+**Acceptance:** tsc + eslint + jest pass; fresh account sees the checklist and each tap lands on the right screen; fully set-up account sees no checklist.
