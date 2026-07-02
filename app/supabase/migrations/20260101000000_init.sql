@@ -55,7 +55,7 @@ create table public.profiles (
 -- ─────────────────────────────────────────────────────────────────────
 
 create table public.families (
-  id          uuid primary key default uuid_generate_v4(),
+  id          uuid primary key default gen_random_uuid(),
   name        text not null check (char_length(name) between 1 and 100),
   created_by  uuid not null references public.profiles(id),
   created_at  timestamptz not null default now(),
@@ -70,7 +70,7 @@ create index families_active_idx on public.families (id) where deleted_at is nul
 -- ─────────────────────────────────────────────────────────────────────
 
 create table public.family_caregivers (
-  id          uuid primary key default uuid_generate_v4(),
+  id          uuid primary key default gen_random_uuid(),
   family_id   uuid not null references public.families(id) on delete cascade,
   user_id     uuid not null references public.profiles(id) on delete cascade,
   role        caregiver_role not null,
@@ -88,7 +88,7 @@ create index family_caregivers_family_id_idx on public.family_caregivers (family
 -- ─────────────────────────────────────────────────────────────────────
 
 create table public.children (
-  id              uuid primary key default uuid_generate_v4(),
+  id              uuid primary key default gen_random_uuid(),
   family_id       uuid not null references public.families(id) on delete cascade,
   display_name    text not null check (char_length(display_name) between 1 and 50),
   date_of_birth   date not null,
@@ -105,7 +105,7 @@ create index children_active_idx on public.children (id) where deleted_at is nul
 -- ─────────────────────────────────────────────────────────────────────
 
 create table public.caregiver_child_access (
-  id                   uuid primary key default uuid_generate_v4(),
+  id                   uuid primary key default gen_random_uuid(),
   family_caregiver_id  uuid not null references public.family_caregivers(id) on delete cascade,
   child_id             uuid not null references public.children(id) on delete cascade,
   access_level         text not null check (access_level in ('full', 'readonly', 'none')),
@@ -118,7 +118,7 @@ create table public.caregiver_child_access (
 -- ─────────────────────────────────────────────────────────────────────
 
 create table public.invites (
-  id              uuid primary key default uuid_generate_v4(),
+  id              uuid primary key default gen_random_uuid(),
   family_id       uuid not null references public.families(id) on delete cascade,
   code            text not null unique check (code ~ '^[0-9]{6}$'),
   proposed_role   caregiver_role not null,
@@ -136,7 +136,7 @@ create index invites_pending_idx on public.invites (expires_at)
 -- ─────────────────────────────────────────────────────────────────────
 
 create table public.weight_records (
-  id            uuid primary key default uuid_generate_v4(),
+  id            uuid primary key default gen_random_uuid(),
   child_id      uuid not null references public.children(id) on delete cascade,
   value_grams   integer not null check (value_grams between 1000 and 200000),
   recorded_at   timestamptz not null,
@@ -151,7 +151,7 @@ create index weight_records_child_recorded_idx
 -- ─────────────────────────────────────────────────────────────────────
 
 create table public.medications (
-  id                       uuid primary key default uuid_generate_v4(),
+  id                       uuid primary key default gen_random_uuid(),
   generic_name             text not null,
   brand_name               text,
   concentration_label      text not null,
@@ -183,7 +183,7 @@ values
 -- ─────────────────────────────────────────────────────────────────────
 
 create table public.nfc_tags (
-  id              uuid primary key default uuid_generate_v4(),
+  id              uuid primary key default gen_random_uuid(),
   tag_uid         text not null unique check (char_length(tag_uid) between 4 and 32),
   family_id       uuid not null references public.families(id) on delete cascade,
   medication_id   uuid not null references public.medications(id),
@@ -225,7 +225,7 @@ create index dose_events_logger_active_idx
 -- ─────────────────────────────────────────────────────────────────────
 
 create table public.dose_corrections (
-  id                          uuid primary key default uuid_generate_v4(),
+  id                          uuid primary key default gen_random_uuid(),
   original_dose_event_id      uuid not null references public.dose_events(id) on delete cascade,
   correction_dose_event_id    uuid not null references public.dose_events(id) on delete cascade,
   corrected_by                uuid not null references public.profiles(id),

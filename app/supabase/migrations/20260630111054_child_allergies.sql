@@ -12,7 +12,7 @@
 begin;
 
 create table public.child_allergies (
-  id          uuid primary key default uuid_generate_v4(),
+  id          uuid primary key default gen_random_uuid(),
   child_id    uuid not null references public.children(id) on delete cascade,
   allergen    text not null,
   label       text not null,
