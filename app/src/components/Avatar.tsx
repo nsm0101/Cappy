@@ -69,7 +69,7 @@ export const Avatar: React.FC<AvatarProps> = ({
       <View
         pointerEvents="none"
         style={[
-          StyleSheet.absoluteFillObject,
+          StyleSheet.absoluteFill,
           {
             borderRadius: box / 2,
             borderWidth: 2,

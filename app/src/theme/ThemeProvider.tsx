@@ -75,7 +75,9 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   // Apply to the OS navigation bar / status bar background hint
   useEffect(() => {
-    Appearance.setColorScheme?.(mode === 'system' ? null : mode);
+    // RN 0.86's types narrowed to 'light' | 'dark', but the runtime still
+    // treats null as "reset to follow the OS" - cast to keep prior behavior.
+    Appearance.setColorScheme?.((mode === 'system' ? null : mode) as 'light' | 'dark');
   }, [mode]);
 
   return (

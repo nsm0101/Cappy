@@ -79,7 +79,8 @@ export const scheduleNextDoseReminder = async (opts: {
         title: 'Next dose window is open',
         body: `${opts.recipientName}'s next ${opts.medName} dose can be given now if still needed. Open Cappy to confirm before giving.`,
       },
-      trigger: at,
+      // SDK 57: bare Date triggers were removed; use the explicit date shape.
+      trigger: { type: Notifications.SchedulableTriggerInputTypes.DATE, date: at },
     });
 
     const map = await readMap();

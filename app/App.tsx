@@ -4,7 +4,7 @@
 // crypto polyfill required for the alpha.)
 import 'react-native-url-polyfill/auto';
 
-import React, { useCallback } from 'react';
+import { useCallback } from 'react';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -40,7 +40,9 @@ initMonitoring();
 // foregrounded. Reminders are nudges only — the dose sheet re-checks safety.
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
-    shouldShowAlert: true,
+    // SDK 57: banner/list replace the deprecated shouldShowAlert.
+    shouldShowBanner: true,
+    shouldShowList: true,
     shouldPlaySound: false,
     shouldSetBadge: false,
   }),
