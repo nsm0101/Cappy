@@ -57,7 +57,7 @@ The resolved payload is a **snapshot at scan time**. The exact scenario Cappy ex
 # P1 — Missing core flows
 
 ### FLOW-1 · Manual dose logging (no tag required) — **P1 · L · Screens**
-**Status:** DONE (2026-07-02) — "Log a dose" on ChildDetail → medication picker → same DoseSheet via a manually built resolved payload (status from compute_dose_status, conservative 'unknown' fallback; SAFE-1/2/3 checks apply unchanged). Deferred: "given at" backdating adjuster.
+**Status:** DONE (2026-07-02) — "Log a dose" on ChildDetail → medication picker → same DoseSheet via a manually built resolved payload (status from compute_dose_status, conservative 'unknown' fallback; SAFE-1/2/3 checks apply unchanged). Backdating shipped too (Now / 30m / 1h / 2h segmented picker on both recipient paths).
 **The DoseSheet is only reachable through a successful NFC resolve** (`navigate('DoseSheet', { resolved })` appears once, in ScanScreen). The Scan fallback text promises "you can still log doses manually from the Home screen" — but no such path exists. Lost sticker, dead tag, NFC-less phone, or med given away from the bottle = no logging at all, and the shared record silently goes stale (a safety problem in itself).
 - Refactor `DoseSheetScreen` to accept either `{ resolved }` **or** `{ childId, medicationId }`; in the second case fetch family/med/status context itself (a small `resolve-manual` RPC or client queries mirroring `nfc-resolve`).
 - Entry points: a **"Log dose" button on ChildDetail** (spec'd in HOW-TO-FINISH but never built) and a med picker (family's registered meds + brand prefs) shown when no tag context exists.

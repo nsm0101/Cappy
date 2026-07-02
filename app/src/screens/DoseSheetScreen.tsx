@@ -4,7 +4,7 @@ import * as Haptics from 'expo-haptics';
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
-import { MemberAvatar, Button, Card, DosePill, DoseSafetyText, Field } from '@/components';
+import { MemberAvatar, Button, Card, DosePill, DoseSafetyText, Field, Segmented } from '@/components';
 import type { ResolvedTag } from '@/api';
 import {
   doses as dosesApi,
@@ -94,6 +94,8 @@ export const DoseSheetScreen: React.FC = () => {
   const [brandKey, setBrandKey] = useState<string | undefined>(undefined);
   const [logging, setLogging] = useState(false);
   const [manualAmountMg, setManualAmountMg] = useState('');
+  // FLOW-1 backdating: "I gave it earlier and forgot to log it."
+  const [givenAgoMin, setGivenAgoMin] = useState('0');
 
   // Family brand preference for this medication (drives the accent color).
   useEffect(() => {
@@ -193,6 +195,7 @@ export const DoseSheetScreen: React.FC = () => {
     if (!selectedRecipient) return;
     setLogging(true);
     try {
+      const givenAt = new Date(Date.now() - parseInt(givenAgoMin, 10) * 60000);
       if (selectedRecipient.kind === 'child') {
         if (!medDose) return;
         if (!force) {
@@ -228,7 +231,7 @@ export const DoseSheetScreen: React.FC = () => {
           childId: selectedRecipient.child.id,
           familyId: resolved.family.id,
           medicationId: med.id,
-          givenAt: new Date(),
+          givenAt,
           amountMg: medDose.recommendedMg,
           amountVolumeMl: volumeMl ?? undefined,
         });
@@ -239,7 +242,7 @@ export const DoseSheetScreen: React.FC = () => {
           caregiverUserId: selectedRecipient.caregiver.id,
           familyId: resolved.family.id,
           medicationId: med.id,
-          givenAt: new Date(),
+          givenAt,
           amountMg: manualAmountValue,
         });
       }
@@ -435,6 +438,31 @@ export const DoseSheetScreen: React.FC = () => {
             />
           </View>
 
+          <View style={{ marginTop: theme.spacing.lg }}>
+            <Text
+              style={{
+                color: t.fg3,
+                fontSize: theme.fontSize.xs,
+                letterSpacing: 1,
+                textTransform: 'uppercase',
+                fontWeight: '600',
+                marginBottom: theme.spacing.sm,
+              }}
+            >
+              When was it taken?
+            </Text>
+            <Segmented
+              options={[
+                { label: 'Now', value: '0' },
+                { label: '30m ago', value: '30' },
+                { label: '1h ago', value: '60' },
+                { label: '2h ago', value: '120' },
+              ]}
+              value={givenAgoMin}
+              onChange={setGivenAgoMin}
+            />
+          </View>
+
           <View style={{ gap: theme.spacing.md, marginTop: theme.spacing.lg }}>
             <Button
               label="Log dose now"
@@ -606,6 +634,31 @@ export const DoseSheetScreen: React.FC = () => {
               </DoseSafetyText>
             ) : null}
           </Card>
+
+          <View style={{ marginTop: theme.spacing.lg }}>
+            <Text
+              style={{
+                color: t.fg3,
+                fontSize: theme.fontSize.xs,
+                letterSpacing: 1,
+                textTransform: 'uppercase',
+                fontWeight: '600',
+                marginBottom: theme.spacing.sm,
+              }}
+            >
+              When was it given?
+            </Text>
+            <Segmented
+              options={[
+                { label: 'Now', value: '0' },
+                { label: '30m ago', value: '30' },
+                { label: '1h ago', value: '60' },
+                { label: '2h ago', value: '120' },
+              ]}
+              value={givenAgoMin}
+              onChange={setGivenAgoMin}
+            />
+          </View>
 
           <View style={{ gap: theme.spacing.md, marginTop: theme.spacing.lg }}>
             <Button
