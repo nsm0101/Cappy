@@ -3,17 +3,36 @@ import { supabase } from './client';
 
 const BUCKET = 'avatars';
 
+/** Best-effort delete of a replaced photo; never fails the upload. */
+const removeOldObject = async (oldPath: string | null | undefined, newPath: string) => {
+  if (!oldPath || oldPath === newPath) return;
+  try {
+    await supabase.storage.from(BUCKET).remove([oldPath]);
+  } catch {
+    // Orphaned old object is harmless; don't fail a successful upload.
+  }
+};
+
 /**
- * Upload a child's avatar (base64 JPEG) to the private `avatars` bucket at
- * `{familyId}/{childId}.jpg` and store that path on the child record.
- * Returns the storage path. Display goes through `signedAvatarUrl`.
+ * Upload a child's avatar (base64 JPEG) to the private `avatars` bucket.
+ * Paths are VERSIONED (`{familyId}/{childId}-{ts}.jpg`) so replacing a photo
+ * changes the stored path — this busts every cache layer (component state,
+ * RN image cache, CDN) that made overwritten fixed-path photos appear stale.
+ * The previous object is deleted best-effort after the record points at the
+ * new one. Display goes through `signedAvatarUrl`.
  */
 export const uploadChildAvatar = async (
   familyId: string,
   childId: string,
   base64Jpeg: string,
 ): Promise<string> => {
-  const path = `${familyId}/${childId}.jpg`;
+  const { data: existing } = await supabase
+    .from('children')
+    .select('avatar_url')
+    .eq('id', childId)
+    .maybeSingle();
+
+  const path = `${familyId}/${childId}-${Date.now()}.jpg`;
   const { error } = await supabase.storage
     .from(BUCKET)
     .upload(path, decode(base64Jpeg), { contentType: 'image/jpeg', upsert: true });
@@ -25,13 +44,15 @@ export const uploadChildAvatar = async (
     .eq('id', childId);
   if (updateError) throw updateError;
 
+  await removeOldObject(existing?.avatar_url, path);
   return path;
 };
 
 /**
- * Upload the current user's avatar (base64 JPEG) to the private `avatars` bucket at
- * `{familyId}/caregiver-{userId}.jpg` and store that path on the user's profile record.
- * Returns the storage path. Display goes through `signedAvatarUrl`.
+ * Upload the current user's avatar (base64 JPEG) to the private `avatars`
+ * bucket at a versioned `{familyId}/caregiver-{userId}-{ts}.jpg` path and
+ * store that path on the user's profile record. Old photo is deleted
+ * best-effort. Display goes through `signedAvatarUrl`.
  */
 export const uploadMyAvatar = async (
   familyId: string,
@@ -40,7 +61,13 @@ export const uploadMyAvatar = async (
   const { data: userData } = await supabase.auth.getUser();
   if (!userData.user) throw new Error('Not signed in');
 
-  const path = `${familyId}/caregiver-${userData.user.id}.jpg`;
+  const { data: existing } = await supabase
+    .from('profiles')
+    .select('avatar_url')
+    .eq('id', userData.user.id)
+    .maybeSingle();
+
+  const path = `${familyId}/caregiver-${userData.user.id}-${Date.now()}.jpg`;
   const { error } = await supabase.storage
     .from(BUCKET)
     .upload(path, decode(base64Jpeg), { contentType: 'image/jpeg', upsert: true });
@@ -52,6 +79,7 @@ export const uploadMyAvatar = async (
     .eq('id', userData.user.id);
   if (updateError) throw updateError;
 
+  await removeOldObject(existing?.avatar_url, path);
   return path;
 };
 

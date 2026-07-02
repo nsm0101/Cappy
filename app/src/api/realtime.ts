@@ -9,6 +9,9 @@ import type { DoseEvent } from './doses';
  * Note: RLS still applies to realtime payloads — you'll only receive
  * events for rows you're authorized to see.
  */
+/** Monotonic suffix so concurrent subscribers never share a channel topic. */
+let channelSeq = 0;
+
 export const subscribeFamilyDoses = (
   familyId: string,
   childIds: string[],
@@ -16,7 +19,14 @@ export const subscribeFamilyDoses = (
 ): (() => void) => {
   if (childIds.length === 0) return () => undefined;
 
-  const channel: RealtimeChannel = supabase.channel(`family:${familyId}:doses`).on(
+  // The topic must be unique PER SUBSCRIBER: `supabase.channel(name)` returns
+  // the existing channel when the topic matches, and adding postgres_changes
+  // callbacks to an already-subscribed channel throws
+  // "cannot add `postgres_changes` callbacks ... after `subscribe()`".
+  // Home, Timeline, and Schedule all subscribe for the same family, so a
+  // family-only topic collides as soon as two of those screens have mounted.
+  channelSeq += 1;
+  const channel: RealtimeChannel = supabase.channel(`family:${familyId}:doses:${channelSeq}`).on(
     'postgres_changes',
     {
       event: 'INSERT',
