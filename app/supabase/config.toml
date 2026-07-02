@@ -19,7 +19,7 @@ port = 54329
 
 [realtime]
 enabled = true
-ip_version = "ipv4"
+ip_version = "IPv4"
 max_header_length = 4096
 
 [studio]
