@@ -66,7 +66,7 @@ The resolved payload is a **snapshot at scan time**. The exact scenario Cappy ex
 **Depends on:** SAFE-2 (shared status path).
 
 ### FLOW-2 · "Next safe dose" local notification — **P1 · M · App shell**
-**Status:** TODO
+**Status:** DONE (2026-07-02) - reminders.ts schedules a local notification at server next_safe_at per child+med; opt-in toggle on the dose-logged overlay (persisted); replaced on newer dose. Cross-device reschedule deferred to beta hardening.
 The app computes `next_safe_at` and throws it away. The highest-value moment in the whole product is *knowing when the next dose is allowed* at 2 AM.
 - After a successful log, offer (toggle on the success haptic moment, remember the choice): "Remind me when the next dose is safe" → schedule an `expo-notifications` local notification at `next_safe_at` ("Cole's next acetaminophen dose is now safe").
 - Cancel/reschedule if a newer dose for the same child+med lands (incl. via realtime from another caregiver — the subscription already fires).
@@ -108,7 +108,7 @@ Currently a flat list, no realtime, hardcoded first family.
 **Depends on:** FLOW-3.
 
 ### UX-4 · ChildDetail completeness — **P1 · M · ChildDetail**
-**Status:** TODO
+**Status:** DONE (2026-07-02) - age/DOB + live status pill on ChildDetail; admin-gated name editing (RLS-aware); Log-a-dose entry shipped with FLOW-1.
 - Show DOB/age (dosing is age-gated; age isn't visible anywhere).
 - **"Log dose" primary button** (entry to FLOW-1).
 - Edit name; day-grouped dose history; show the child's current dose status pill in the header card (same RPC as Home).

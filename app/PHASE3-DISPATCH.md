@@ -284,7 +284,7 @@ Reviewer (senior agent) will: audit each diff against the ticket, run the checks
 ---
 
 ## D8 · Dose-logged success moment — **(UX) · M**
-**Status:** TODO · JS-only (works on reload, no rebuild)
+**Status:** DONE (2026-07-02) - Sonnet agent + senior review; overlay ships a real reminder toggle, FLOW-2 scheduling wired by senior.
 
 **Context:** Logging a dose instantly `goBack()`s with only a haptic. Show a brief confirmation that closes the loop and hosts the future reminder opt-in (FLOW-2).
 
@@ -301,7 +301,7 @@ Reviewer (senior agent) will: audit each diff against the ticket, run the checks
 ---
 
 ## D9 · First-run onboarding path — **(UX) · L**
-**Status:** TODO · JS-only
+**Status:** DONE (2026-07-02) - junior agent + senior review.
 
 **Context:** New users land on an empty Home with no guidance. Guide the first two minutes: create family → add child (with weight) → program/register a tag → try a scan.
 
