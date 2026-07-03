@@ -7,11 +7,6 @@
     "icon": "./src/assets/cappy-icon.png",
     "scheme": "cappy",
     "userInterfaceStyle": "automatic",
-    "splash": {
-      "image": "./src/assets/cappy-icon.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#FBF8F2"
-    },
     "assetBundlePatterns": [
       "**/*"
     ],
@@ -111,6 +106,14 @@
         {
           "photosPermission": "Cappy lets you choose a photo to identify each family member.",
           "cameraPermission": "Cappy lets you take a photo to identify each family member."
+        }
+      ],
+      [
+        "expo-splash-screen",
+        {
+          "image": "./src/assets/cappy-icon.png",
+          "resizeMode": "contain",
+          "backgroundColor": "#FBF8F2"
         }
       ]
     ],
