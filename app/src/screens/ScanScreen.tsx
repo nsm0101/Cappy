@@ -8,6 +8,8 @@ import { Button, NfcTarget } from '@/components';
 import { initNfc, scanOnce, cancelNfcScan, isNfcSupported } from '@/nfc';
 import { nfc as nfcApi } from '@/api';
 import { useTheme } from '@/theme';
+import { useActiveFamily } from '@/family/ActiveFamilyContext';
+import { isWellKnownTagSlug } from '@/lib';
 import type { AppStackParamList } from '@/navigation/types';
 
 type Nav = NativeStackNavigationProp<AppStackParamList>;
@@ -27,6 +29,7 @@ export const ScanScreen: React.FC<Props> = ({ initialTagUid }) => {
   const theme = useTheme();
   const t = theme.tokens;
   const navigation = useNavigation<Nav>();
+  const { activeFamily } = useActiveFamily();
   const [state, setState] = useState<ScanState>({ phase: 'idle' });
   const [nfcReady, setNfcReady] = useState<boolean | null>(null);
 
@@ -41,13 +44,16 @@ export const ScanScreen: React.FC<Props> = ({ initialTagUid }) => {
     async (tagUid: string) => {
       setState({ phase: 'resolving', tagUid });
       try {
-        const resolved = await nfcApi.resolveNfcTag(tagUid);
+        const resolved = await nfcApi.resolveNfcTag(tagUid, activeFamily?.id);
         if (!resolved) {
-          setState({
-            phase: 'error',
-            message:
-              "This tag isn't registered to a family you have access to. Ask the family admin to register it.",
-          });
+          // A well-known medication sticker (tylenol-child / ibuprofen-child)
+          // only resolves once the user has an active family, so give a
+          // clearer hint in that case.
+          const message =
+            isWellKnownTagSlug(tagUid) && !activeFamily
+              ? 'Create or join a family first, then tap the sticker again to log a dose.'
+              : "This tag isn't registered to a family you have access to. Ask the family admin to register it.";
+          setState({ phase: 'error', message });
           return;
         }
         await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
@@ -58,7 +64,7 @@ export const ScanScreen: React.FC<Props> = ({ initialTagUid }) => {
         setState({ phase: 'error', message });
       }
     },
-    [navigation],
+    [navigation, activeFamily],
   );
 
   // Handle a tag UID handed in from Universal Link cold-launch

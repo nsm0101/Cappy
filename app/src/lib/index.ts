@@ -17,8 +17,13 @@ export {
   isAllergicToMedication,
 } from './allergens';
 export type { Allergen } from './allergens';
-export { BRANDS_BY_GENERIC, brandFor, brandsForGeneric } from './brands';
-export type { Brand } from './brands';
+export { BRANDS_BY_GENERIC, brandFor, brandsForGeneric, medVisualForGeneric } from './brands';
+export type { Brand, MedVisual } from './brands';
+export {
+  WELL_KNOWN_TAG_SLUGS,
+  genericForTagSlug,
+  isWellKnownTagSlug,
+} from './tags';
 export {
   computeDosing,
   doseForMedication,

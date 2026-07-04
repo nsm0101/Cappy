@@ -22,10 +22,34 @@
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { handleCorsPreflight, json, problem, getEnv } from '../_shared/utils.ts';
+import { genericForTagSlug } from '../_shared/tagSlugs.ts';
 
 interface ResolveRequest {
   tagUid?: string;
+  /**
+   * The caller's active family. Only used for well-known medication-slug
+   * tags (e.g. "tylenol-child") which aren't bound to a single family —
+   * the family context comes from the client. Ignored for family-bound
+   * hardware-UID tags, which carry their own family_id.
+   */
+  familyId?: string;
 }
+
+/** Pick the most representative catalog row for a generic (prefer a
+ * children's oral suspension, else the first row). Used for well-known
+ * slug tags that identify a generic rather than a specific product. */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const pickMedicationForGeneric = (rows: any[]): any | null => {
+  if (!rows || rows.length === 0) return null;
+  const childrensSuspension = rows.find(
+    (r) =>
+      /children/i.test(r.brand_name ?? '') &&
+      r.formulation === 'liquid_suspension',
+  );
+  if (childrensSuspension) return childrensSuspension;
+  const anySuspension = rows.find((r) => r.formulation === 'liquid_suspension');
+  return anySuspension ?? rows[0];
+};
 
 type DoseStatusRow = {
   status: string;
@@ -92,8 +116,18 @@ Deno.serve(async (req) => {
     { global: { headers: { Authorization: authHeader } } },
   );
 
-  // Fetch the tag with family + medication. RLS will enforce membership.
-  const { data: tag, error: tagError } = await supabase
+  // Resolve the tag into { tag, family, medication } via one of two paths:
+  //   (a) family-bound hardware-UID tag stored in nfc_tags, or
+  //   (b) a well-known medication slug (e.g. "tylenol-child") resolved
+  //       against the caller's active family passed in body.familyId.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let tag: { id: string; label: string | null; status: string };
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let family: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let medication: any;
+
+  const { data: tagRow, error: tagError } = await supabase
     .from('nfc_tags')
     .select('id, tag_uid, family_id, medication_id, status, label')
     .eq('tag_uid', tagUid)
@@ -104,29 +138,62 @@ Deno.serve(async (req) => {
     console.error('nfc_tags query error', tagError);
     return problem(500, 'Internal error');
   }
-  if (!tag) {
-    // Either unknown tag or not in scope — same response either way.
-    return problem(404, 'Tag not found');
-  }
 
-  const { data: family, error: familyError } = await supabase
-    .from('families')
-    .select('id, name')
-    .eq('id', tag.family_id)
-    .maybeSingle();
+  if (tagRow) {
+    // Path (a): family-bound tag.
+    const { data: fam, error: familyError } = await supabase
+      .from('families')
+      .select('id, name')
+      .eq('id', tagRow.family_id)
+      .maybeSingle();
+    if (familyError || !fam) return problem(404, 'Tag not found');
 
-  if (familyError || !family) {
-    return problem(404, 'Tag not found');
-  }
+    const { data: med, error: medError } = await supabase
+      .from('medications')
+      .select('*')
+      .eq('id', tagRow.medication_id)
+      .maybeSingle();
+    if (medError || !med) return problem(404, 'Tag not found');
 
-  const { data: medication, error: medError } = await supabase
-    .from('medications')
-    .select('*')
-    .eq('id', tag.medication_id)
-    .maybeSingle();
+    tag = { id: tagRow.id, label: tagRow.label, status: tagRow.status };
+    family = fam;
+    medication = med;
+  } else {
+    // Path (b): well-known medication slug.
+    const generic = genericForTagSlug(tagUid);
+    const requestedFamilyId = (body.familyId ?? '').trim();
+    if (!generic || !requestedFamilyId) {
+      // Unknown tag, or a slug tag tapped without an active family.
+      return problem(404, 'Tag not found');
+    }
 
-  if (medError || !medication) {
-    return problem(404, 'Tag not found');
+    // RLS: this select only returns a row if the caller is an active
+    // member of the family, so it doubles as the membership check.
+    const { data: fam, error: familyError } = await supabase
+      .from('families')
+      .select('id, name')
+      .eq('id', requestedFamilyId)
+      .maybeSingle();
+    if (familyError || !fam) return problem(404, 'Tag not found');
+
+    const { data: medRows, error: medError } = await supabase
+      .from('medications')
+      .select('*')
+      .eq('generic_name', generic);
+    if (medError) {
+      console.error('medications query error', medError);
+      return problem(500, 'Internal error');
+    }
+    const med = pickMedicationForGeneric(medRows ?? []);
+    if (!med) return problem(404, 'Tag not found');
+
+    tag = {
+      id: `slug:${tagUid}`,
+      label: med.brand_name ?? med.generic_name,
+      status: 'active',
+    };
+    family = fam;
+    medication = med;
   }
 
   const { data: children, error: childrenError } = await supabase

@@ -35,3 +35,49 @@ export const brandsForGeneric = (genericName: string): Brand[] => {
   const kind = (genericName.toLowerCase() === 'ibuprofen' ? 'ibuprofen' : 'acetaminophen') as MedicationKind;
   return BRANDS_BY_GENERIC[kind] ?? [FALLBACK];
 };
+
+/**
+ * Stable, brand-independent visual identity for a generic medication.
+ *
+ * Used so the two medications are always distinguishable AT A GLANCE —
+ * even when both are set to "Generic" (which shares the Cappy-teal brand
+ * accent). Acetaminophen reads warm/red, ibuprofen reads cool/blue, with
+ * a distinct letter badge and icon on every surface (Schedule chips,
+ * clock arcs, timeline lanes, dashboard rows).
+ */
+export type MedVisual = {
+  kind: MedicationKind;
+  /** Human label, e.g. "Acetaminophen". */
+  label: string;
+  /** Single-letter badge, e.g. "A" / "I". */
+  letter: string;
+  /** Ionicons glyph name. */
+  icon: string;
+  /** Stable identity color (independent of brand selection). */
+  color: string;
+};
+
+const MED_VISUALS: Record<MedicationKind, MedVisual> = {
+  acetaminophen: {
+    kind: 'acetaminophen',
+    label: 'Acetaminophen',
+    letter: 'A',
+    icon: 'thermometer',
+    color: '#E4002B',
+  },
+  ibuprofen: {
+    kind: 'ibuprofen',
+    label: 'Ibuprofen',
+    letter: 'I',
+    icon: 'flame',
+    color: '#0B62C4',
+  },
+};
+
+/** Resolve the at-a-glance visual identity for a generic medication. */
+export const medVisualForGeneric = (genericName: string): MedVisual => {
+  const kind = (genericName.toLowerCase() === 'ibuprofen'
+    ? 'ibuprofen'
+    : 'acetaminophen') as MedicationKind;
+  return MED_VISUALS[kind];
+};

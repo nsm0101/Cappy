@@ -34,10 +34,17 @@ export type ResolvedTag = {
 /**
  * Resolve a tag UID into its full medication+family+children context.
  * Calls the `nfc-resolve` Edge Function (defined in supabase/functions/).
+ *
+ * `activeFamilyId` is used only for well-known medication-slug tags
+ * (e.g. "tylenol-child") that aren't bound to a single family — the
+ * family context comes from the caller's currently active family.
  */
-export const resolveNfcTag = async (tagUid: string): Promise<ResolvedTag | null> => {
+export const resolveNfcTag = async (
+  tagUid: string,
+  activeFamilyId?: string,
+): Promise<ResolvedTag | null> => {
   const { data, error } = await supabase.functions.invoke('nfc-resolve', {
-    body: { tagUid },
+    body: { tagUid, familyId: activeFamilyId ?? null },
   });
   if (error) {
     // Tag-not-found surfaces as a non-2xx; data may be null. Return null

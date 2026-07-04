@@ -8,12 +8,14 @@ import {
   DoseClock,
   DoseDayBar,
   DoseSafetyText,
+  MedToggleChips,
   MemberAvatar,
   Segmented,
   captionForStatus,
   type ClockDoseMarker,
   type ClockSafeArc,
   type DayBarLane,
+  type MedToggleItem,
 } from '@/components';
 import {
   children as childrenApi,
@@ -28,11 +30,11 @@ import {
 import type { Database } from '@/api';
 import { useTheme } from '@/theme';
 import { useActiveFamily } from '@/family/ActiveFamilyContext';
-import { brandFor, initialsFromName, type MedicationKind } from '@/lib';
+import { brandFor, initialsFromName, medVisualForGeneric, type MedicationKind } from '@/lib';
 
 type MedicationRow = Database['public']['Tables']['medications']['Row'];
 
-type MedToggle = 'acetaminophen' | 'ibuprofen' | 'both';
+const MED_KINDS: MedicationKind[] = ['acetaminophen', 'ibuprofen'];
 type ViewToggle = 'clock' | 'timeline';
 
 /** Per-generic resolved state: the medication row + its live status. */
@@ -71,7 +73,11 @@ export const ScheduleScreen: React.FC = () => {
 
   const [kids, setKids] = useState<Child[]>([]);
   const [selectedChildId, setSelectedChildId] = useState<string | null>(null);
-  const [medToggle, setMedToggle] = useState<MedToggle>('both');
+  // Independent on/off per medication (replaces the old 3-way "both" toggle).
+  const [enabledMeds, setEnabledMeds] = useState<Record<MedicationKind, boolean>>({
+    acetaminophen: true,
+    ibuprofen: true,
+  });
   const [viewToggle, setViewToggle] = useState<ViewToggle>('clock');
   const [medRows, setMedRows] = useState<MedicationRow[]>([]);
   const [brandPrefs, setBrandPrefs] = useState<Record<string, string>>({});
@@ -186,17 +192,28 @@ export const ScheduleScreen: React.FC = () => {
   }, [activeFamily, kids, loadStatuses]);
 
   const genericsToShow: MedicationKind[] = useMemo(
-    () => (medToggle === 'both' ? ['acetaminophen', 'ibuprofen'] : [medToggle]),
-    [medToggle],
+    () => MED_KINDS.filter((k) => enabledMeds[k]),
+    [enabledMeds],
   );
 
-  const medOptions = useMemo(
-    () => [
-      { label: brandFor('acetaminophen', brandPrefs.acetaminophen).name, value: 'acetaminophen' as const },
-      { label: brandFor('ibuprofen', brandPrefs.ibuprofen).name, value: 'ibuprofen' as const },
-      { label: 'Both', value: 'both' as const },
-    ],
-    [brandPrefs],
+  // Toggle a medication on/off, but never let the user hide both — at least
+  // one medication must stay visible for the schedule to mean anything.
+  const handleToggleMed = useCallback((kind: MedicationKind) => {
+    setEnabledMeds((prev) => {
+      const next = { ...prev, [kind]: !prev[kind] };
+      if (!next.acetaminophen && !next.ibuprofen) return prev;
+      return next;
+    });
+  }, []);
+
+  const medToggleItems: MedToggleItem[] = useMemo(
+    () =>
+      MED_KINDS.map((kind) => ({
+        kind,
+        brandName: brandFor(kind, brandPrefs[kind]).name,
+        enabled: enabledMeds[kind],
+      })),
+    [brandPrefs, enabledMeds],
   );
 
   // Build clock markers + arcs + captions from resolved state.
@@ -204,12 +221,12 @@ export const ScheduleScreen: React.FC = () => {
     return genericsToShow.flatMap((kind) => {
       const state = genericStates[kind];
       if (!state) return [];
-      const accent = brandFor(kind, brandPrefs[kind]).accent;
+      const accent = medVisualForGeneric(kind).color;
       return recentDoses
         .filter((d) => d.medication_id === state.med.id)
         .map((d) => ({ givenAt: d.given_at, accent }));
     });
-  }, [genericsToShow, genericStates, recentDoses, brandPrefs]);
+  }, [genericsToShow, genericStates, recentDoses]);
 
   const clockArcs: ClockSafeArc[] = useMemo(() => {
     const arcs: ClockSafeArc[] = [];
@@ -219,9 +236,9 @@ export const ScheduleScreen: React.FC = () => {
       const { status, next_safe_at, last_dose_at } = state.statusResult;
       if (status !== 'early' && status !== 'recent') return;
       if (!next_safe_at) return;
-      const accent = brandFor(kind, brandPrefs[kind]).accent;
+      const accent = medVisualForGeneric(kind).color;
       const radius =
-        medToggle === 'both' ? (kind === 'acetaminophen' ? 138 : 132) : 135;
+        genericsToShow.length > 1 ? (kind === 'acetaminophen' ? 138 : 132) : 135;
       // Arc span: derive the age-aware interval from the server's own
       // timestamps (next_safe_at - last_dose_at). medications.min_interval_hours
       // is the label floor (4h for acetaminophen) and would understate the
@@ -241,23 +258,23 @@ export const ScheduleScreen: React.FC = () => {
       });
     });
     return arcs;
-  }, [genericsToShow, genericStates, brandPrefs, medToggle]);
+  }, [genericsToShow, genericStates]);
 
   const captionLines = useMemo(() => {
     return genericsToShow.map((kind) => {
       const state = genericStates[kind];
-      const brand = brandFor(kind, brandPrefs[kind]);
+      const label = medVisualForGeneric(kind).label;
       if (!state || !state.statusResult) {
-        return captionForStatus({ label: brand.name, status: 'unknown', nextSafeAt: null, hasPriorDose: false });
+        return captionForStatus({ label, status: 'unknown', nextSafeAt: null, hasPriorDose: false });
       }
       return captionForStatus({
-        label: brand.name,
+        label,
         status: state.statusResult.status,
         nextSafeAt: state.statusResult.next_safe_at,
         hasPriorDose: state.statusResult.last_dose_at != null,
       });
     });
-  }, [genericsToShow, genericStates, brandPrefs]);
+  }, [genericsToShow, genericStates]);
 
   // Blocking statuses (max_reached / unknown) render a message card instead
   // of implying a safe window.
@@ -265,21 +282,21 @@ export const ScheduleScreen: React.FC = () => {
     return genericsToShow
       .map((kind) => {
         const state = genericStates[kind];
-        const brand = brandFor(kind, brandPrefs[kind]);
+        const label = medVisualForGeneric(kind).label;
         if (!state || !state.statusResult) {
-          return `${brand.name}: Status unavailable.`;
+          return `${label}: Status unavailable.`;
         }
         if (state.statusResult.status === 'max_reached') {
           const nextSafe = state.statusResult.next_safe_at;
-          return `${brand.name}: 24-hour limit reached${nextSafe ? ` — next dose safe at ${new Date(nextSafe).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })}` : ''}.`;
+          return `${label}: 24-hour limit reached${nextSafe ? ` — next dose safe at ${new Date(nextSafe).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })}` : ''}.`;
         }
         if (state.statusResult.status === 'unknown') {
-          return `${brand.name}: Status unavailable.`;
+          return `${label}: Status unavailable.`;
         }
         return null;
       })
       .filter((m): m is string => m != null);
-  }, [genericsToShow, genericStates, brandPrefs]);
+  }, [genericsToShow, genericStates]);
 
   const dayBarLanes: DayBarLane[] = useMemo(() => {
     return genericsToShow.map((kind) => {
@@ -293,7 +310,7 @@ export const ScheduleScreen: React.FC = () => {
       return {
         key: kind,
         label: brand.name,
-        accent: brand.accent,
+        accent: medVisualForGeneric(kind).color,
         doses: doses.map((d) => ({ givenAt: d.given_at })),
         window,
       };
@@ -405,11 +422,10 @@ export const ScheduleScreen: React.FC = () => {
 
             {/* Med + view toggles */}
             <View style={{ gap: theme.spacing.sm, marginBottom: theme.spacing.lg }}>
-              <Segmented
-                accessibilityLabel="Medication"
-                options={medOptions}
-                value={medToggle}
-                onChange={setMedToggle}
+              <MedToggleChips
+                accessibilityLabel="Medications to show"
+                items={medToggleItems}
+                onToggle={handleToggleMed}
               />
               <Segmented
                 accessibilityLabel="View"

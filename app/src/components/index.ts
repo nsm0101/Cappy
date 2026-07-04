@@ -31,6 +31,9 @@ export type { RowItemProps } from './RowItem';
 export { Segmented } from './Segmented';
 export type { SegmentedProps } from './Segmented';
 
+export { MedToggleChips } from './MedToggleChips';
+export type { MedToggleChipsProps, MedToggleItem } from './MedToggleChips';
+
 export { Sheet } from './Sheet';
 export type { SheetProps } from './Sheet';
 
