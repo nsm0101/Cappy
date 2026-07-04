@@ -3,8 +3,16 @@ import type { RealtimeChannel } from '@supabase/supabase-js';
 import type { DoseEvent } from './doses';
 
 /**
- * Subscribe to dose_events INSERTs for any child in the given family.
- * Returns a `dispose` function to unsubscribe.
+ * Subscribe to every dose_events INSERT for the given family — both child
+ * recipients and adult caregiver recipients (e.g. a parent logging their own
+ * acetaminophen). Returns a `dispose` function to unsubscribe.
+ *
+ * Filtering on `family_id` (rather than a list of child ids) is deliberate:
+ * a per-child-id filter misses caregiver-recipient doses entirely (those
+ * rows have `child_id = null`), and it has to be rebuilt every time a child
+ * is added/removed. `family_id` is set on every dose_events row regardless
+ * of recipient kind and never changes, so one subscription covers the
+ * family for its whole lifetime.
  *
  * Note: RLS still applies to realtime payloads — you'll only receive
  * events for rows you're authorized to see.
@@ -14,11 +22,8 @@ let channelSeq = 0;
 
 export const subscribeFamilyDoses = (
   familyId: string,
-  childIds: string[],
   onDose: (dose: DoseEvent) => void,
 ): (() => void) => {
-  if (childIds.length === 0) return () => undefined;
-
   // The topic must be unique PER SUBSCRIBER: `supabase.channel(name)` returns
   // the existing channel when the topic matches, and adding postgres_changes
   // callbacks to an already-subscribed channel throws
@@ -32,7 +37,7 @@ export const subscribeFamilyDoses = (
       event: 'INSERT',
       schema: 'public',
       table: 'dose_events',
-      filter: `child_id=in.(${childIds.join(',')})`,
+      filter: `family_id=eq.${familyId}`,
     },
     (payload) => {
       onDose(payload.new as DoseEvent);

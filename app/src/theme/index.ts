@@ -1,3 +1,3 @@
 export * from './tokens';
 export { ThemeProvider, useTheme, useThemeMode } from './ThemeProvider';
-export { loadCappyFonts } from './fonts';
+export { CAPPY_FONT_MAP } from './fonts';

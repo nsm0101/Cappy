@@ -28,7 +28,7 @@ interface ResolveRequest {
   tagUid?: string;
   /**
    * The caller's active family. Only used for well-known medication-slug
-   * tags (e.g. "tylenol-child") which aren't bound to a single family —
+   * tags (e.g. "ace-child") which aren't bound to a single family —
    * the family context comes from the client. Ignored for family-bound
    * hardware-UID tags, which carry their own family_id.
    */
@@ -118,7 +118,7 @@ Deno.serve(async (req) => {
 
   // Resolve the tag into { tag, family, medication } via one of two paths:
   //   (a) family-bound hardware-UID tag stored in nfc_tags, or
-  //   (b) a well-known medication slug (e.g. "tylenol-child") resolved
+  //   (b) a well-known medication slug (e.g. "ace-child") resolved
   //       against the caller's active family passed in body.familyId.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let tag: { id: string; label: string | null; status: string };

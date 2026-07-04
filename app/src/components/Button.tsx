@@ -81,6 +81,10 @@ export const Button: React.FC<ButtonProps> = ({
   }, [variant, t]);
 
   const isLg = size === 'lg';
+  // A soft lift on the two "call to action" variants only — secondary/ghost
+  // stay flat so the elevation hierarchy still points at the primary action
+  // on a screen. Uses the app's existing shadow2 token, not a one-off value.
+  const isCta = variant === 'primary' || variant === 'blue';
 
   return (
     <Pressable
@@ -99,6 +103,7 @@ export const Button: React.FC<ButtonProps> = ({
           borderRadius: isLg ? theme.radii.base : theme.radii.md,
           borderWidth: 1,
         },
+        isCta && !disabled && !loading && theme.shadows.shadow2,
         block && styles.block,
         container,
         pressed && !disabled && styles.pressed,

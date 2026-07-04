@@ -185,8 +185,8 @@ Per TICKET-UL. NFC cold-launch via HTTPS needs the Apple App Site Association fi
 **Depends on:** APL-1 (Team ID), external DNS access. **XL risk** if DNS/hosting isn't already controlled.
 
 ### QA-1 · End-to-end alpha smoke test on device — **P1 · M · Quality**
-**Status:** DONE (2026-06-30) — Full loop verified on a physical iPhone: email+password sign-in → create family (Mancini) → add child (Cole) → register tag `ibuprofen-child` → **NFC tap via Universal Link cold-launched the app to the dose sheet** → logged doses. Backend confirmed: 4 `dose.created` rows in `dose_events`, each recorded in `audit_events` (family/caregiver/child/nfc_tag/dose chain intact). Bugs fixed en route: missing get-random-values polyfill, families insert-RETURNING RLS, ChildDetail stray-string render, hyphenated tag-UID parsing, email-OTP→password auth.
-Run the 10-step "minimum viable test" in `HOW-TO-FINISH.md`: sign up → create family → add child → program an NTAG215 with `https://cappy.closedose.com/t/ibuprofen-child` → register tag → tap → log dose → verify rows in `dose_events` and `audit_events`.
+**Status:** DONE (2026-06-30) — Full loop verified on a physical iPhone: email+password sign-in → create family (Mancini) → add child (Cole) → register tag `ibu-child` (renamed from `ibuprofen-child` on 2026-07-04, see NFC-TAGS note below) → **NFC tap via Universal Link cold-launched the app to the dose sheet** → logged doses. Backend confirmed: 4 `dose.created` rows in `dose_events`, each recorded in `audit_events` (family/caregiver/child/nfc_tag/dose chain intact). Bugs fixed en route: missing get-random-values polyfill, families insert-RETURNING RLS, ChildDetail stray-string render, hyphenated tag-UID parsing, email-OTP→password auth.
+Run the 10-step "minimum viable test" in `HOW-TO-FINISH.md`: sign up → create family → add child → program an NTAG215 with `https://cappy.closedose.com/t/ibu-child` → register tag → tap → log dose → verify rows in `dose_events` and `audit_events`.
 **Acceptance:** All 10 steps pass end-to-end on a physical iPhone. Record results in `BUILD-STATUS.md`.
 **Depends on:** BE-1/2/3, APP-1, NAV-1, ENV-1, SCR-1, APL-1, UL-1.
 

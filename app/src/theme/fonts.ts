@@ -1,4 +1,12 @@
-import * as Font from 'expo-font';
+import {
+  Inter_400Regular,
+  Inter_500Medium,
+  Inter_600SemiBold,
+  Inter_700Bold,
+} from '@expo-google-fonts/inter';
+import { NunitoSans_600SemiBold, NunitoSans_700Bold } from '@expo-google-fonts/nunito-sans';
+import { DMMono_400Regular, DMMono_500Medium } from '@expo-google-fonts/dm-mono';
+import { Baloo2_600SemiBold, Baloo2_700Bold } from '@expo-google-fonts/baloo-2';
 
 /**
  * Cappy uses four font families:
@@ -7,36 +15,22 @@ import * as Font from 'expo-font';
  *   - DM Mono (units)
  *   - Baloo 2 (playful "Cappy!" wordmark only)
  *
- * Strategy: load via Google Fonts URLs at runtime in dev (fast iteration),
- * bundle the .ttf files in production. For now we use the @expo-google-fonts
- * packages, which is the simplest path on Expo SDK 51.
- *
- * To install:
- *   pnpm add @expo-google-fonts/inter @expo-google-fonts/nunito-sans \
- *           @expo-google-fonts/dm-mono @expo-google-fonts/baloo-2
- *
- * Then this file imports the weights directly. For now, this returns a
- * promise that resolves immediately; the actual font loading is wired up
- * in App.tsx when fonts are installed.
+ * Single source of truth for the family-name → font-asset mapping. App.tsx
+ * passes this straight into `useFonts()`; the keys here MUST match the
+ * `fonts.*` string values in `theme/tokens.ts` exactly, or a screen will
+ * silently fall back to the system font with no error. Keeping the map
+ * here (instead of duplicated inline in both files) means there's exactly
+ * one place to update when a weight is added or renamed.
  */
-export const loadCappyFonts = async (): Promise<void> => {
-  // When the @expo-google-fonts/* packages are installed, replace with:
-  //
-  // const [loaded] = useFonts({
-  //   'Inter-Regular': require('@expo-google-fonts/inter/Inter_400Regular.ttf'),
-  //   'Inter-Medium': require('@expo-google-fonts/inter/Inter_500Medium.ttf'),
-  //   'Inter-SemiBold': require('@expo-google-fonts/inter/Inter_600SemiBold.ttf'),
-  //   'Inter-Bold': require('@expo-google-fonts/inter/Inter_700Bold.ttf'),
-  //   'NunitoSans-SemiBold': require('@expo-google-fonts/nunito-sans/NunitoSans_600SemiBold.ttf'),
-  //   'NunitoSans-Bold': require('@expo-google-fonts/nunito-sans/NunitoSans_700Bold.ttf'),
-  //   'DMMono-Regular': require('@expo-google-fonts/dm-mono/DMMono_400Regular.ttf'),
-  //   'DMMono-Medium': require('@expo-google-fonts/dm-mono/DMMono_500Medium.ttf'),
-  //   'Baloo2-SemiBold': require('@expo-google-fonts/baloo-2/Baloo2_600SemiBold.ttf'),
-  //   'Baloo2-Bold': require('@expo-google-fonts/baloo-2/Baloo2_700Bold.ttf'),
-  // });
-  //
-  // For now the app falls back to the system font. The design still works,
-  // just less brand-perfect. Install the fonts as a Day-1 polish task.
-
-  await Font.loadAsync({});
-};
+export const CAPPY_FONT_MAP = {
+  'Inter-Regular': Inter_400Regular,
+  'Inter-Medium': Inter_500Medium,
+  'Inter-SemiBold': Inter_600SemiBold,
+  'Inter-Bold': Inter_700Bold,
+  'NunitoSans-SemiBold': NunitoSans_600SemiBold,
+  'NunitoSans-Bold': NunitoSans_700Bold,
+  'DMMono-Regular': DMMono_400Regular,
+  'DMMono-Medium': DMMono_500Medium,
+  'Baloo2-SemiBold': Baloo2_600SemiBold,
+  'Baloo2-Bold': Baloo2_700Bold,
+} as const;

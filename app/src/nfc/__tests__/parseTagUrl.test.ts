@@ -17,11 +17,11 @@ describe('parseTagUrl', () => {
       }
     });
 
-    it('parses hyphen slugs: https://cappy.closedose.com/t/ibuprofen-child → ok, uid ibuprofen-child', () => {
-      const result = parseTagUrl('https://cappy.closedose.com/t/ibuprofen-child');
+    it('parses hyphen slugs: https://cappy.closedose.com/t/ibu-child → ok, uid ibu-child', () => {
+      const result = parseTagUrl('https://cappy.closedose.com/t/ibu-child');
       expect(result.ok).toBe(true);
       if (result.ok) {
-        expect(result.tagUid).toBe('ibuprofen-child');
+        expect(result.tagUid).toBe('ibu-child');
       }
     });
 

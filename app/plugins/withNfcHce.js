@@ -59,13 +59,23 @@ const withHceManifest = (config) =>
     const manifest = cfg.modResults.manifest;
 
     // `<uses-feature android:name="android.hardware.nfc.hce" .../>`
+    //
+    // `required="false"` is deliberate: HCE only backs the "tap to send a
+    // family invite" convenience feature (src/nfc/hceBroadcast.ts already
+    // no-ops gracefully when it's unavailable). The core, must-work flow —
+    // scanning a medication sticker to log a dose — only needs standard
+    // NFC read support, which is far more common than HCE. Marking this
+    // `required="true"` would make Android's package manager (and the Play
+    // Store) refuse to install the app at all on any tester's phone that
+    // lacks HCE hardware, which is too strict for what is an optional,
+    // non-core feature.
     manifest['uses-feature'] = manifest['uses-feature'] ?? [];
     const hasHceFeature = manifest['uses-feature'].some(
       (f) => f.$?.['android:name'] === 'android.hardware.nfc.hce',
     );
     if (!hasHceFeature) {
       manifest['uses-feature'].push({
-        $: { 'android:name': 'android.hardware.nfc.hce', 'android:required': 'true' },
+        $: { 'android:name': 'android.hardware.nfc.hce', 'android:required': 'false' },
       });
     }
 

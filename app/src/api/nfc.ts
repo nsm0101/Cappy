@@ -36,7 +36,7 @@ export type ResolvedTag = {
  * Calls the `nfc-resolve` Edge Function (defined in supabase/functions/).
  *
  * `activeFamilyId` is used only for well-known medication-slug tags
- * (e.g. "tylenol-child") that aren't bound to a single family — the
+ * (e.g. "ace-child") that aren't bound to a single family — the
  * family context comes from the caller's currently active family.
  */
 export const resolveNfcTag = async (

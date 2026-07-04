@@ -220,9 +220,10 @@ See `HOW-TO-FINISH.md` ticket #5.
 See `HOW-TO-FINISH.md` ticket #6.
 
 ### Font wiring
-`src/theme/fonts.ts` is a stub. The Google Fonts packages are listed
-in `package.json` but the imports in `loadCappyFonts` are commented
-out. Wire them in once you've run `pnpm install`. See ticket #7.
+**Done (2026-07-04).** `src/theme/fonts.ts` exports `CAPPY_FONT_MAP`, the
+single source of truth mapping each font-family string in `theme/tokens.ts`
+to its `@expo-google-fonts/*` asset. `App.tsx` loads it via
+`useFonts(CAPPY_FONT_MAP)` before rendering. Ticket #7 closed.
 
 ### CI / GitHub Actions
 None of the workflows in the previous foundation kit have been ported

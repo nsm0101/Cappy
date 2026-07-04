@@ -10,15 +10,21 @@ import type { MedicationKind } from './dosing';
  * so the exact same sticker URL works for every household.
  *
  * The two launch stickers (matching the development build) are:
- *   https://cappy.closedose.com/t/tylenol-child    → acetaminophen
- *   https://cappy.closedose.com/t/ibuprofen-child  → ibuprofen
+ *   https://cappy.closedose.com/t/ace-child  → acetaminophen
+ *   https://cappy.closedose.com/t/ibu-child  → ibuprofen
+ *
+ * Slugs are kept short on purpose: NFC Type 2/4 tags (NTAG213/215/216)
+ * carry a single NDEF URI record with limited capacity, and a short,
+ * easy-to-read slug leaves the most headroom and stays simple to hand off
+ * during early testing. Keep any future well-known slug at or under
+ * ~12 characters.
  *
  * NOTE: keep this map in sync with the Edge Function copy at
  * supabase/functions/_shared/tagSlugs.ts (Deno can't import from src/).
  */
 export const WELL_KNOWN_TAG_SLUGS: Record<string, MedicationKind> = {
-  'tylenol-child': 'acetaminophen',
-  'ibuprofen-child': 'ibuprofen',
+  'ace-child': 'acetaminophen',
+  'ibu-child': 'ibuprofen',
 };
 
 /** The generic medication a well-known slug maps to, or null if unknown. */

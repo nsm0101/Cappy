@@ -218,7 +218,7 @@
    ```
    Cases (host default is `cappy.closedose.com`):
    - `https://cappy.closedose.com/t/04A1B2C3` → ok, uid `04A1B2C3`
-   - `https://cappy.closedose.com/t/ibuprofen-child` → ok (hyphen slugs are valid — this was a live bug once)
+   - `https://cappy.closedose.com/t/ibu-child` → ok (hyphen slugs are valid — this was a live bug once)
    - trailing null bytes / whitespace: `'https://cappy.closedose.com/t/abc123\0\0'` → ok, `abc123`
    - query/fragment stripped: `/t/abc123?x=1` → `abc123`
    - wrong host `https://evil.com/t/abc123` → `ok: false`, kind `invalid_url`

@@ -46,7 +46,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./src/assets/cappy-icon.png",
+        "foregroundImage": "./src/assets/cappy-icon-adaptive-fg.png",
         "backgroundColor": "#FBF8F2"
       },
       "package": "com.closedose.cappy",

@@ -13,7 +13,7 @@ import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
 import Constants from 'expo-constants';
-import { Button, Card, MemberAvatar, RowItem, Sheet, InputSheet } from '@/components';
+import { Button, Card, MemberAvatar, RowItem, Sheet, InputSheet, Wordmark } from '@/components';
 import { useAuth } from '@/auth/AuthContext';
 import type { AppStackParamList } from '@/navigation/types';
 import { useTheme, useThemeMode } from '@/theme';
@@ -418,8 +418,9 @@ export const SettingsScreen: React.FC = () => {
 
         {/* App Version */}
         <View style={styles.versionContainer}>
+          <Wordmark size={18} style={{ marginBottom: theme.spacing.sm }} />
           <Text style={{ color: t.fgMuted, fontSize: theme.fontSize.xs, fontFamily: theme.fonts.sans }}>
-            Cappy Version {version}
+            Version {version}
           </Text>
           <Text style={{ color: t.fgMuted, fontSize: 10, fontFamily: theme.fonts.sans, marginTop: 4 }}>
             For coordination only · Not medical advice

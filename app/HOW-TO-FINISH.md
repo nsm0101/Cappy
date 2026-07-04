@@ -364,12 +364,15 @@ Optional: `eas-preview.yml` for PR preview builds via EAS Update.
 
 ## TICKET-REALTIME — Wire realtime to HomeScreen
 
-In `HomeScreen.tsx`, add a `useEffect` that:
-1. Once `activeFamily` and `childrenList` are loaded
-2. Calls `realtime.subscribeFamilyDoses(familyId, childIds, onDose)`
-3. On a new dose event, refetches the affected child's last dose and
-   updates state
+**Done.** In `HomeScreen.tsx`, a `useEffect` that:
+1. Once `activeFamily` is loaded
+2. Calls `realtime.subscribeFamilyDoses(familyId, onDose)` — filtered on
+   `family_id` (covers caregiver self-doses too, not just children; see
+   src/api/realtime.ts for why a child-id-list filter was replaced)
+3. On any new dose event for the family, refetches and updates state
 4. Cleans up on unmount or when family changes
+
+Also wired the same way in `ScheduleScreen.tsx` and `TimelineScreen.tsx`.
 
 ---
 
@@ -409,7 +412,7 @@ Run with `pnpm test`. CI should fail on any failing test.
 5. Install on a real iPhone (NFC won't work in the simulator)
 6. Sign up with your email, create a family, add a child
 7. Buy 10 NTAG215 stickers, program one with the URL
-   `https://cappy.closedose.com/t/ibuprofen-child` using NFC Tools app
+   `https://cappy.closedose.com/t/ibu-child` using NFC Tools app
 8. Open the app, go to Settings, find a hidden "Register tag" dev
    action (or use the Supabase dashboard to insert directly into
    `nfc_tags`)

@@ -182,14 +182,15 @@ export const ScheduleScreen: React.FC = () => {
   }, [loadStatuses]);
 
   // Realtime: subscribe like Home so a new dose redraws (RT-1 pattern).
+  // Family-wide subscription — covers caregiver self-doses too, not just
+  // the currently selected child.
   useEffect(() => {
-    if (!activeFamily || kids.length === 0) return;
-    const childIds = kids.map((c) => c.id);
-    const dispose = realtimeApi.subscribeFamilyDoses(activeFamily.id, childIds, () => {
+    if (!activeFamily) return;
+    const dispose = realtimeApi.subscribeFamilyDoses(activeFamily.id, () => {
       void loadStatuses();
     });
     return dispose;
-  }, [activeFamily, kids, loadStatuses]);
+  }, [activeFamily, loadStatuses]);
 
   const genericsToShow: MedicationKind[] = useMemo(
     () => MED_KINDS.filter((k) => enabledMeds[k]),

@@ -117,20 +117,18 @@ export const HomeScreen: React.FC = () => {
     }
   }, [activeFamily, loadChildren]);
 
-  // RT-1: live updates. Subscribe to dose_events for the active family's
-  // children; when any caregiver logs a dose, refetch so Home reflects it
-  // without a manual pull-to-refresh. Re-subscribes if the family or the
-  // set of children changes.
-  const childIdsKey = childrenList.map((c) => c.id).join(',');
+  // RT-1: live updates. Subscribe to dose_events for the whole active
+  // family — children and caregiver self-doses alike — so Home reflects a
+  // dose logged from any signed-in family member's device without a manual
+  // pull-to-refresh.
   useEffect(() => {
-    if (!activeFamily || childIdsKey.length === 0) return;
-    const childIds = childIdsKey.split(',');
+    if (!activeFamily) return;
     const familyId = activeFamily.id;
-    const dispose = realtimeApi.subscribeFamilyDoses(familyId, childIds, () => {
+    const dispose = realtimeApi.subscribeFamilyDoses(familyId, () => {
       void loadChildren(familyId);
     });
     return dispose;
-  }, [activeFamily, childIdsKey, loadChildren]);
+  }, [activeFamily, loadChildren]);
 
   const handleRefresh = async () => {
     setRefreshing(true);

@@ -13,7 +13,6 @@ import { Card, MemberAvatar } from '@/components';
 import {
   doses as dosesApi,
   type DoseEventWithDetails,
-  children as childrenApi,
   realtime as realtimeApi,
 } from '@/api';
 import { useTheme } from '@/theme';
@@ -65,36 +64,16 @@ export const TimelineScreen: React.FC = () => {
     setRefreshing(false);
   };
 
-  // RT-1: live updates. Subscribe to dose_events for the active family's
-  // children; when any caregiver logs a dose, refetch so Timeline reflects it
-  // without a manual pull-to-refresh. Fetch child ids once per family change.
+  // RT-1: live updates. Subscribe to dose_events for the whole active
+  // family — children and caregiver self-doses alike — so Timeline reflects
+  // a dose logged from any signed-in family member's device without a
+  // manual pull-to-refresh.
   useEffect(() => {
     if (!activeFamily) return;
-
-    let unsubscribe: (() => void) | undefined;
-
-    // Fetch child IDs for this family for the realtime subscription
-    const setupSubscription = async () => {
-      try {
-        const kids = await childrenApi.listChildrenInFamily(activeFamily.id);
-        const childIds = kids.map((c) => c.id);
-
-        if (childIds.length === 0) return;
-
-        unsubscribe = realtimeApi.subscribeFamilyDoses(activeFamily.id, childIds, () => {
-          void loadTimeline();
-        });
-      } catch (err) {
-        // eslint-disable-next-line no-console
-        console.warn('Failed to set up realtime subscription', err);
-      }
-    };
-
-    void setupSubscription();
-
-    return () => {
-      if (unsubscribe) unsubscribe();
-    };
+    const dispose = realtimeApi.subscribeFamilyDoses(activeFamily.id, () => {
+      void loadTimeline();
+    });
+    return dispose;
   }, [activeFamily, loadTimeline]);
 
   if (loading) {

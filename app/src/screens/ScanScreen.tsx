@@ -46,8 +46,8 @@ export const ScanScreen: React.FC<Props> = ({ initialTagUid }) => {
       try {
         const resolved = await nfcApi.resolveNfcTag(tagUid, activeFamily?.id);
         if (!resolved) {
-          // A well-known medication sticker (tylenol-child / ibuprofen-child)
-          // only resolves once the user has an active family, so give a
+          // A well-known medication sticker (ace-child / ibu-child) only
+          // resolves once the user has an active family, so give a
           // clearer hint in that case.
           const message =
             isWellKnownTagSlug(tagUid) && !activeFamily
