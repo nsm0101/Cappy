@@ -14,10 +14,10 @@
     "skipLibCheck": true,
     "resolveJsonModule": true,
     "allowSyntheticDefaultImports": true,
-    "baseUrl": ".",
+    "types": ["jest", "node"],
     "paths": {
       "@/*": [
-        "src/*"
+        "./src/*"
       ]
     }
   },
