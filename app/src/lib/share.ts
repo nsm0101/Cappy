@@ -1,4 +1,4 @@
-import { Share } from 'react-native';
+import { Platform, Share } from 'react-native';
 
 export type ShareInviteInput = {
   /** 6-digit invite code. */
@@ -8,6 +8,31 @@ export type ShareInviteInput = {
   familyName?: string;
   role?: 'caregiver' | 'guest';
 };
+
+/**
+ * Built-in iOS share-sheet activities that are just noise for a one-line
+ * invite link — social posting, print, save-to-photos, reading list,
+ * contact card, markup, iBooks. Excluding them (rather than trying to
+ * force AirDrop to the front, which iOS doesn't let a third-party app do)
+ * leaves AirDrop, Messages, Mail and Copy as the visible options, which is
+ * as close to an "AirDrop-first" sheet as the public API allows.
+ * `Share.share`'s `excludedActivityTypes` option is iOS-only; ignored on
+ * Android.
+ */
+const IOS_EXCLUDED_ACTIVITY_TYPES = [
+  'com.apple.UIKit.activity.PostToFacebook',
+  'com.apple.UIKit.activity.PostToTwitter',
+  'com.apple.UIKit.activity.PostToWeibo',
+  'com.apple.UIKit.activity.PostToTencentWeibo',
+  'com.apple.UIKit.activity.PostToFlickr',
+  'com.apple.UIKit.activity.PostToVimeo',
+  'com.apple.UIKit.activity.Print',
+  'com.apple.UIKit.activity.AssignToContact',
+  'com.apple.UIKit.activity.SaveToCameraRoll',
+  'com.apple.UIKit.activity.AddToReadingList',
+  'com.apple.UIKit.activity.OpenInIBooks',
+  'com.apple.UIKit.activity.MarkupAsPDF',
+];
 
 /**
  * Open the OS share sheet with a caregiver/guest invite. Works with any
@@ -25,7 +50,10 @@ export const shareInviteLink = async (input: ShareInviteInput): Promise<boolean>
     `Tap to join: ${input.link}\n\n` +
     `Or open Cappy and enter code ${input.code}.`;
   try {
-    const result = await Share.share({ message, url: input.link });
+    const result = await Share.share(
+      { message, url: input.link },
+      Platform.OS === 'ios' ? { excludedActivityTypes: IOS_EXCLUDED_ACTIVITY_TYPES } : undefined,
+    );
     return result.action !== Share.dismissedAction;
   } catch {
     return false;

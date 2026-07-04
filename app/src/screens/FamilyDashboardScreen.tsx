@@ -149,7 +149,7 @@ export const FamilyDashboardScreen: React.FC = () => {
     });
   }, [inviteReady, activeFamily]);
 
-  const handleWriteNfc = useCallback(() => {
+  const handleTapToSend = useCallback(() => {
     if (!inviteReady) return;
     setInviteReady(null);
     navigation.navigate('ShareViaTap', {
@@ -471,7 +471,7 @@ export const FamilyDashboardScreen: React.FC = () => {
           </Text>
         </View>
         <View style={{ gap: theme.spacing.sm }}>
-          <Button label="Tap to send (write NFC tag)" variant="blue" onPress={handleWriteNfc} block />
+          <Button label="Tap to send" variant="blue" onPress={handleTapToSend} block />
           <Button label="Share link…" variant="secondary" onPress={handleShareLink} block />
         </View>
         <View style={{ height: theme.spacing.base }} />

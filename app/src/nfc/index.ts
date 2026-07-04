@@ -12,3 +12,10 @@ export type {
   NfcWriteResult,
   NfcWritePhase,
 } from './nfcService';
+
+export { isHceAvailable, startHceBroadcast } from './hceBroadcast';
+export type {
+  HceBroadcastPhase,
+  HceBroadcastHandle,
+  HceBroadcastResult,
+} from './hceBroadcast';

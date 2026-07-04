@@ -23,7 +23,12 @@
         "ITSAppUsesNonExemptEncryption": false,
         "UIBackgroundModes": [],
         "NSHealthShareUsageDescription": "Cappy reads weight from Apple Health (with your permission) to keep dosing accurate. Weight is only imported when you tap Import, and you review it before saving.",
-        "NSHealthUpdateUsageDescription": "Cappy does not write data to Apple Health. This permission is required by the health library Cappy uses to read weight."
+        "NSHealthUpdateUsageDescription": "Cappy does not write data to Apple Health. This permission is required by the health library Cappy uses to read weight.",
+        "NSNearbyInteractionUsageDescription": "Cappy uses Nearby Interaction to tell how close another iPhone is, so a family invite only sends once you actually hold the two phones together.",
+        "NSLocalNetworkUsageDescription": "Cappy looks for a nearby iPhone on your local network to send a family invite directly, phone to phone.",
+        "NSBonjourServices": [
+          "_cappy-inv._tcp"
+        ]
       },
       "associatedDomains": [
         "applinks:cappy.closedose.com"
@@ -32,7 +37,8 @@
         "com.apple.developer.nfc.readersession.formats": [
           "TAG"
         ],
-        "com.apple.developer.healthkit": true
+        "com.apple.developer.healthkit": true,
+        "com.apple.developer.nearby-interaction": true
       },
       "config": {
         "usesNonExemptEncryption": false
@@ -115,7 +121,8 @@
           "resizeMode": "contain",
           "backgroundColor": "#FBF8F2"
         }
-      ]
+      ],
+      "./plugins/withNfcHce.js"
     ],
     "experiments": {
       "typedRoutes": false
