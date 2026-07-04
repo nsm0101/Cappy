@@ -1,6 +1,11 @@
 const fs = require('fs');
 const path = require('path');
-const { withDangerousMod, withAndroidManifest, AndroidConfig } = require('expo/config-plugins');
+const {
+  withDangerousMod,
+  withAndroidManifest,
+  withProjectBuildGradle,
+  AndroidConfig,
+} = require('expo/config-plugins');
 
 /**
  * Expo config plugin for `react-native-hce` (Android Host Card Emulation).
@@ -117,6 +122,43 @@ const withHceManifest = (config) =>
     return cfg;
   });
 
-const withNfcHce = (config) => withHceManifest(withAidListXml(config));
+// `react-native-hce@0.3.0` (last published 2025, unmaintained since) ships
+// an Android module with no Gradle `namespace` declared — it only sets the
+// old pre-AGP7 `package="com.reactnativehce"` attribute in its
+// AndroidManifest.xml. Android Gradle Plugin 8+ (what Expo SDK 57 uses)
+// hard-fails the build for any library missing a namespace: "Namespace not
+// specified" during the "Run gradlew" phase. The library's source lives
+// under java/com/reactnativehce/, matching that manifest package, so
+// 'com.reactnativehce' is the correct namespace to force.
+//
+// Can't patch node_modules directly (wiped/reinstalled), so this injects a
+// `subprojects { afterEvaluate { ... } }` override into the *root*
+// android/build.gradle that EAS/prebuild generates — the standard fix for
+// a legacy dependency missing a namespace under modern AGP, scoped by
+// Gradle project name so it only touches this one subproject.
+const HCE_NAMESPACE_MARKER = '// Cappy: react-native-hce namespace fix';
+
+const withHceNamespaceFix = (config) =>
+  withProjectBuildGradle(config, (cfg) => {
+    if (cfg.modResults.language !== 'groovy') return cfg; // no Kotlin DSL project here
+    if (cfg.modResults.contents.includes(HCE_NAMESPACE_MARKER)) return cfg; // idempotent across prebuilds
+
+    cfg.modResults.contents += `
+${HCE_NAMESPACE_MARKER} — see plugins/withNfcHce.js for why.
+subprojects { subproject ->
+  afterEvaluate { proj ->
+    if (proj.name == 'react-native-hce' && proj.hasProperty('android')) {
+      if (proj.android.namespace == null) {
+        proj.android.namespace = 'com.reactnativehce'
+      }
+    }
+  }
+}
+`;
+    return cfg;
+  });
+
+const withNfcHce = (config) =>
+  withHceNamespaceFix(withHceManifest(withAidListXml(config)));
 
 module.exports = withNfcHce;
