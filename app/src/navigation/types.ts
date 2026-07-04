@@ -12,9 +12,11 @@ export type AppStackParamList = {
   FamilyDashboard: undefined;
   Scan: { initialTagUid?: string };
   /**
-   * "Tap to send" screen: writes a Quick Share invite link to a blank
-   * physical NFC tag so another phone (iOS or Android) can tap it to
-   * join the family. See src/screens/ShareViaTapScreen.tsx.
+   * "Send to a nearby phone" screen: direct phone-to-phone family invite
+   * transfer without a code or physical tag. iPhone 11+ uses a real
+   * proximity handshake (hold phones together); everything else falls
+   * back to a share-sheet handoff + on-screen QR code. See
+   * src/screens/ShareViaTapScreen.tsx.
    */
   ShareViaTap: {
     code: string;

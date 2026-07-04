@@ -228,7 +228,7 @@ export const AcceptInviteScreen: React.FC = () => {
             : 'Hold phones together';
     const subline = isError
       ? pxError
-      : "Bring the backs of both iPhones close together. The admin needs their “tap to send” screen open too.";
+      : "Bring the backs of both iPhones close together. The admin needs their “hold phones together” screen open too.";
 
     return (
       <SafeAreaView style={[styles.safe, { backgroundColor: t.bg }]} edges={['top', 'bottom']}>

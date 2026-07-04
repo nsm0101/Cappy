@@ -471,7 +471,7 @@ export const FamilyDashboardScreen: React.FC = () => {
           </Text>
         </View>
         <View style={{ gap: theme.spacing.sm }}>
-          <Button label="Tap to send" variant="blue" onPress={handleTapToSend} block />
+          <Button label="Send to a nearby phone" variant="blue" onPress={handleTapToSend} block />
           <Button label="Share link…" variant="secondary" onPress={handleShareLink} block />
         </View>
         <View style={{ height: theme.spacing.base }} />

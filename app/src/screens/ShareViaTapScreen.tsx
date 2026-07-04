@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { AppState, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { AppState, Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -8,12 +8,6 @@ import * as Haptics from 'expo-haptics';
 import QRCode from 'react-native-qrcode-svg';
 
 import { Button, NfcTarget } from '@/components';
-import {
-  isHceAvailable,
-  startHceBroadcast,
-  type HceBroadcastHandle,
-  type HceBroadcastPhase,
-} from '@/nfc';
 import {
   isProximityShareSupported,
   startProximitySend,
@@ -26,10 +20,6 @@ import type { AppStackParamList } from '@/navigation/types';
 type Nav = NativeStackNavigationProp<AppStackParamList>;
 type Rt = RouteProp<AppStackParamList, 'ShareViaTap'>;
 
-type Phase = HceBroadcastPhase | 'idle' | 'error';
-
-const ACTIVE_PHASES = new Set<Phase>(['enabling', 'waiting', 'connected']);
-
 type SharedInvite = {
   code: string;
   link: string;
@@ -39,223 +29,49 @@ type SharedInvite = {
 
 /**
  * "Tap to send" — direct phone-to-phone transmission of a Cappy family
- * invite. No physical tag, no code to read aloud.
+ * invite, no physical tag and no code to read aloud.
  *
- * Android is the true "send" side: this phone emulates an NFC Forum
- * Type 4 Tag (via Host Card Emulation, see src/nfc/hceBroadcast.ts)
- * containing the invite link. Any nearby phone — iOS or Android, Cappy
- * installed or not — just taps it and reads the link like it would a
- * sticker. The pulsing NfcTarget below is the active "send" signal: it
- * tells the admin exactly when to hold the two phones together.
- *
- * iPhones can only *read* NFC tags, not emit them, so this screen skips
- * the radio entirely on iOS and leads with two things that feel just as
- * immediate: a curated AirDrop-first share sheet (see src/lib/share.ts),
- * and an on-screen QR code the other person's camera can scan directly —
- * both land on the same join link, no NFC involved.
+ * iPhone 11+ (U1/U2 chip) gets a real proximity handshake — see
+ * src/proximity and ProximitySendView below. Every other device (older
+ * iPhones, and Android for now — see src/nfc/hceBroadcast.ts for why the
+ * Android HCE tap-to-send path is temporarily disabled) falls back to
+ * ClassicSendView: a share-sheet handoff plus an on-screen QR code the
+ * other person's camera can scan directly. Both land on the same join
+ * link either way.
  */
 export const ShareViaTapScreen: React.FC = () => {
-  const theme = useTheme();
-  const t = theme.tokens;
   const navigation = useNavigation<Nav>();
   const route = useRoute<Rt>();
   const { code, link, familyName, role } = route.params;
 
-  const canSendDirectly = isHceAvailable();
   const familyLabel = familyName?.trim() || 'your family';
+  const invite: SharedInvite = { code, link, familyName, role };
 
-  // iPhone 11+ can do a real proximity handshake (see src/proximity); older
-  // iPhones fall straight back to AirDrop/QR since there's nothing for them
-  // to toggle to.
-  const [iosMode, setIosMode] = useState<'proximity' | 'classic'>(() =>
+  // iPhone 11+ can do a real proximity handshake (see src/proximity);
+  // everything else (older iPhones, Android) falls straight back to
+  // share-sheet + QR since there's nothing for them to toggle to.
+  const [mode, setMode] = useState<'proximity' | 'classic'>(() =>
     isProximityShareSupported() ? 'proximity' : 'classic',
   );
 
-  const [phase, setPhase] = useState<Phase>('idle');
-  const [errorMessage, setErrorMessage] = useState('');
-  const handleRef = useRef<HceBroadcastHandle | null>(null);
-  const succeededRef = useRef(false);
-
-  const stopBroadcast = useCallback(async () => {
-    await handleRef.current?.stop();
-    handleRef.current = null;
-  }, []);
-
-  useEffect(() => {
-    return () => {
-      void stopBroadcast();
-    };
-  }, [stopBroadcast]);
-
-  // If the app leaves the foreground mid-send, end the session rather than
-  // leaving an invite broadcasting unattended.
-  useEffect(() => {
-    const sub = AppState.addEventListener('change', (next) => {
-      if (next !== 'active' && !succeededRef.current) void stopBroadcast();
-    });
-    return () => sub.remove();
-  }, [stopBroadcast]);
-
-  useEffect(() => {
-    if (phase !== 'read') return;
-    void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => undefined);
-    void stopBroadcast();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [phase]);
-
-  const startSend = useCallback(async () => {
-    succeededRef.current = false;
-    setErrorMessage('');
-
-    const result = await startHceBroadcast(link, (p) => {
-      if (p === 'read') {
-        succeededRef.current = true;
-        setPhase('read');
-        return;
-      }
-      // Swallow the 'stopped' phase our own cleanup triggers right after a
-      // successful read — the success screen should stay put.
-      if (succeededRef.current) return;
-      setPhase(p);
-    });
-
-    if (!result.ok) {
-      setPhase('error');
-      setErrorMessage(result.message);
-      await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error).catch(() => undefined);
-      return;
-    }
-    handleRef.current = result.handle;
-  }, [link]);
-
-  const handleSendAgain = useCallback(() => {
-    setPhase('idle');
-    void startSend();
-  }, [startSend]);
-
-  const handleShareInstead = useCallback(async () => {
-    await stopBroadcast();
-    await shareInviteLink({ code, link, familyName, role });
-  }, [stopBroadcast, code, link, familyName, role]);
-
-  const isActive = ACTIVE_PHASES.has(phase);
-  const isSuccess = phase === 'read';
-  const isError = phase === 'error';
-
-  // ── iOS: lead with a real proximity handshake on supported phones;
-  // AirDrop + QR are always one tap away as a fallback.
-  if (!canSendDirectly) {
-    const invite: SharedInvite = { code, link, familyName, role };
-    if (iosMode === 'proximity') {
-      return (
-        <ProximitySendView
-          invite={invite}
-          familyLabel={familyLabel}
-          onUseClassic={() => setIosMode('classic')}
-          onDone={() => navigation.goBack()}
-        />
-      );
-    }
+  if (mode === 'proximity') {
     return (
-      <ClassicSendView
+      <ProximitySendView
         invite={invite}
         familyLabel={familyLabel}
-        showProximityToggle={isProximityShareSupported()}
-        onUseProximity={() => setIosMode('proximity')}
+        onUseClassic={() => setMode('classic')}
         onDone={() => navigation.goBack()}
       />
     );
   }
-
-  // ── Android: real direct tap-to-send.
-  const headline = isSuccess
-    ? 'Sent!'
-    : isError
-      ? "Couldn't send"
-      : phase === 'connected'
-        ? 'Connecting…'
-        : phase === 'waiting' || phase === 'enabling'
-          ? 'Ready — hold phones together'
-          : 'Ready to send';
-
-  const subline = isSuccess
-    ? `The other phone just received the invite to join ${familyLabel} — no app required to open it.`
-    : isError
-      ? errorMessage
-      : phase === 'waiting' || phase === 'enabling'
-        ? 'Hold the back of this phone against the other phone. Most phones’ NFC antenna sits center-back.'
-        : phase === 'connected'
-          ? 'Almost there — keep the phones together.'
-          : `Tap this phone directly against another phone to send the invite to join ${familyLabel}. Works whether they have Cappy installed or not.`;
-
   return (
-    <SafeAreaView style={[styles.safe, { backgroundColor: t.bg }]} edges={['top', 'bottom']}>
-      <View style={[styles.content, { padding: theme.spacing.lg }]}>
-        <View style={styles.spacer} />
-
-        {isSuccess ? (
-          <View
-            style={[
-              styles.iconBadge,
-              { backgroundColor: theme.palette.sage[100], borderColor: t.success },
-            ]}
-          >
-            <Ionicons name="checkmark-circle" size={72} color={t.success} />
-          </View>
-        ) : (
-          <NfcTarget size={180} pulsing={isActive || phase === 'idle'} />
-        )}
-
-        <Text
-          style={{
-            color: t.fg1,
-            fontFamily: theme.fonts.display,
-            fontSize: theme.fontSize.xxl,
-            fontWeight: '800',
-            marginTop: theme.spacing.xl,
-            textAlign: 'center',
-          }}
-        >
-          {headline}
-        </Text>
-        <Text
-          style={{
-            color: t.fg2,
-            fontSize: theme.fontSize.base,
-            lineHeight: 22,
-            marginTop: theme.spacing.sm,
-            textAlign: 'center',
-            paddingHorizontal: theme.spacing.lg,
-          }}
-        >
-          {subline}
-        </Text>
-
-        <View style={styles.spacer} />
-
-        {isSuccess ? (
-          <>
-            <Button label="Send again" variant="secondary" onPress={handleSendAgain} block />
-            <View style={{ height: theme.spacing.sm }} />
-            <Button label="Done" variant="blue" size="lg" onPress={() => navigation.goBack()} block />
-          </>
-        ) : (
-          <>
-            <Button
-              label={isError ? 'Try again' : isActive ? 'Sending…' : 'Start tap-to-send'}
-              variant="blue"
-              size="lg"
-              onPress={startSend}
-              disabled={isActive}
-              loading={isActive}
-              block
-            />
-            <View style={{ height: theme.spacing.sm }} />
-            <Button label="Share link instead" variant="ghost" onPress={handleShareInstead} block />
-          </>
-        )}
-      </View>
-    </SafeAreaView>
+    <ClassicSendView
+      invite={invite}
+      familyLabel={familyLabel}
+      showProximityToggle={isProximityShareSupported()}
+      onUseProximity={() => setMode('proximity')}
+      onDone={() => navigation.goBack()}
+    />
   );
 };
 
@@ -495,12 +311,14 @@ const ClassicSendView: React.FC<{
             paddingHorizontal: theme.spacing.md,
           }}
         >
-          {`AirDrop it to a nearby iPhone, or have them scan the code below — either way opens Cappy straight to joining ${familyLabel}.`}
+          {Platform.OS === 'ios'
+            ? `AirDrop it to a nearby iPhone, or have them scan the code below — either way opens Cappy straight to joining ${familyLabel}.`
+            : `Share it directly, or have them scan the code below — either way opens Cappy straight to joining ${familyLabel}.`}
         </Text>
 
         <View style={{ height: theme.spacing.xl }} />
         <Button
-          label="AirDrop / Share…"
+          label={Platform.OS === 'ios' ? 'AirDrop / Share…' : 'Share…'}
           variant="blue"
           size="lg"
           onPress={handleShare}

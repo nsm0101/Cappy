@@ -8,6 +8,26 @@ const {
 } = require('expo/config-plugins');
 
 /**
+ * DISABLED as of 2026-07-04 — NOT currently registered in app.json's
+ * `plugins` array, and `react-native-hce` is uninstalled. Kept in the repo
+ * so the wiring doesn't have to be rebuilt from scratch later.
+ *
+ * Why: react-native-hce@0.3.0's Android module hasn't been touched since
+ * ~2020 — it declares no Gradle `namespace` (hard-required by AGP 8+, which
+ * this project's Expo SDK 57 toolchain uses), still references the
+ * long-dead `jcenter()` repo, and pins its own `com.android.tools.build:
+ * gradle:3.5.4` in a per-module buildscript block that collides with this
+ * project's modern, centrally-managed Gradle plugin setup. That combination
+ * broke the Android EAS build outright (see build ce107f56.../ac1ee282...).
+ * A namespace-only patch (still present below, in withHceNamespaceFix)
+ * wasn't sufficient on its own.
+ *
+ * To re-enable: reinstall react-native-hce, re-add "./plugins/withNfcHce.js"
+ * to app.json's plugins array, and restore the Android branch this used to
+ * back in ShareViaTapScreen.tsx (see git history around 2026-07-04) — or,
+ * better, evaluate a better-maintained HCE library first, since this one's
+ * Gradle setup may need more than the AGP-8 patches below to work reliably.
+ *
  * Expo config plugin for `react-native-hce` (Android Host Card Emulation).
  *
  * This is what lets the Cappy app on an Android phone emulate an NFC Type 4

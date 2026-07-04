@@ -121,8 +121,7 @@
           "resizeMode": "contain",
           "backgroundColor": "#FBF8F2"
         }
-      ],
-      "./plugins/withNfcHce.js"
+      ]
     ],
     "experiments": {
       "typedRoutes": false
