@@ -22,14 +22,14 @@
         "NSCameraUsageDescription": "Cappy lets you take a photo to identify each family member.",
         "ITSAppUsesNonExemptEncryption": false,
         "UIBackgroundModes": [],
-        "NSHealthShareUsageDescription": "Cappy reads weight from Apple Health (with your permission) to keep dosing accurate. Weight is only imported when you tap Import, and you review it before saving."
+        "NSHealthShareUsageDescription": "Cappy reads weight from Apple Health (with your permission) to keep dosing accurate. Weight is only imported when you tap Import, and you review it before saving.",
+        "NSHealthUpdateUsageDescription": "Cappy does not write data to Apple Health. This permission is required by the health library Cappy uses to read weight."
       },
       "associatedDomains": [
         "applinks:cappy.closedose.com"
       ],
       "entitlements": {
         "com.apple.developer.nfc.readersession.formats": [
-          "NDEF",
           "TAG"
         ],
         "com.apple.developer.healthkit": true
