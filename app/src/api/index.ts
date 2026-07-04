@@ -18,4 +18,5 @@ export type { Family, FamilyCaregiver, FamilyWithRole, CaregiverWithProfile } fr
 export type { Child } from './children';
 export type { DoseEvent, DoseStatus, DoseStatusResult, LogDoseInput, DoseEventWithDetails } from './doses';
 export type { ResolvedTag } from './nfc';
+export type { CaregiverProfile } from './profiles';
 

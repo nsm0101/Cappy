@@ -35,7 +35,7 @@ export const MedToggleChips: React.FC<MedToggleChipsProps> = ({
   return (
     <View
       style={styles.row}
-      accessibilityRole="group"
+      accessible={false}
       accessibilityLabel={accessibilityLabel ?? 'Medications'}
     >
       {items.map((item) => {

@@ -598,9 +598,12 @@ export type Database = {
           consent_accepted_at: string | null
           consent_version: string | null
           created_at: string
+          date_of_birth: string | null
           deleted_at: string | null
           display_name: string | null
+          first_name: string | null
           id: string
+          last_name: string | null
           updated_at: string
         }
         Insert: {
@@ -608,9 +611,12 @@ export type Database = {
           consent_accepted_at?: string | null
           consent_version?: string | null
           created_at?: string
+          date_of_birth?: string | null
           deleted_at?: string | null
           display_name?: string | null
+          first_name?: string | null
           id: string
+          last_name?: string | null
           updated_at?: string
         }
         Update: {
@@ -618,9 +624,12 @@ export type Database = {
           consent_accepted_at?: string | null
           consent_version?: string | null
           created_at?: string
+          date_of_birth?: string | null
           deleted_at?: string | null
           display_name?: string | null
+          first_name?: string | null
           id?: string
+          last_name?: string | null
           updated_at?: string
         }
         Relationships: []

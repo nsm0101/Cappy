@@ -4,7 +4,8 @@
       {
         "appIDs": ["H2AGCK2WB8.com.closedose.cappy"],
         "components": [
-          { "/": "/t/*", "comment": "NFC tag deep links" }
+          { "/": "/t/*", "comment": "NFC tag deep links" },
+          { "/": "/join/*", "comment": "Quick Share caregiver invite links" }
         ]
       }
     ]

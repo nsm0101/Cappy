@@ -12,6 +12,10 @@ const TAG_URL_HOST =
  * An NFC tag tap resolves to `https://cappy.closedose.com/t/{UID}`.
  * That maps to the `Scan` screen with the UID delivered as the
  * `initialTagUid` route param, which ScanScreen auto-resolves.
+ *
+ * A Quick Share invite link `https://cappy.closedose.com/join/{code}`
+ * maps to the `AcceptInvite` screen with the `code` prefilled and
+ * auto-submitted.
  */
 export const linkingConfig: LinkingOptions<RootStackParamList> = {
   prefixes: [
@@ -24,6 +28,7 @@ export const linkingConfig: LinkingOptions<RootStackParamList> = {
       App: {
         screens: {
           Scan: 't/:initialTagUid',
+          AcceptInvite: 'join/:code',
         },
       },
     },

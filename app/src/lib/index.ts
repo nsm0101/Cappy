@@ -24,6 +24,8 @@ export {
   genericForTagSlug,
   isWellKnownTagSlug,
 } from './tags';
+export { shareInviteLink } from './share';
+export type { ShareInviteInput } from './share';
 export {
   computeDosing,
   doseForMedication,

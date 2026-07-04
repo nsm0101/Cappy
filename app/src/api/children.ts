@@ -112,3 +112,53 @@ export const updateChildName = async (
   }
 };
 
+export type UpdateChildInput = {
+  displayName?: string;
+  dateOfBirth?: string; // YYYY-MM-DD
+};
+
+/**
+ * Edit a child's details — e.g. correcting a mis-entered date of birth.
+ * RLS restricts this to family admins ("children: admin can manage").
+ */
+export const updateChildDetails = async (
+  childId: string,
+  input: UpdateChildInput,
+): Promise<void> => {
+  const patch: Database['public']['Tables']['children']['Update'] = {
+    updated_at: new Date().toISOString(),
+  };
+  if (input.displayName !== undefined) patch.display_name = input.displayName.trim();
+  if (input.dateOfBirth !== undefined) patch.date_of_birth = input.dateOfBirth;
+
+  const { data, error } = await supabase
+    .from('children')
+    .update(patch)
+    .eq('id', childId)
+    .is('deleted_at', null)
+    .select('id');
+
+  if (error) throw error;
+  if (!data || data.length === 0) {
+    throw new Error('Only family admins can edit a child.');
+  }
+};
+
+/**
+ * Soft-delete a child (sets deleted_at). Dose history is preserved but the
+ * child no longer appears in lists. RLS restricts this to family admins.
+ */
+export const softDeleteChild = async (childId: string): Promise<void> => {
+  const { data, error } = await supabase
+    .from('children')
+    .update({ deleted_at: new Date().toISOString() })
+    .eq('id', childId)
+    .is('deleted_at', null)
+    .select('id');
+
+  if (error) throw error;
+  if (!data || data.length === 0) {
+    throw new Error('Only family admins can remove a child.');
+  }
+};
+

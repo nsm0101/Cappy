@@ -1,26 +1,32 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { Button, Card, Field } from '@/components';
 import { families as familiesApi } from '@/api';
 import { useTheme } from '@/theme';
+import { useActiveFamily } from '@/family/ActiveFamilyContext';
 import type { AppStackParamList } from '@/navigation/types';
 
 type Nav = NativeStackNavigationProp<AppStackParamList>;
+type Rt = RouteProp<AppStackParamList, 'AcceptInvite'>;
 
 export const AcceptInviteScreen: React.FC = () => {
   const theme = useTheme();
   const t = theme.tokens;
   const navigation = useNavigation<Nav>();
+  const route = useRoute<Rt>();
+  const { refreshFamilies } = useActiveFamily();
+  const prefillCode = route.params?.code?.replace(/[^0-9]/g, '').slice(0, 6) ?? '';
 
-  const [code, setCode] = useState('');
+  const [code, setCode] = useState(prefillCode);
   const [loading, setLoading] = useState(false);
   const [errorText, setErrorText] = useState('');
   const [success, setSuccess] = useState(false);
+  const autoSubmitted = useRef(false);
 
   const handleSubmit = async (inviteCode: string) => {
     const cleanCode = inviteCode.trim();
@@ -32,6 +38,9 @@ export const AcceptInviteScreen: React.FC = () => {
     setLoading(true);
     try {
       await familiesApi.acceptInvite(cleanCode);
+      // Pull the newly-joined family into the active-family list so the rest
+      // of the app (Home, Schedule, dashboard) sees it immediately.
+      await refreshFamilies().catch(() => undefined);
       setSuccess(true);
       await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => undefined);
     } catch (err) {
@@ -51,6 +60,21 @@ export const AcceptInviteScreen: React.FC = () => {
     } else {
       setErrorText('');
     }
+  };
+
+  // Auto-submit a code delivered by a Quick Share deep link
+  // (https://cappy.closedose.com/join/{code}).
+  useEffect(() => {
+    if (prefillCode.length === 6 && !autoSubmitted.current) {
+      autoSubmitted.current = true;
+      void handleSubmit(prefillCode);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [prefillCode]);
+
+  const goHome = () => {
+    if (navigation.canGoBack()) navigation.goBack();
+    else navigation.navigate('Tabs');
   };
 
   if (success) {
@@ -87,9 +111,7 @@ export const AcceptInviteScreen: React.FC = () => {
             </Text>
             <Button
               label="Continue"
-              onPress={() => {
-                navigation.navigate('Tabs');
-              }}
+              onPress={() => navigation.navigate('Tabs')}
               block
             />
           </Card>
@@ -153,7 +175,7 @@ export const AcceptInviteScreen: React.FC = () => {
         <Button
           label="Cancel"
           variant="ghost"
-          onPress={() => navigation.goBack()}
+          onPress={goHome}
           disabled={loading}
           block
           accessibilityLabel="Cancel Button"

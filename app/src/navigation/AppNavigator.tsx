@@ -20,6 +20,7 @@ import { CreateFamilyScreen } from '@/screens/CreateFamilyScreen';
 import { AcceptInviteScreen } from '@/screens/AcceptInviteScreen';
 import { AddChildScreen } from '@/screens/AddChildScreen';
 import { ChildDetailScreen } from '@/screens/ChildDetailScreen';
+import { FamilyDashboardScreen } from '@/screens/FamilyDashboardScreen';
 
 import type { AppStackParamList, TabParamList } from './types';
 
@@ -106,6 +107,7 @@ export const AppNavigator: React.FC = () => {
 
       {/* Card-presentation screens */}
       <Stack.Screen name="ChildDetail" component={ChildDetailScreen} />
+      <Stack.Screen name="FamilyDashboard" component={FamilyDashboardScreen} />
 
       {/* Scan via NFC cold-launch — show a header with a Home button so the
           user can always get back to the tabs (this screen lives outside the

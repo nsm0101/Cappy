@@ -9,10 +9,13 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
 import Constants from 'expo-constants';
 import { Button, Card, MemberAvatar, RowItem, Sheet, InputSheet } from '@/components';
 import { useAuth } from '@/auth/AuthContext';
+import type { AppStackParamList } from '@/navigation/types';
 import { useTheme, useThemeMode } from '@/theme';
 import { useActiveFamily } from '@/family/ActiveFamilyContext';
 import { initialsFromName, brandsForGeneric, brandFor, pickAndCropSquareImage } from '@/lib';
@@ -40,6 +43,7 @@ const GENERIC_LABEL: Record<string, string> = {
 export const SettingsScreen: React.FC = () => {
   const theme = useTheme();
   const t = theme.tokens;
+  const navigation = useNavigation<NativeStackNavigationProp<AppStackParamList>>();
   const { user, signOut } = useAuth();
   const { mode, setMode } = useThemeMode();
   const { activeFamily } = useActiveFamily();
@@ -322,6 +326,13 @@ export const SettingsScreen: React.FC = () => {
               FAMILY & CAREGIVERS
             </Text>
             <View style={{ gap: theme.spacing.sm, marginBottom: theme.spacing.xl }}>
+              <RowItem
+                title="Family dashboard"
+                subtitle="Adults, children & guests · add, edit or remove"
+                leftSlot={<Ionicons name="people-circle-outline" size={20} color={t.brand} />}
+                onPress={() => navigation.navigate('FamilyDashboard')}
+                accessibilityLabel="Open family dashboard"
+              />
               {caregivers.map((c) => (
                 <RowItem
                   key={c.id}

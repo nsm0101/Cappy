@@ -6,6 +6,18 @@ export type FamilyCaregiver = Database['public']['Tables']['family_caregivers'][
 
 export type FamilyWithRole = Family & { my_role: FamilyCaregiver['role'] };
 
+/** Universal-link host — same domain used for NFC tags and invite links. */
+const APP_LINK_HOST =
+  process.env.EXPO_PUBLIC_TAG_URL_HOST ?? 'cappy.closedose.com';
+
+/**
+ * Build a shareable "Quick Share" invite link for a 6-digit code.
+ * Opens Cappy (via Universal Link / the `join/:code` route) if installed,
+ * or the App Store / web fallback otherwise.
+ */
+export const buildInviteLink = (code: string): string =>
+  `https://${APP_LINK_HOST}/join/${code}`;
+
 /**
  * List the families this user belongs to (active membership only).
  */
@@ -59,6 +71,8 @@ export const updateFamilyName = async (familyId: string, name: string): Promise<
 
 export type CaregiverWithProfile = FamilyCaregiver & {
   display_name: string | null;
+  avatar_url: string | null;
+  date_of_birth: string | null;
 };
 
 export const listFamilyCaregivers = async (
@@ -69,7 +83,7 @@ export const listFamilyCaregivers = async (
     .select(
       `
       *,
-      profiles ( display_name )
+      profiles ( display_name, avatar_url, date_of_birth )
     `,
     )
     .eq('family_id', familyId);
@@ -81,16 +95,27 @@ export const listFamilyCaregivers = async (
   return data.map((row: any) => ({
     ...row,
     display_name: row.profiles?.display_name ?? null,
+    avatar_url: row.profiles?.avatar_url ?? null,
+    date_of_birth: row.profiles?.date_of_birth ?? null,
   }));
 };
 
+/**
+ * Remove a caregiver/guest from the family (soft revoke — sets status to
+ * 'revoked'). RLS restricts this to family admins. A revoked member loses
+ * access immediately but their logged doses are preserved for history.
+ */
 export const revokeCaregiver = async (caregiverId: string): Promise<void> => {
-  const { error } = await supabase
+  const { data, error } = await supabase
     .from('family_caregivers')
     .update({ status: 'revoked', revoked_at: new Date().toISOString() })
-    .eq('id', caregiverId);
+    .eq('id', caregiverId)
+    .select('id');
 
   if (error) throw error;
+  if (!data || data.length === 0) {
+    throw new Error('Only family admins can remove a member.');
+  }
 };
 
 /**

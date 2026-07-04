@@ -55,6 +55,56 @@ export const initNfc = async (): Promise<boolean> => {
   }
 };
 
+export type NfcWriteResult =
+  | { ok: true }
+  | { ok: false; error: NfcScanError };
+
+/**
+ * Write a URI (e.g. a Quick Share invite link) to a writable NFC tag.
+ *
+ * This backs the "tap to add a caregiver" flow: the family admin writes
+ * their `https://cappy.closedose.com/join/{code}` link to a sticker/tag,
+ * and another Cappy-equipped phone taps it to open the join screen.
+ *
+ * NOTE: iOS Core NFC cannot emulate a tag, so true peer-to-peer phone↔phone
+ * push isn't possible — one side writes a physical tag the other reads.
+ */
+export const writeUri = async (
+  url: string,
+  options: { alertMessage?: string } = {},
+): Promise<NfcWriteResult> => {
+  const isSupported = await initNfc();
+  if (!isSupported) {
+    return {
+      ok: false,
+      error: { kind: 'unsupported', message: 'NFC is not supported on this device.' },
+    };
+  }
+  try {
+    await NfcManager.requestTechnology(NfcTech.Ndef, {
+      alertMessage: options.alertMessage ?? 'Hold your phone near the tag to write it.',
+    });
+    const bytes = Ndef.encodeMessage([Ndef.uriRecord(url)]);
+    if (!bytes) {
+      await cancelNfcScan();
+      return {
+        ok: false,
+        error: { kind: 'unknown', message: 'Could not encode the link.' },
+      };
+    }
+    await NfcManager.ndefHandler.writeNdefMessage(bytes);
+    await cancelNfcScan();
+    return { ok: true };
+  } catch (err) {
+    await cancelNfcScan();
+    const message = err instanceof Error ? err.message : String(err);
+    if (/cancel/i.test(message)) {
+      return { ok: false, error: { kind: 'user_cancelled', message: 'Cancelled.' } };
+    }
+    return { ok: false, error: { kind: 'unknown', message } };
+  }
+};
+
 /**
  * Tear down active scanning sessions. Safe to call from cleanup paths.
  */
