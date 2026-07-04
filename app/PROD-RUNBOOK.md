@@ -55,3 +55,7 @@ The production profile now carries the prod URL/key, so this binary talks to `ca
 - The anon/publishable key is public by design (RLS is the security boundary) — safe in git. The service-role key and DB passwords are NOT; never commit them.
 - AASA/universal links need no change: same bundle id + team, host already serves `H2AGCK2WB8.com.closedose.cappy` for `/t/*`.
 - Prod advisors: after `db push`, run the security advisors once (dev is clean except the intentional authenticated-EXECUTE warnings + the leaked-password toggle).
+
+## Status — 2026-07-04
+
+Sections 1 done via MCP (all migrations incl. profiles_caregiver_identity + lock_down_security_definer_execute; both functions v2; 5 med rows verified). Advisors clean except intentional authenticated-EXECUTE + leaked-password toggle. Section 2 (dashboard) + SEC-1 rotation still open — founder.
