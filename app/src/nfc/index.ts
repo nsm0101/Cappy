@@ -6,4 +6,9 @@ export {
   parseTagUrl,
   isNfcSupported,
 } from './nfcService';
-export type { NfcScanError, NfcScanResult, NfcWriteResult } from './nfcService';
+export type {
+  NfcScanError,
+  NfcScanResult,
+  NfcWriteResult,
+  NfcWritePhase,
+} from './nfcService';

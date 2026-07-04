@@ -23,7 +23,6 @@ import {
   type CaregiverWithProfile,
   type Child,
 } from '@/api';
-import { writeUri } from '@/nfc';
 import { useTheme } from '@/theme';
 import { useAuth } from '@/auth/AuthContext';
 import { useActiveFamily } from '@/family/ActiveFamilyContext';
@@ -150,18 +149,16 @@ export const FamilyDashboardScreen: React.FC = () => {
     });
   }, [inviteReady, activeFamily]);
 
-  const handleWriteNfc = useCallback(async () => {
+  const handleWriteNfc = useCallback(() => {
     if (!inviteReady) return;
-    const result = await writeUri(inviteReady.link, {
-      alertMessage: 'Hold your phone near a blank tag to write the invite.',
+    setInviteReady(null);
+    navigation.navigate('ShareViaTap', {
+      code: inviteReady.code,
+      link: inviteReady.link,
+      familyName: activeFamily?.name,
+      role: inviteReady.role,
     });
-    if (result.ok) {
-      await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => undefined);
-      Alert.alert('Tag written', 'Another Cappy phone can now tap this tag to join your family.');
-    } else if (result.error.kind !== 'user_cancelled') {
-      Alert.alert('Could not write tag', result.error.message);
-    }
-  }, [inviteReady]);
+  }, [inviteReady, navigation, activeFamily]);
 
   // ── Remove members ───────────────────────────────────────────────────
   const confirmRemoveCaregiver = useCallback(
@@ -474,8 +471,8 @@ export const FamilyDashboardScreen: React.FC = () => {
           </Text>
         </View>
         <View style={{ gap: theme.spacing.sm }}>
-          <Button label="Share link…" variant="blue" onPress={handleShareLink} block />
-          <Button label="Write to NFC tag (tap phones)" variant="secondary" onPress={handleWriteNfc} block />
+          <Button label="Tap to send (write NFC tag)" variant="blue" onPress={handleWriteNfc} block />
+          <Button label="Share link…" variant="secondary" onPress={handleShareLink} block />
         </View>
         <View style={{ height: theme.spacing.base }} />
         <Button label="Done" variant="ghost" onPress={() => setInviteReady(null)} block />

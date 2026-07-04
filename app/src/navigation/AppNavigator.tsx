@@ -21,6 +21,7 @@ import { AcceptInviteScreen } from '@/screens/AcceptInviteScreen';
 import { AddChildScreen } from '@/screens/AddChildScreen';
 import { ChildDetailScreen } from '@/screens/ChildDetailScreen';
 import { FamilyDashboardScreen } from '@/screens/FamilyDashboardScreen';
+import { ShareViaTapScreen } from '@/screens/ShareViaTapScreen';
 
 import type { AppStackParamList, TabParamList } from './types';
 
@@ -103,6 +104,7 @@ export const AppNavigator: React.FC = () => {
         <Stack.Screen name="CreateFamily" component={CreateFamilyScreen} />
         <Stack.Screen name="AcceptInvite" component={AcceptInviteScreen} />
         <Stack.Screen name="AddChild" component={AddChildScreen} />
+        <Stack.Screen name="ShareViaTap" component={ShareViaTapScreen} />
       </Stack.Group>
 
       {/* Card-presentation screens */}

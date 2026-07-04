@@ -60,18 +60,37 @@ export type NfcWriteResult =
   | { ok: false; error: NfcScanError };
 
 /**
+ * Phases of an active tag write, surfaced so the UI can show a live
+ * "send" indicator — the in-app signal telling the caregiver where and
+ * when to hold their phone against a blank tag:
+ *   - requesting:   NFC session opened, radio is polling for a tag
+ *   - tag_detected: a tag came into range, about to write to it
+ *   - writing:      NDEF bytes are being written
+ *   - success:      write completed and the session is closing
+ */
+export type NfcWritePhase = 'requesting' | 'tag_detected' | 'writing' | 'success';
+
+/**
  * Write a URI (e.g. a Quick Share invite link) to a writable NFC tag.
  *
  * This backs the "tap to add a caregiver" flow: the family admin writes
  * their `https://cappy.closedose.com/join/{code}` link to a sticker/tag,
- * and another Cappy-equipped phone taps it to open the join screen.
+ * and another phone (iOS or Android, with or without Cappy installed)
+ * taps it to open the join link — the OS's built-in NFC/NDEF handling
+ * does the rest.
  *
  * NOTE: iOS Core NFC cannot emulate a tag, so true peer-to-peer phone↔phone
  * push isn't possible — one side writes a physical tag the other reads.
+ *
+ * `onPhase` fires as the write progresses so callers can drive an active
+ * "hold your phone here" indicator (see ShareViaTapScreen / NfcTarget).
+ * On iOS the system NFC sheet also renders `alertMessage` as its own
+ * overlay; on Android there is no such system UI, so the in-app phase
+ * indicator is the only "where to tap" signal the user gets.
  */
 export const writeUri = async (
   url: string,
-  options: { alertMessage?: string } = {},
+  options: { alertMessage?: string; onPhase?: (phase: NfcWritePhase) => void } = {},
 ): Promise<NfcWriteResult> => {
   const isSupported = await initNfc();
   if (!isSupported) {
@@ -81,9 +100,12 @@ export const writeUri = async (
     };
   }
   try {
+    options.onPhase?.('requesting');
     await NfcManager.requestTechnology(NfcTech.Ndef, {
       alertMessage: options.alertMessage ?? 'Hold your phone near the tag to write it.',
     });
+    options.onPhase?.('tag_detected');
+
     const bytes = Ndef.encodeMessage([Ndef.uriRecord(url)]);
     if (!bytes) {
       await cancelNfcScan();
@@ -92,7 +114,11 @@ export const writeUri = async (
         error: { kind: 'unknown', message: 'Could not encode the link.' },
       };
     }
+
+    options.onPhase?.('writing');
     await NfcManager.ndefHandler.writeNdefMessage(bytes);
+    options.onPhase?.('success');
+
     await cancelNfcScan();
     return { ok: true };
   } catch (err) {
