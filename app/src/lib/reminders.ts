@@ -70,6 +70,8 @@ export const scheduleNextDoseReminder = async (opts: {
     if (!(at.getTime() > Date.now())) return false;
 
     const perm = await Notifications.requestPermissionsAsync();
+    // @ts-ignore SDK 57: NotificationPermissionsStatus extends PermissionResponse
+    // from 'expo' but the expo package no longer exports that type.
     if (!perm.granted) return false;
 
     await cancelDoseReminder(opts.childId, opts.medicationId);
