@@ -37,6 +37,11 @@
     "pino-pretty": "^11.2.2",
     "zod": "^3.23.8"
   },
+  "overrides": {
+    "@esbuild-kit/core-utils": {
+      "esbuild": "^0.25.0"
+    }
+  },
   "devDependencies": {
     "@types/node": "^20.14.11",
     "@types/pg": "^8.11.6",
