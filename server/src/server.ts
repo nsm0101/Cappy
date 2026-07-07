@@ -46,12 +46,16 @@ export const buildServer = async (opts: BuildServerOptions) => {
 
   app.setErrorHandler((err, req, reply) => {
     req.log.error({ err }, 'unhandled error');
-    if (err.statusCode && err.statusCode < 500) {
-      void reply.status(err.statusCode).type('application/problem+json').send({
-        type: 'about:blank',
-        title: err.message,
-        status: err.statusCode,
-      });
+    const e = err as { statusCode?: number; message?: string };
+    if (e.statusCode && e.statusCode < 500) {
+      void reply
+        .status(e.statusCode)
+        .type('application/problem+json')
+        .send({
+          type: 'about:blank',
+          title: e.message,
+          status: e.statusCode,
+        });
       return;
     }
     void reply.status(500).type('application/problem+json').send({
