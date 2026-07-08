@@ -34,8 +34,78 @@ import NearbyInteraction
 /// type. The only thing transferred is the invite link itself, which is
 /// already an opaque, non-PHI join code (see contracts around `nfc_tags`
 /// and `invites`).
+///
+/// Note on structure: the Multipeer/NearbyInteraction machinery lives in a
+/// separate `NSObject` coordinator (`ProximityShareCoordinator`) rather than
+/// on this class directly. The Cocoa delegate protocols involved
+/// (`MCSessionDelegate`, `MCNearbyServiceAdvertiserDelegate`,
+/// `MCNearbyServiceBrowserDelegate`, `NISessionDelegate`) are `@objc` and so
+/// require `NSObjectProtocol` conformance, which an Expo `Module` — a plain
+/// Swift class — cannot provide. The module owns one coordinator and bridges
+/// its callbacks to JS events.
 public class CappyProximityShareModule: Module {
+  private let coordinator = ProximityShareCoordinator()
+
+  public func definition() -> ModuleDefinition {
+    Name("CappyProximityShare")
+
+    Events("onPhase", "onRange", "onReceive", "onError")
+
+    // Bridge the coordinator's callbacks to JS events. Set once at module
+    // creation; `[weak self]` avoids a module → coordinator → closure → module
+    // retain cycle.
+    OnCreate {
+      self.coordinator.onPhase = { [weak self] phase in
+        self?.sendEvent("onPhase", ["phase": phase])
+      }
+      self.coordinator.onRange = { [weak self] distanceMeters in
+        self?.sendEvent("onRange", ["distanceMeters": distanceMeters])
+      }
+      self.coordinator.onReceive = { [weak self] payload in
+        self?.sendEvent("onReceive", ["payload": payload])
+      }
+      self.coordinator.onError = { [weak self] message in
+        self?.sendEvent("onError", ["message": message])
+      }
+    }
+
+    Function("isSupported") { () -> Bool in
+      NISession.isSupported
+    }
+
+    Function("startSending") { (payload: String, thresholdMeters: Double) in
+      self.coordinator.startSending(payload: payload, thresholdMeters: thresholdMeters)
+    }
+
+    Function("startReceiving") { () in
+      self.coordinator.startReceiving()
+    }
+
+    Function("stop") {
+      self.coordinator.stop()
+    }
+
+    OnStopObserving {
+      self.coordinator.stop()
+    }
+
+    OnDestroy {
+      self.coordinator.stop()
+    }
+  }
+}
+
+/// Owns the Multipeer Connectivity + Nearby Interaction sessions and adopts
+/// the Cocoa delegate protocols. Kept as an `NSObject` subclass precisely so
+/// it *can* adopt those `@objc` protocols (see the note on the module above).
+final class ProximityShareCoordinator: NSObject {
   private static let serviceType = "cappy-inv"
+
+  // Event callbacks, wired up by the owning module.
+  var onPhase: ((String) -> Void)?
+  var onRange: ((Float) -> Void)?
+  var onReceive: ((String) -> Void)?
+  var onError: ((String) -> Void)?
 
   private var peerID: MCPeerID?
   private var session: MCSession?
@@ -51,37 +121,25 @@ public class CappyProximityShareModule: Module {
   private var hasCompleted = false
   private var thresholdMeters: Double = 0.3
 
-  public func definition() -> ModuleDefinition {
-    Name("CappyProximityShare")
+  // MARK: - Public entry points
 
-    Events("onPhase", "onRange", "onReceive", "onError")
+  func startSending(payload: String, thresholdMeters: Double) {
+    reset()
+    pendingPayload = payload
+    isReceivingRole = false
+    self.thresholdMeters = thresholdMeters > 0 ? thresholdMeters : 0.3
+    beginSession()
+  }
 
-    Function("isSupported") { () -> Bool in
-      NISession.isSupported
-    }
+  func startReceiving() {
+    reset()
+    pendingPayload = nil
+    isReceivingRole = true
+    beginSession()
+  }
 
-    Function("startSending") { (payload: String, thresholdMeters: Double) in
-      self.reset()
-      self.pendingPayload = payload
-      self.isReceivingRole = false
-      self.thresholdMeters = thresholdMeters > 0 ? thresholdMeters : 0.3
-      self.beginSession()
-    }
-
-    Function("startReceiving") { () in
-      self.reset()
-      self.pendingPayload = nil
-      self.isReceivingRole = true
-      self.beginSession()
-    }
-
-    Function("stop") {
-      self.reset()
-    }
-
-    OnStopObserving {
-      self.reset()
-    }
+  func stop() {
+    reset()
   }
 
   // MARK: - Session lifecycle
@@ -194,7 +252,7 @@ public class CappyProximityShareModule: Module {
       guard isReceivingRole, !hasCompleted else { return }
       hasCompleted = true
       DispatchQueue.main.async {
-        self.sendEvent("onReceive", ["payload": envelope.data])
+        self.onReceive?(envelope.data)
         self.emitPhase("received")
       }
     default:
@@ -210,23 +268,25 @@ public class CappyProximityShareModule: Module {
     emitPhase("ranging")
   }
 
+  // MARK: - Event helpers
+
   private func emitPhase(_ phase: String) {
     DispatchQueue.main.async {
-      self.sendEvent("onPhase", ["phase": phase])
+      self.onPhase?(phase)
     }
   }
 
   private func emitError(_ message: String) {
     DispatchQueue.main.async {
-      self.sendEvent("onError", ["message": message])
+      self.onError?(message)
     }
   }
 }
 
 // MARK: - MCSessionDelegate
 
-extension CappyProximityShareModule: MCSessionDelegate {
-  public func session(_ session: MCSession, peer peerID: MCPeerID, didChange state: MCSessionState) {
+extension ProximityShareCoordinator: MCSessionDelegate {
+  func session(_ session: MCSession, peer peerID: MCPeerID, didChange state: MCSessionState) {
     switch state {
     case .connected:
       // Only track one peer at a time — first connection wins, matching
@@ -235,8 +295,8 @@ extension CappyProximityShareModule: MCSessionDelegate {
       guard connectedPeer == nil else { return }
       connectedPeer = peerID
       emitPhase("connected")
-      if let niSession = niSession {
-        sendToken(niSession.discoveryToken, to: peerID)
+      if let niSession = niSession, let token = niSession.discoveryToken {
+        sendToken(token, to: peerID)
       }
     case .notConnected:
       if connectedPeer == peerID {
@@ -252,21 +312,21 @@ extension CappyProximityShareModule: MCSessionDelegate {
     }
   }
 
-  public func session(_ session: MCSession, didReceive data: Data, fromPeer peerID: MCPeerID) {
+  func session(_ session: MCSession, didReceive data: Data, fromPeer peerID: MCPeerID) {
     handleReceivedData(data, from: peerID)
   }
 
   // Unused MCSessionDelegate stream/resource callbacks — required by the
   // protocol but not part of this feature.
-  public func session(_ session: MCSession, didReceive stream: InputStream, withName streamName: String, fromPeer peerID: MCPeerID) {}
-  public func session(_ session: MCSession, didStartReceivingResourceWithName resourceName: String, fromPeer peerID: MCPeerID, with progress: Progress) {}
-  public func session(_ session: MCSession, didFinishReceivingResourceWithName resourceName: String, fromPeer peerID: MCPeerID, at localURL: URL?, withError error: Error?) {}
+  func session(_ session: MCSession, didReceive stream: InputStream, withName streamName: String, fromPeer peerID: MCPeerID) {}
+  func session(_ session: MCSession, didStartReceivingResourceWithName resourceName: String, fromPeer peerID: MCPeerID, with progress: Progress) {}
+  func session(_ session: MCSession, didFinishReceivingResourceWithName resourceName: String, fromPeer peerID: MCPeerID, at localURL: URL?, withError error: Error?) {}
 }
 
 // MARK: - MCNearbyServiceAdvertiserDelegate
 
-extension CappyProximityShareModule: MCNearbyServiceAdvertiserDelegate {
-  public func advertiser(
+extension ProximityShareCoordinator: MCNearbyServiceAdvertiserDelegate {
+  func advertiser(
     _ advertiser: MCNearbyServiceAdvertiser,
     didReceiveInvitationFromPeer peerID: MCPeerID,
     withContext context: Data?,
@@ -280,13 +340,13 @@ extension CappyProximityShareModule: MCNearbyServiceAdvertiserDelegate {
 
 // MARK: - MCNearbyServiceBrowserDelegate
 
-extension CappyProximityShareModule: MCNearbyServiceBrowserDelegate {
-  public func browser(_ browser: MCNearbyServiceBrowser, foundPeer peerID: MCPeerID, withDiscoveryInfo info: [String: String]?) {
+extension ProximityShareCoordinator: MCNearbyServiceBrowserDelegate {
+  func browser(_ browser: MCNearbyServiceBrowser, foundPeer peerID: MCPeerID, withDiscoveryInfo info: [String: String]?) {
     guard connectedPeer == nil, let session = session else { return }
     browser.invitePeer(peerID, to: session, withContext: nil, timeout: 10)
   }
 
-  public func browser(_ browser: MCNearbyServiceBrowser, lostPeer peerID: MCPeerID) {
+  func browser(_ browser: MCNearbyServiceBrowser, lostPeer peerID: MCPeerID) {
     // No action needed — MCSession's didChange(.notConnected) covers the
     // case where we were actually connected to this peer.
   }
@@ -294,31 +354,31 @@ extension CappyProximityShareModule: MCNearbyServiceBrowserDelegate {
 
 // MARK: - NISessionDelegate
 
-extension CappyProximityShareModule: NISessionDelegate {
-  public func session(_ session: NISession, didUpdate nearbyObjects: [NINearbyObject]) {
+extension ProximityShareCoordinator: NISessionDelegate {
+  func session(_ session: NISession, didUpdate nearbyObjects: [NINearbyObject]) {
     guard let object = nearbyObjects.first, let distance = object.distance else { return }
     DispatchQueue.main.async {
-      self.sendEvent("onRange", ["distanceMeters": distance])
+      self.onRange?(distance)
     }
     sendPayloadIfReady(distance: distance)
   }
 
-  public func session(_ session: NISession, didRemove nearbyObjects: [NINearbyObject], reason: NINearbyObject.RemovalReason) {
+  func session(_ session: NISession, didRemove nearbyObjects: [NINearbyObject], reason: NINearbyObject.RemovalReason) {
     // The peer moved out of range or ranging otherwise stopped — nothing
     // to clean up here beyond what didChange(.notConnected) already does.
   }
 
-  public func sessionWasSuspended(_ session: NISession) {
+  func sessionWasSuspended(_ session: NISession) {
     emitPhase("suspended")
   }
 
-  public func sessionSuspensionEnded(_ session: NISession) {
+  func sessionSuspensionEnded(_ session: NISession) {
     guard let config = niConfig else { return }
     session.run(config)
     emitPhase("ranging")
   }
 
-  public func session(_ session: NISession, didInvalidateWith error: Error) {
+  func session(_ session: NISession, didInvalidateWith error: Error) {
     if !hasCompleted {
       emitError("Nearby Interaction session ended: \(error.localizedDescription)")
     }
