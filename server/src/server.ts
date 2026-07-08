@@ -1,4 +1,10 @@
-import Fastify from 'fastify';
+import Fastify, {
+  LogController,
+  type FastifyInstance,
+  type RawServerDefault,
+  type RawRequestDefaultExpression,
+  type RawReplyDefaultExpression,
+} from 'fastify';
 import cors from '@fastify/cors';
 import helmet from '@fastify/helmet';
 import sensible from '@fastify/sensible';
@@ -12,11 +18,20 @@ export type BuildServerOptions = {
   logger: Logger;
 };
 
-export const buildServer = async (opts: BuildServerOptions) => {
+export const buildServer = async (
+  opts: BuildServerOptions,
+): Promise<
+  FastifyInstance<
+    RawServerDefault,
+    RawRequestDefaultExpression<RawServerDefault>,
+    RawReplyDefaultExpression<RawServerDefault>,
+    Logger
+  >
+> => {
   const app = Fastify({
-    logger: opts.logger,
+    loggerInstance: opts.logger,
     requestIdHeader: 'x-request-id',
-    requestIdLogLabel: 'requestId',
+    logController: new LogController({ requestIdLogLabel: 'requestId' }),
     genReqId: () => crypto.randomUUID(),
     trustProxy: true,
     bodyLimit: 1024 * 1024, // 1MB

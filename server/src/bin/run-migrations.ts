@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import pg from 'pg';
 import fs from 'fs';
 import path from 'path';
@@ -6,7 +7,7 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-async function main() {
+async function main(): Promise<void> {
   const dbUrl = process.env.DATABASE_URL;
   if (!dbUrl) {
     console.error('DATABASE_URL is not set in environment.');
@@ -37,12 +38,13 @@ async function main() {
     await client.query(seedSql);
     console.log('Seed migration applied successfully.');
 
-  } catch (err: any) {
-    console.error('Migration failed:', err.message || err);
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    console.error('Migration failed:', msg);
     process.exit(1);
   } finally {
     await client.end();
   }
 }
 
-main();
+void main();

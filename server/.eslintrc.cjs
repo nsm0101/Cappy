@@ -57,5 +57,5 @@ module.exports = {
     eqeqeq: ['error', 'always'],
     'prefer-const': 'error',
   },
-  ignorePatterns: ['dist', 'node_modules', 'migrations', '*.config.ts'],
+  ignorePatterns: ['dist', 'node_modules', 'migrations', '*.config.ts', 'list_nfc_tags.ts'],
 };
