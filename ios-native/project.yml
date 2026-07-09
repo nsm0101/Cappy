@@ -1,0 +1,71 @@
+# Cappy — XcodeGen project spec.
+#
+# Generate the Xcode project with:
+#     brew install xcodegen      # once
+#     xcodegen generate          # from this directory
+#     open Cappy.xcodeproj
+#
+# A pre-generated Cappy.xcodeproj is also committed, so you can open the app
+# without installing XcodeGen. Regenerate with the command above after adding
+# or moving files.
+
+name: Cappy
+options:
+  bundleIdPrefix: com.closedose
+  deploymentTarget:
+    iOS: "17.0"
+  createIntermediateGroups: true
+  groupSortPosition: top
+
+settings:
+  base:
+    MARKETING_VERSION: "0.1.0"
+    CURRENT_PROJECT_VERSION: "1"
+    SWIFT_VERSION: "5.0"
+    CODE_SIGN_STYLE: Automatic
+    DEVELOPMENT_TEAM: "H2AGCK2WB8"  # Apple Developer Team ID (matches committed project)
+    IPHONEOS_DEPLOYMENT_TARGET: "17.0"
+    ENABLE_USER_SCRIPT_SANDBOXING: YES
+    SWIFT_EMIT_LOC_STRINGS: YES
+
+targets:
+  Cappy:
+    type: application
+    platform: iOS
+    sources:
+      - path: Cappy
+      - path: Shared
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.closedose.cappy
+        PRODUCT_NAME: Cappy
+        INFOPLIST_FILE: Cappy/Resources/Info.plist
+        CODE_SIGN_ENTITLEMENTS: Cappy/Resources/Cappy.entitlements
+        GENERATE_INFOPLIST_FILE: NO
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS: YES
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+        TARGETED_DEVICE_FAMILY: "1"
+        ENABLE_PREVIEWS: YES
+        CURRENT_PROJECT_VERSION: "1"
+        MARKETING_VERSION: "0.1.0"
+    dependencies:
+      - target: CappyWidgetExtension
+        embed: true
+
+  CappyWidgetExtension:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: CappyWidget
+      - path: Shared
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.closedose.cappy.CappyWidget
+        PRODUCT_NAME: CappyWidget
+        INFOPLIST_FILE: CappyWidget/Info.plist
+        CODE_SIGN_ENTITLEMENTS: CappyWidget/CappyWidget.entitlements
+        GENERATE_INFOPLIST_FILE: NO
+        TARGETED_DEVICE_FAMILY: "1"
+        CURRENT_PROJECT_VERSION: "1"
+        MARKETING_VERSION: "0.1.0"
