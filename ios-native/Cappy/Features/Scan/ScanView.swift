@@ -51,7 +51,9 @@ struct ScanView: View {
                 if isBusy || isError { statusCard }
                 if manualUnlocked { manualFallback }
             }
-            .padding(Space.lg)
+            .padding(.horizontal, Space.lg)
+            .padding(.top, Space.sm)
+            .padding(.bottom, Space.lg)
             .frame(maxWidth: .infinity)
         }
         .background(theme.tokens.bg.ignoresSafeArea())
@@ -84,43 +86,53 @@ struct ScanView: View {
     private var optionsSection: some View {
         VStack(spacing: Space.md) {
             nfcHero
-            RowItem(title: "Scan QR Code",
-                    subtitle: "Use the camera to scan the sticker's code") {
-                showQRScanner = true
-            } left: {
-                optionIcon("qrcode.viewfinder", tint: theme.tokens.accent2)
-            }
-
-            RowItem(title: "Manual Dose Log",
-                    subtitle: "Admin passcode required") {
-                presentPasscodePrompt()
-            } left: {
-                optionIcon("lock.shield", tint: theme.tokens.fg2)
+            HStack(spacing: Space.md) {
+                optionCard(icon: "qrcode.viewfinder", tint: theme.tokens.accent2,
+                           title: "Scan QR code",
+                           subtitle: "Point the camera at the sticker") {
+                    showQRScanner = true
+                }
+                optionCard(icon: "lock.shield", tint: theme.tokens.fg2,
+                           title: "Manual log",
+                           subtitle: "Admin passcode required") {
+                    presentPasscodePrompt()
+                }
             }
         }
     }
 
-    /// The star of the screen: a big, friendly gradient target with softly
-    /// pulsing NFC rings. Tapping anywhere starts the scan.
+    /// The star of the screen: the Cappy mascot inside softly pulsing NFC
+    /// rings, high on the screen so it's the first thing you see. Tapping
+    /// anywhere starts the scan.
     private var nfcHero: some View {
         Button { if NfcService.isAvailable { Task { await scan() } } } label: {
             VStack(spacing: Space.base) {
                 ZStack {
-                    Circle().stroke(.white.opacity(0.25), lineWidth: 2)
-                        .frame(width: 132, height: 132)
-                        .scaleEffect(heroPulse ? 1.12 : 0.96)
+                    Circle().stroke(.white.opacity(0.22), lineWidth: 2)
+                        .frame(width: 196, height: 196)
+                        .scaleEffect(heroPulse ? 1.1 : 0.96)
                         .opacity(heroPulse ? 0.2 : 0.7)
                     Circle().stroke(.white.opacity(0.4), lineWidth: 2)
-                        .frame(width: 104, height: 104)
-                        .scaleEffect(heroPulse ? 1.08 : 0.98)
+                        .frame(width: 160, height: 160)
+                        .scaleEffect(heroPulse ? 1.06 : 0.98)
                         .opacity(heroPulse ? 0.4 : 0.9)
-                    Circle().fill(.white.opacity(0.18))
-                        .frame(width: 84, height: 84)
+                    Circle().fill(.white.opacity(0.16))
+                        .frame(width: 140, height: 140)
+                    Image("CappyMark")
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: 118, height: 118)
+                        .clipShape(Circle())
+                        .overlay(Circle().stroke(.white.opacity(0.5), lineWidth: 3))
                     Image(systemName: "wave.3.right")
-                        .font(.system(size: 34, weight: .semibold))
+                        .font(.system(size: 20, weight: .bold))
                         .foregroundStyle(.white)
+                        .padding(8)
+                        .background(Circle().fill(.white.opacity(0.25)))
+                        .offset(x: 62, y: -62)
                 }
-                .frame(height: 140)
+                .frame(height: 200)
+                .padding(.top, Space.sm)
 
                 Text("Tap Cappy! Tag")
                     .font(CappyFont.brandBold(FontSizeToken.xl))
@@ -134,7 +146,7 @@ struct ScanView: View {
                     .padding(.horizontal, Space.lg)
             }
             .frame(maxWidth: .infinity)
-            .padding(.vertical, Space.xl)
+            .padding(.vertical, Space.lg)
             .background(theme.brandGradient)
             .clipShape(RoundedRectangle(cornerRadius: Radius.sheet))
             .cappyShadow(theme.shadow2)
@@ -150,11 +162,32 @@ struct ScanView: View {
         .accessibilityLabel("Tap Cappy tag to log a dose")
     }
 
-    private func optionIcon(_ systemName: String, tint: Color) -> some View {
-        ZStack {
-            Circle().fill(tint.opacity(0.12)).frame(width: 40, height: 40)
-            Image(systemName: systemName).foregroundStyle(tint)
+    /// Compact tappable card for the secondary ways in (QR / manual).
+    private func optionCard(icon: String, tint: Color, title: String,
+                            subtitle: String, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            VStack(alignment: .leading, spacing: Space.sm) {
+                ZStack {
+                    Circle().fill(tint.opacity(0.12)).frame(width: 44, height: 44)
+                    Image(systemName: icon)
+                        .font(.system(size: 20, weight: .semibold))
+                        .foregroundStyle(tint)
+                }
+                Text(title)
+                    .font(CappyFont.sansSemibold(FontSizeToken.base))
+                    .foregroundStyle(theme.tokens.fg1)
+                Text(subtitle)
+                    .font(CappyFont.sans(FontSizeToken.xs))
+                    .foregroundStyle(theme.tokens.fg3)
+                    .lineLimit(2, reservesSpace: true)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(Space.base)
+            .background(theme.tokens.bgCard)
+            .clipShape(RoundedRectangle(cornerRadius: Radius.lg))
+            .cappyShadow(theme.shadow1)
         }
+        .buttonStyle(PressableButtonStyle())
     }
 
     // MARK: Status

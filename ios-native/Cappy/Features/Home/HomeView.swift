@@ -132,9 +132,10 @@ struct HomeView: View {
             Image("CappyMark")
                 .resizable()
                 .scaledToFill()
-                .frame(width: 84, height: 84)
+                .frame(width: 108, height: 108)
                 .clipShape(Circle())
-                .overlay(Circle().stroke(.white.opacity(0.35), lineWidth: 3))
+                .overlay(Circle().stroke(.white.opacity(0.4), lineWidth: 4))
+                .cappyShadow(theme.shadow2)
         }
         .padding(Space.lg)
         .background(theme.brandGradient)

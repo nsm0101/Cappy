@@ -66,4 +66,36 @@ enum Brands {
     static func visual(forGeneric genericName: String) -> MedVisual {
         visuals[Dosing.kind(forGeneric: genericName)] ?? visuals[.acetaminophen]!
     }
+
+    // MARK: Medication card styling
+
+    /// Colors for the med-branded dose card: a colored header band (echoing
+    /// familiar children's OTC packaging so the right med is instantly
+    /// recognizable at 2 AM) over a light inset panel that hosts the family
+    /// member picker and dosing info. Custom palette — inspired by, not
+    /// copied from, any manufacturer's artwork.
+    struct MedCardStyle: Hashable {
+        let displayName: String      // med name on the band
+        let band: Color              // header band background
+        let bandText: Color          // med name color on the band
+        let panel: Color             // light inset panel
+        let uppercased: Bool         // acetaminophen band uses heavy caps
+    }
+
+    private static let cardStyles: [MedicationKind: MedCardStyle] = [
+        .ibuprofen: MedCardStyle(displayName: "Ibuprofen",
+                                 band: Color(cappy: "#E8873A"),
+                                 bandText: Color(cappy: "#1D2B6E"),
+                                 panel: Color(cappy: "#F8DFC4"),
+                                 uppercased: false),
+        .acetaminophen: MedCardStyle(displayName: "Acetaminophen",
+                                     band: Color(cappy: "#D22630"),
+                                     bandText: .white,
+                                     panel: Color(cappy: "#F0EAE7"),
+                                     uppercased: true)
+    ]
+
+    static func cardStyle(forGeneric genericName: String) -> MedCardStyle {
+        cardStyles[Dosing.kind(forGeneric: genericName)] ?? cardStyles[.acetaminophen]!
+    }
 }

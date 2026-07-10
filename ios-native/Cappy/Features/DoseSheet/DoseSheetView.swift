@@ -26,15 +26,28 @@ struct DoseSheetView: View {
         ZStack {
             theme.tokens.bg.ignoresSafeArea()
             ScrollView {
-                VStack(alignment: .leading, spacing: Space.lg) {
-                    header
-                    if vm.recipients.count > 1 { recipientPicker }
-                    if vm.multiMode {
-                        multiBody
-                    } else {
-                        body(for: vm.selected)
+                // Med-branded card: colored header band (echoes the familiar
+                // children's OTC packaging) over a light panel with the family
+                // member picker and dosing info. Panel content is rendered
+                // with the classic light tokens so it stays readable on the
+                // fixed light panel in every theme.
+                VStack(spacing: 0) {
+                    brandBand
+                    VStack(alignment: .leading, spacing: Space.lg) {
+                        if vm.recipients.count > 1 { recipientPicker }
+                        if vm.multiMode {
+                            multiBody
+                        } else {
+                            body(for: vm.selected)
+                        }
                     }
+                    .padding(Space.lg)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(cardStyle.panel)
+                    .environment(\.theme, Theme(colorScheme: .light, tokens: .light))
                 }
+                .clipShape(RoundedRectangle(cornerRadius: Radius.sheet))
+                .cappyShadow(theme.shadow2)
                 .padding(Space.lg)
             }
             if vm.showSuccess {
@@ -47,23 +60,44 @@ struct DoseSheetView: View {
         .task(id: vm.selected?.id) { await vm.loadChildData() }
     }
 
-    // MARK: Header
+    // MARK: Branded header band
 
-    private var header: some View {
-        HStack(alignment: .top) {
-            VStack(alignment: .leading, spacing: 4) {
-                Text("Log a dose")
-                    .font(CappyFont.display(FontSizeToken.xxl))
-                    .foregroundStyle(theme.tokens.fg1)
+    private var cardStyle: Brands.MedCardStyle {
+        Brands.cardStyle(forGeneric: vm.med.genericName)
+    }
+
+    private var brandBand: some View {
+        let style = cardStyle
+        return HStack(alignment: .top) {
+            VStack(alignment: .leading, spacing: 2) {
+                Text("Children's")
+                    .font(.system(size: FontSizeToken.base, weight: .bold))
+                    .italic()
+                    .foregroundStyle(style.bandText.opacity(0.9))
+                Text(style.uppercased ? style.displayName.uppercased() : style.displayName)
+                    .font(.system(size: FontSizeToken.xxl, weight: .heavy))
+                    .italic()
+                    .foregroundStyle(style.bandText)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
                 Text("\(vm.medDisplayName) · \(vm.med.concentrationLabel)")
                     .font(CappyFont.sans(FontSizeToken.sm))
-                    .foregroundStyle(theme.tokens.fg2)
+                    .foregroundStyle(style.bandText.opacity(0.8))
+                    .padding(.top, 2)
             }
             Spacer()
-            Button("Close") { dismiss() }
-                .font(CappyFont.sansSemibold(FontSizeToken.base))
-                .foregroundStyle(theme.tokens.fg2)
+            Button { dismiss() } label: {
+                Image(systemName: "xmark")
+                    .font(.system(size: 15, weight: .bold))
+                    .foregroundStyle(style.bandText)
+                    .padding(10)
+                    .background(Circle().fill(style.bandText.opacity(0.16)))
+            }
+            .accessibilityLabel("Close")
         }
+        .padding(Space.lg)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(style.band)
     }
 
     // MARK: Recipient picker
