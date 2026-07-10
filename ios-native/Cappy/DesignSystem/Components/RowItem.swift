@@ -55,11 +55,13 @@ struct RowItem<Left: View, Right: View>: View {
         .padding(.vertical, Space.md)
         .frame(minHeight: 64)
         .background(theme.tokens.bgCard)
-        .clipShape(RoundedRectangle(cornerRadius: Radius.base))
-        .overlay(RoundedRectangle(cornerRadius: Radius.base).stroke(theme.tokens.border, lineWidth: 1))
+        .clipShape(RoundedRectangle(cornerRadius: Radius.lg))
+        .overlay(RoundedRectangle(cornerRadius: Radius.lg)
+            .stroke(theme.colorScheme == .dark ? theme.tokens.border : Color.clear, lineWidth: 1))
+        .cappyShadow(theme.shadow1)
 
         if let action {
-            Button(action: action) { content }.buttonStyle(.plain)
+            Button(action: action) { content }.buttonStyle(PressableButtonStyle())
         } else {
             content
         }

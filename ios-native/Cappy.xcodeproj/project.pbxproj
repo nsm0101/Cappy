@@ -37,7 +37,7 @@
 		43B12EEFCC9D7F7AF627FF82 /* CappyButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7DF1F3F34F7039E4FE6035C /* CappyButton.swift */; };
 		46CEA93AA7631E9429EC0D04 /* CappyWidgetBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55FDC91CE80AF028EFFB67EE /* CappyWidgetBundle.swift */; };
 		4B586EC23A58C24C4C3E00BD /* ResolvedTag.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E922DAA5FDDD6ED814FB742 /* ResolvedTag.swift */; };
-		4F41D9AD169CB869662D451D /* CappyWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = D2DDB48E8B76F2DB0EA8E71E /* CappyWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		4F41D9AD169CB869662D451D /* CappyWidget.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = D2DDB48E8B76F2DB0EA8E71E /* CappyWidget.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		509F93C85E444674B6658FED /* AppModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D13EF415643188D145F83364 /* AppModel.swift */; };
 		5150DDF50D198C7F18888C81 /* HomeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03DC1340719235540AB3FD91 /* HomeViewModel.swift */; };
 		53A2E9B937462AEB205C1FC2 /* AppleSignIn.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0087575930D4EA715430D5 /* AppleSignIn.swift */; };
@@ -114,7 +114,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
-				4F41D9AD169CB869662D451D /* CappyWidgetExtension.appex in Embed Foundation Extensions */,
+				4F41D9AD169CB869662D451D /* CappyWidget.appex in Embed Foundation Extensions */,
 			);
 			name = "Embed Foundation Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -174,8 +174,8 @@
 		8AB576772FFB50D7328212BF /* LiveActivityController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveActivityController.swift; sourceTree = "<group>"; };
 		8B3EC5BF873AC7DB3370E586 /* CappyApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CappyApp.swift; sourceTree = "<group>"; };
 		8B51B11DE20056F3EC8FC35A /* TimeFormat.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeFormat.swift; sourceTree = "<group>"; };
-		8D4BE27975D40E644C9DD5FE /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
-		8D5EFD9A2797B81A9D59395B /* Cappy.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Cappy.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		8D4BE27975D40E644C9DD5FE /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		8D5EFD9A2797B81A9D59395B /* Cappy.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Cappy.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9BFF69D5DC3ACC1A7EEB3F8F /* TrackerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackerViewModel.swift; sourceTree = "<group>"; };
 		9C92F09A465F584CE20E7BD2 /* Date+ISO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Date+ISO.swift"; sourceTree = "<group>"; };
 		9D174D943AA2CE43CB849394 /* OnboardingSteps.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingSteps.swift; sourceTree = "<group>"; };
@@ -199,7 +199,7 @@
 		CCE5AC67DE4A88A6BA5DA1A2 /* NextDoseWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NextDoseWidget.swift; sourceTree = "<group>"; };
 		CF4D4507CA841C229F3A418C /* AuthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthService.swift; sourceTree = "<group>"; };
 		D13EF415643188D145F83364 /* AppModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppModel.swift; sourceTree = "<group>"; };
-		D2DDB48E8B76F2DB0EA8E71E /* CappyWidgetExtension.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = CappyWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		D2DDB48E8B76F2DB0EA8E71E /* CappyWidget.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = CappyWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		D5D397CD25CA3CF8442B3E52 /* FlowLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlowLayout.swift; sourceTree = "<group>"; };
 		D7349C5471E09EA70F54A754 /* JSONValue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONValue.swift; sourceTree = "<group>"; };
 		DB30DD672DDE8E42FBE72A72 /* DoseActivityAttributes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DoseActivityAttributes.swift; sourceTree = "<group>"; };
@@ -504,7 +504,7 @@
 			isa = PBXGroup;
 			children = (
 				8D5EFD9A2797B81A9D59395B /* Cappy.app */,
-				D2DDB48E8B76F2DB0EA8E71E /* CappyWidgetExtension.appex */,
+				D2DDB48E8B76F2DB0EA8E71E /* CappyWidget.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -566,7 +566,7 @@
 			packageProductDependencies = (
 			);
 			productName = CappyWidgetExtension;
-			productReference = D2DDB48E8B76F2DB0EA8E71E /* CappyWidgetExtension.appex */;
+			productReference = D2DDB48E8B76F2DB0EA8E71E /* CappyWidget.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
 /* End PBXNativeTarget section */
@@ -747,7 +747,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 0.1.0;
+				MARKETING_VERSION = 0.7;
 				PRODUCT_BUNDLE_IDENTIFIER = com.closedose.cappy;
 				PRODUCT_NAME = Cappy;
 				SDKROOT = iphoneos;
@@ -833,7 +833,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 0.1.0;
+				MARKETING_VERSION = 0.7;
 				PRODUCT_BUNDLE_IDENTIFIER = com.closedose.cappy;
 				PRODUCT_NAME = Cappy;
 				SDKROOT = iphoneos;
@@ -853,7 +853,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 0.1.0;
+				MARKETING_VERSION = 0.7;
 				PRODUCT_BUNDLE_IDENTIFIER = com.closedose.cappy.CappyWidget;
 				PRODUCT_NAME = CappyWidget;
 				SDKROOT = iphoneos;
@@ -873,7 +873,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 0.1.0;
+				MARKETING_VERSION = 0.7;
 				PRODUCT_BUNDLE_IDENTIFIER = com.closedose.cappy.CappyWidget;
 				PRODUCT_NAME = CappyWidget;
 				SDKROOT = iphoneos;

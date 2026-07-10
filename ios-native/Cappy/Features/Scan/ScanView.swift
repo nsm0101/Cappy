@@ -35,6 +35,7 @@ struct ScanView: View {
     @State private var showPasscodePrompt = false
     @State private var passcodeInput = ""
     @State private var alert: CappyAlert?
+    @State private var heroPulse = false
 
     private var isBusy: Bool {
         if case .scanning = phase { return true }
@@ -82,15 +83,7 @@ struct ScanView: View {
 
     private var optionsSection: some View {
         VStack(spacing: Space.md) {
-            RowItem(title: "Tap Cappy! Tag",
-                    subtitle: NfcService.isAvailable
-                        ? "Hold the top of your phone against the sticker on the bottle"
-                        : "NFC isn't available on this device",
-                    action: NfcService.isAvailable ? { Task { await scan() } } : nil) {
-                optionIcon("wave.3.right", tint: theme.tokens.brand)
-            }
-            .opacity(NfcService.isAvailable ? 1 : 0.5)
-
+            nfcHero
             RowItem(title: "Scan QR Code",
                     subtitle: "Use the camera to scan the sticker's code") {
                 showQRScanner = true
@@ -105,6 +98,56 @@ struct ScanView: View {
                 optionIcon("lock.shield", tint: theme.tokens.fg2)
             }
         }
+    }
+
+    /// The star of the screen: a big, friendly gradient target with softly
+    /// pulsing NFC rings. Tapping anywhere starts the scan.
+    private var nfcHero: some View {
+        Button { if NfcService.isAvailable { Task { await scan() } } } label: {
+            VStack(spacing: Space.base) {
+                ZStack {
+                    Circle().stroke(.white.opacity(0.25), lineWidth: 2)
+                        .frame(width: 132, height: 132)
+                        .scaleEffect(heroPulse ? 1.12 : 0.96)
+                        .opacity(heroPulse ? 0.2 : 0.7)
+                    Circle().stroke(.white.opacity(0.4), lineWidth: 2)
+                        .frame(width: 104, height: 104)
+                        .scaleEffect(heroPulse ? 1.08 : 0.98)
+                        .opacity(heroPulse ? 0.4 : 0.9)
+                    Circle().fill(.white.opacity(0.18))
+                        .frame(width: 84, height: 84)
+                    Image(systemName: "wave.3.right")
+                        .font(.system(size: 34, weight: .semibold))
+                        .foregroundStyle(.white)
+                }
+                .frame(height: 140)
+
+                Text("Tap Cappy! Tag")
+                    .font(CappyFont.brandBold(FontSizeToken.xl))
+                    .foregroundStyle(.white)
+                Text(NfcService.isAvailable
+                        ? "Hold the top of your phone against the sticker on the bottle"
+                        : "NFC isn't available on this device")
+                    .font(CappyFont.sans(FontSizeToken.sm))
+                    .foregroundStyle(.white.opacity(0.85))
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, Space.lg)
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, Space.xl)
+            .background(theme.brandGradient)
+            .clipShape(RoundedRectangle(cornerRadius: Radius.sheet))
+            .cappyShadow(theme.shadow2)
+        }
+        .buttonStyle(PressableButtonStyle())
+        .disabled(!NfcService.isAvailable || isBusy)
+        .opacity(NfcService.isAvailable ? 1 : 0.55)
+        .onAppear {
+            withAnimation(.easeInOut(duration: 1.6).repeatForever(autoreverses: true)) {
+                heroPulse = true
+            }
+        }
+        .accessibilityLabel("Tap Cappy tag to log a dose")
     }
 
     private func optionIcon(_ systemName: String, tint: Color) -> some View {

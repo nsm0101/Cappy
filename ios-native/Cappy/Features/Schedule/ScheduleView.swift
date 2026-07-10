@@ -32,35 +32,39 @@ struct ScheduleView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: Space.lg) {
-                Text("Schedule")
-                    .font(CappyFont.display(FontSizeToken.xxxl))
-                    .foregroundStyle(theme.tokens.fg1)
-                Text("When the next dose is safe for each child.")
-                    .font(CappyFont.sans(FontSizeToken.sm))
-                    .foregroundStyle(theme.tokens.fg2)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Schedule")
+                        .font(CappyFont.display(FontSizeToken.xxl))
+                        .foregroundStyle(theme.tokens.fg1)
+                    Text("When the next dose is safe for each child.")
+                        .font(CappyFont.sans(FontSizeToken.sm))
+                        .foregroundStyle(theme.tokens.fg2)
+                }
 
                 NavigationLink { TrackerView() } label: {
                     HStack(spacing: Space.md) {
-                        Image(systemName: "chart.bar.doc.horizontal")
-                            .foregroundStyle(theme.tokens.accent2)
+                        ZStack {
+                            Circle().fill(theme.tokens.accent2.opacity(0.15)).frame(width: 40, height: 40)
+                            Image(systemName: "chart.bar.doc.horizontal")
+                                .foregroundStyle(theme.tokens.accent2)
+                        }
                         VStack(alignment: .leading, spacing: 2) {
                             Text("Medication Tracker")
                                 .font(CappyFont.sansSemibold(FontSizeToken.base))
                                 .foregroundStyle(theme.tokens.fg1)
-                            Text("Dose timelines by patient — 24h, 3-day, weekly, monthly")
+                            Text("Dose timelines — 24h, 3-day, weekly, monthly")
                                 .font(CappyFont.sans(FontSizeToken.xs))
                                 .foregroundStyle(theme.tokens.fg3)
                         }
                         Spacer()
-                        Image(systemName: "chevron.right").foregroundStyle(theme.tokens.fgMuted)
+                        Image(systemName: "chevron.right").foregroundStyle(theme.tokens.accent2)
                     }
                     .padding(Space.base)
-                    .background(theme.tokens.bgCard)
-                    .clipShape(RoundedRectangle(cornerRadius: Radius.base))
-                    .overlay(RoundedRectangle(cornerRadius: Radius.base).stroke(theme.tokens.border, lineWidth: 1))
+                    .background(theme.tokens.accent2Tint)
+                    .clipShape(RoundedRectangle(cornerRadius: Radius.lg))
                     .contentShape(Rectangle())
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(PressableButtonStyle())
 
                 if loading {
                     ProgressView().tint(theme.tokens.brand).frame(maxWidth: .infinity).padding(.top, Space.xl)

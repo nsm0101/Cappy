@@ -66,27 +66,34 @@ struct CappyButton: View {
             .foregroundStyle(foreground)
             .frame(maxWidth: block ? .infinity : nil)
             .frame(minHeight: isLg ? 56 : Space.tapMin)
-            .padding(.horizontal, isLg ? Space.xl : Space.lg)
-            .background(background)
-            .overlay(
-                RoundedRectangle(cornerRadius: isLg ? Radius.base : Radius.md)
-                    .stroke(border, lineWidth: 1))
-            .clipShape(RoundedRectangle(cornerRadius: isLg ? Radius.base : Radius.md))
-            .cappyShadow(isCTA && isEnabled && !loading ? theme.shadow2 : ShadowStyle(color: .clear, radius: 0, x: 0, y: 0))
+            .padding(.horizontal, isLg ? Space.xxl : Space.xl)
+            .background(ctaBackground)
+            .overlay(Capsule().stroke(variant == .secondary ? border : .clear, lineWidth: 1))
+            .clipShape(Capsule())
+            .cappyShadow(isCTA && isEnabled && !loading ? theme.shadow2 : theme.shadowNone)
         }
         .buttonStyle(PressableButtonStyle())
         .opacity(isEnabled && !loading ? 1 : 0.5)
         .disabled(!isEnabled || loading)
         .accessibilityLabel(label)
     }
+
+    /// CTAs get the brand/accent gradient; other variants stay flat.
+    @ViewBuilder private var ctaBackground: some View {
+        switch variant {
+        case .primary: theme.brandGradient
+        case .blue: theme.accentGradient
+        default: background
+        }
+    }
 }
 
-/// Subtle press feedback matching the RN button (opacity + 1px translate).
+/// Bouncy, alive press feedback: a quick spring scale-down.
 struct PressableButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .opacity(configuration.isPressed ? 0.88 : 1)
-            .offset(y: configuration.isPressed ? 1 : 0)
-            .animation(.easeOut(duration: 0.12), value: configuration.isPressed)
+            .scaleEffect(configuration.isPressed ? 0.96 : 1)
+            .opacity(configuration.isPressed ? 0.92 : 1)
+            .animation(.spring(response: 0.28, dampingFraction: 0.6), value: configuration.isPressed)
     }
 }

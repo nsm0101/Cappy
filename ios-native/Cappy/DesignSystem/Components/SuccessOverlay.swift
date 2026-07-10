@@ -50,9 +50,22 @@ struct SuccessOverlay: View {
             theme.tokens.bg.opacity(0.92).ignoresSafeArea()
             Card {
                 VStack(spacing: 0) {
-                    Image(systemName: "checkmark.circle.fill")
-                        .font(.system(size: 48))
-                        .foregroundStyle(theme.tokens.brand)
+                    // Cappy himself delivers the good news.
+                    ZStack(alignment: .bottomTrailing) {
+                        Image("CappyMark")
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: 76, height: 76)
+                            .clipShape(Circle())
+                            .cappyShadow(theme.shadow2)
+                        Image(systemName: "checkmark.circle.fill")
+                            .font(.system(size: 26))
+                            .foregroundStyle(theme.tokens.brand)
+                            .background(Circle().fill(theme.tokens.bgCard).padding(2))
+                            .offset(x: 4, y: 2)
+                    }
+                    .scaleEffect(appeared || reduceMotion ? 1 : 0.6)
+                    .animation(.spring(response: 0.4, dampingFraction: 0.55), value: appeared)
                     Text(title)
                         .font(CappyFont.display(FontSizeToken.xxl))
                         .foregroundStyle(theme.tokens.fg1)

@@ -40,10 +40,27 @@ struct Theme {
         Theme(colorScheme: scheme, tokens: scheme == .dark ? .dark : .light)
     }
 
-    // Shadow presets (iOS uses these directly). Mirror tokens.ts `shadows`.
-    var shadow1: ShadowStyle { ShadowStyle(color: tokens.shadow.opacity(0.04), radius: 4, x: 0, y: 1) }
-    var shadow2: ShadowStyle { ShadowStyle(color: tokens.shadow.opacity(0.08), radius: 12, x: 0, y: 4) }
-    var shadow3: ShadowStyle { ShadowStyle(color: tokens.shadow.opacity(0.16), radius: 24, x: 0, y: 12) }
+    // Shadow presets (iOS uses these directly). Tinted with the brand-adjacent
+    // `tokens.shadow` so elevation feels warm, not sooty.
+    var shadow1: ShadowStyle { ShadowStyle(color: tokens.shadow.opacity(0.06), radius: 6, x: 0, y: 2) }
+    var shadow2: ShadowStyle { ShadowStyle(color: tokens.shadow.opacity(0.10), radius: 14, x: 0, y: 5) }
+    var shadow3: ShadowStyle { ShadowStyle(color: tokens.shadow.opacity(0.18), radius: 26, x: 0, y: 12) }
+    /// No-op shadow for conditional application.
+    var shadowNone: ShadowStyle { ShadowStyle(color: .clear, radius: 0, x: 0, y: 0) }
+
+    /// The signature brand gradient — hero surfaces, primary CTAs, and the
+    /// launch screen. Derived from the active theme's brand ramp so every
+    /// theme style keeps its own personality.
+    var brandGradient: LinearGradient {
+        LinearGradient(colors: [tokens.brand, tokens.brandPress],
+                       startPoint: .topLeading, endPoint: .bottomTrailing)
+    }
+
+    /// Accent (blue) gradient for the "log dose" family of CTAs.
+    var accentGradient: LinearGradient {
+        LinearGradient(colors: [tokens.accent2, tokens.accent2Press],
+                       startPoint: .topLeading, endPoint: .bottomTrailing)
+    }
 }
 
 struct ShadowStyle {

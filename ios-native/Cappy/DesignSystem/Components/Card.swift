@@ -23,6 +23,9 @@ struct Card<Content: View>: View {
     }
 
     var body: some View {
+        // Elevated cards float on shadow alone in light mode; dark mode keeps
+        // a hairline so surfaces don't melt into the background.
+        let showBorder = !inset && theme.colorScheme == .dark
         VStack(alignment: .leading, spacing: 0) { content }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(padLarge ? Space.xl : Space.lg)
@@ -32,11 +35,11 @@ struct Card<Content: View>: View {
                     Rectangle().fill(topAccent).frame(height: 3)
                 }
             }
-            .clipShape(RoundedRectangle(cornerRadius: Radius.base))
+            .clipShape(RoundedRectangle(cornerRadius: Radius.lg))
             .overlay(
-                RoundedRectangle(cornerRadius: Radius.base)
-                    .stroke(inset ? Color.clear : theme.tokens.border, lineWidth: inset ? 0 : 1))
-            .cappyShadow(inset ? ShadowStyle(color: .clear, radius: 0, x: 0, y: 0) : theme.shadow1)
+                RoundedRectangle(cornerRadius: Radius.lg)
+                    .stroke(showBorder ? theme.tokens.border : Color.clear, lineWidth: showBorder ? 1 : 0))
+            .cappyShadow(inset ? theme.shadowNone : theme.shadow2)
     }
 }
 

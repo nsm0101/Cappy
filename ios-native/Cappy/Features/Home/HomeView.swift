@@ -31,24 +31,15 @@ struct HomeView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: Space.lg) {
-                // Brand header: a larger, centered wordmark gives the main
-                // page a proper masthead instead of a small corner logo.
-                VStack(spacing: Space.xs) {
-                    Wordmark(size: 40)
-                        .frame(maxWidth: .infinity, alignment: .center)
-                    Text(welcome)
-                        .font(CappyFont.sans(FontSizeToken.sm))
-                        .foregroundStyle(theme.tokens.fg2)
-                        .frame(maxWidth: .infinity, alignment: .center)
-                }
-                .padding(.top, Space.sm)
-                .padding(.bottom, Space.xs)
+                // Brand hero: wordmark, welcome, and family switcher share one
+                // gradient band with the mascot — prominent branding without
+                // burning a separate masthead + family header.
+                heroHeader
 
                 if model.families.isEmpty {
                     startFamilyCard
                 } else {
                     if vm.showOnboarding { onboarding }
-                    familyHeader
                     childrenSection
                 }
             }
@@ -105,23 +96,51 @@ struct HomeView: View {
         ])
     }
 
-    private var familyHeader: some View {
-        Group {
-            if let active = model.activeFamily {
-                if model.families.count > 1 {
-                    Button { showFamilySwitcher = true } label: {
-                        HStack(spacing: Space.base) {
-                            Text(active.name).font(CappyFont.display(FontSizeToken.xxl))
-                                .foregroundStyle(theme.tokens.fg1)
-                            Image(systemName: "chevron.down").foregroundStyle(theme.tokens.fg1)
+    private var heroHeader: some View {
+        HStack(spacing: Space.base) {
+            VStack(alignment: .leading, spacing: Space.xs) {
+                Text("Cappy!")
+                    .font(CappyFont.brandBold(FontSizeToken.xxxl))
+                    .foregroundStyle(.white)
+                Text(welcome)
+                    .font(CappyFont.sans(FontSizeToken.sm))
+                    .foregroundStyle(.white.opacity(0.85))
+                if let active = model.activeFamily {
+                    Button { if model.families.count > 1 { showFamilySwitcher = true } } label: {
+                        HStack(spacing: 6) {
+                            Text(active.name)
+                                .font(CappyFont.displaySemibold(FontSizeToken.lg))
+                                .foregroundStyle(.white)
+                                .lineLimit(1)
+                            if model.families.count > 1 {
+                                Image(systemName: "chevron.down")
+                                    .font(.system(size: 12, weight: .bold))
+                                    .foregroundStyle(.white.opacity(0.85))
+                            }
                         }
-                    }.buttonStyle(.plain)
-                } else {
-                    Text(active.name).font(CappyFont.display(FontSizeToken.xxl))
-                        .foregroundStyle(theme.tokens.fg1)
+                        .padding(.horizontal, Space.md)
+                        .padding(.vertical, 6)
+                        .background(Capsule().fill(.white.opacity(0.18)))
+                    }
+                    .buttonStyle(.plain)
+                    .padding(.top, Space.xs)
+                    .accessibilityLabel("Family: \(active.name)\(model.families.count > 1 ? ", tap to switch" : "")")
                 }
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
+
+            Image("CappyMark")
+                .resizable()
+                .scaledToFill()
+                .frame(width: 84, height: 84)
+                .clipShape(Circle())
+                .overlay(Circle().stroke(.white.opacity(0.35), lineWidth: 3))
         }
+        .padding(Space.lg)
+        .background(theme.brandGradient)
+        .clipShape(RoundedRectangle(cornerRadius: Radius.sheet))
+        .cappyShadow(theme.shadow2)
+        .accessibilityElement(children: .combine)
     }
 
     @ViewBuilder private var childrenSection: some View {
