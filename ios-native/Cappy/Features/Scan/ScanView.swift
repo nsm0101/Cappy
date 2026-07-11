@@ -22,7 +22,6 @@ struct ResolvedTagBox: Identifiable {
 struct ScanView: View {
     @EnvironmentObject private var model: AppModel
     @Environment(\.theme) private var theme
-    @Binding var incomingTagUID: String?
 
     private enum Phase: Equatable { case idle, scanning, resolving, error(String) }
     @State private var phase: Phase = .idle
@@ -70,15 +69,9 @@ struct ScanView: View {
             Button("Cancel", role: .cancel) { passcodeInput = "" }
             Button("Continue") { verifyPasscode() }
         } message: {
-            Text("Enter the admin-set passcode to log a dose without scanning.")
+            Text("Enter the family passcode to log a dose without scanning.")
         }
         .cappyAlert($alert)
-        .task(id: incomingTagUID) {
-            if let uid = incomingTagUID {
-                incomingTagUID = nil
-                await resolve(tagUID: uid)
-            }
-        }
     }
 
     // MARK: Options
