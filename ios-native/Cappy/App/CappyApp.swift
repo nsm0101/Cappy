@@ -28,6 +28,14 @@ struct CappyApp: App {
                 .environmentObject(themeManager)
                 .task { await model.bootstrap() }
                 .onOpenURL { model.handle(url: $0) }
+                // NFC background tag reads (and Universal Links opened by the
+                // system) arrive as an NSUserActivity, NOT through onOpenURL —
+                // without this handler the app foregrounds but never routes to
+                // the dose sheet. Extract the webpageURL and feed the same
+                // deep-link pipeline.
+                .onContinueUserActivity(NSUserActivityTypeBrowsingWeb) { activity in
+                    if let url = activity.webpageURL { model.handle(url: url) }
+                }
                 .onChange(of: scenePhase) { _, phase in
                     if phase == .active { Task { await model.refreshOnForeground() } }
                 }
