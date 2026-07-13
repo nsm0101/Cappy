@@ -75,24 +75,33 @@ enum Brands {
     /// member picker and dosing info. Custom palette — inspired by, not
     /// copied from, any manufacturer's artwork.
     struct MedCardStyle: Hashable {
-        let displayName: String      // med name on the band
+        let displayName: String      // med name (accessibility / fallbacks)
         let band: Color              // header band background
-        let bandText: Color          // med name color on the band
+        let bandText: Color          // logo tint + text color on the band
         let panel: Color             // light inset panel
         let uppercased: Bool         // acetaminophen band uses heavy caps
+        let logoAsset: String        // "Children's …" wordmark (template image)
+        let logoHeight: CGFloat      // rendered wordmark height on the band
     }
+
+    /// Dark navy used for family member names on the dose card's light panel.
+    static let doseCardName = Color(cappy: "#1D2B6E")
 
     private static let cardStyles: [MedicationKind: MedCardStyle] = [
         .ibuprofen: MedCardStyle(displayName: "Ibuprofen",
                                  band: Color(cappy: "#E8873A"),
                                  bandText: Color(cappy: "#1D2B6E"),
                                  panel: Color(cappy: "#F8DFC4"),
-                                 uppercased: false),
+                                 uppercased: false,
+                                 logoAsset: "MedLogoIbuprofen",
+                                 logoHeight: 64),
         .acetaminophen: MedCardStyle(displayName: "Acetaminophen",
                                      band: Color(cappy: "#D22630"),
                                      bandText: .white,
                                      panel: Color(cappy: "#F0EAE7"),
-                                     uppercased: true)
+                                     uppercased: true,
+                                     logoAsset: "MedLogoAcetaminophen",
+                                     logoHeight: 48)
     ]
 
     static func cardStyle(forGeneric genericName: String) -> MedCardStyle {

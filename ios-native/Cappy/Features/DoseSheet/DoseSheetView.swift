@@ -70,16 +70,14 @@ struct DoseSheetView: View {
         let style = cardStyle
         return HStack(alignment: .top) {
             VStack(alignment: .leading, spacing: 2) {
-                Text("Children's")
-                    .font(.system(size: FontSizeToken.base, weight: .bold))
-                    .italic()
-                    .foregroundStyle(style.bandText.opacity(0.9))
-                Text(style.uppercased ? style.displayName.uppercased() : style.displayName)
-                    .font(.system(size: FontSizeToken.xxl, weight: .heavy))
-                    .italic()
+                // "Children's …" wordmark (template asset tinted to the band's
+                // text color: white on the red band, navy on the orange band).
+                Image(style.logoAsset)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(maxHeight: style.logoHeight, alignment: .leading)
                     .foregroundStyle(style.bandText)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.7)
+                    .accessibilityLabel("Children's \(style.displayName)")
                 Text("\(vm.medDisplayName) · \(vm.med.concentrationLabel)")
                     .font(CappyFont.sans(FontSizeToken.sm))
                     .foregroundStyle(style.bandText.opacity(0.8))
@@ -139,7 +137,7 @@ struct DoseSheetView: View {
                                         }
                                     Text(child.displayName)
                                         .font(active ? CappyFont.sansSemibold(FontSizeToken.xs) : CappyFont.sans(FontSizeToken.xs))
-                                        .foregroundStyle(active ? theme.tokens.fg1 : theme.tokens.fg2)
+                                        .foregroundStyle(active ? Brands.doseCardName : Brands.doseCardName.opacity(0.7))
                                         .lineLimit(1)
                                 }
                                 .frame(width: 76)
@@ -158,7 +156,7 @@ struct DoseSheetView: View {
                                         .overlay(Circle().stroke(active ? theme.tokens.brand : .clear, lineWidth: 3))
                                     Text(recipient.name)
                                         .font(active ? CappyFont.sansSemibold(FontSizeToken.xs) : CappyFont.sans(FontSizeToken.xs))
-                                        .foregroundStyle(active ? theme.tokens.fg1 : theme.tokens.fg2)
+                                        .foregroundStyle(active ? Brands.doseCardName : Brands.doseCardName.opacity(0.7))
                                         .lineLimit(1)
                                 }
                                 .frame(width: 76)
@@ -213,7 +211,7 @@ struct DoseSheetView: View {
             VStack(alignment: .leading, spacing: 2) {
                 Text(child.displayName)
                     .font(CappyFont.sansSemibold(FontSizeToken.base))
-                    .foregroundStyle(theme.tokens.fg1)
+                    .foregroundStyle(Brands.doseCardName)
                 if let reason = vm.multiBlockReason(child) {
                     Text(reason)
                         .font(CappyFont.sans(FontSizeToken.xs))
