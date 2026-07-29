@@ -1,0 +1,106 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 520" width="900" height="520">
+  <style>
+    .ln{fill:none;stroke:#000;stroke-width:1.6}
+    .lnf{fill:none;stroke:#000;stroke-width:1.1}
+    .lnT{fill:none;stroke:#000;stroke-width:1.2;stroke-dasharray:5 4}
+    .bx{fill:#fff;stroke:#000;stroke-width:1.8}
+    .tb{font-family:Helvetica,Arial,sans-serif;font-size:12px;font-weight:bold;fill:#000}
+    .ts{font-family:Helvetica,Arial,sans-serif;font-size:10.5px;fill:#000}
+    .num{font-family:Helvetica,Arial,sans-serif;font-size:11px;font-weight:bold;fill:#000}
+    .ttl{font-family:Helvetica,Arial,sans-serif;font-size:15px;font-weight:bold;fill:#000}
+  </style>
+  <defs>
+    <marker id="a" markerWidth="9" markerHeight="9" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6 z" fill="#000"/>
+    </marker>
+  </defs>
+
+  <text class="ttl" x="20" y="26">FIG. 8 — DOSING-CUP INSERT: EXPLODED (A), SEATED (B), IN USE (C)</text>
+
+  <!-- A: exploded -->
+  <text class="tb" x="30" y="66">(A) EXPLODED</text>
+  <ellipse class="ln" cx="140" cy="96" rx="86" ry="24"/>
+  <path class="ln" d="M54,96 L74,216"/>
+  <path class="ln" d="M226,96 L206,216"/>
+  <ellipse class="ln" cx="140" cy="216" rx="66" ry="19"/>
+  <text class="ts" x="240" y="100">cup 500</text>
+  <path class="lnf" d="M236,98 L212,102"/>
+  <path class="lnf" d="M62,150 L42,150"/>
+  <text class="ts" x="38" y="154" text-anchor="end">graduations</text>
+
+  <ellipse class="ln" cx="140" cy="290" rx="60" ry="17"/>
+  <path class="ln" d="M80,290 L80,302"/>
+  <path class="ln" d="M200,290 L200,302"/>
+  <path class="ln" d="M80,302 A60,17 0 0 0 200,302"/>
+  <text class="ts" x="216" y="284">disc 510</text>
+  <path class="lnT" d="M140,235 L140,272" marker-end="url(#a)"/>
+
+  <rect class="bx" x="52" y="336" width="176" height="96" rx="5"/>
+  <text class="tb" x="140" y="356" text-anchor="middle">DISC 510 — FACE</text>
+  <rect class="ln" x="66" y="366" width="42" height="42" fill="none"/>
+  <path class="lnf" d="M72,372 h10 v10 h-10 z M92,372 h10 v10 h-10 z M72,392 h10 v10 h-10 z M86,388 h6 v6 h-6 z M98,394 h6 v6 h-6 z"/>
+  <text class="ts" x="87" y="422" text-anchor="middle">QR 514</text>
+  <circle class="lnf" cx="140" cy="384" r="15"/>
+  <circle class="lnf" cx="140" cy="384" r="9"/>
+  <text class="ts" x="140" y="422" text-anchor="middle">NFC 512</text>
+  <text class="ts" x="192" y="378" text-anchor="middle">ACET-</text>
+  <text class="ts" x="192" y="391" text-anchor="middle">AMIN-</text>
+  <text class="ts" x="192" y="404" text-anchor="middle">OPHEN</text>
+  <text class="ts" x="192" y="422" text-anchor="middle">name 516</text>
+
+  <!-- B: seated -->
+  <text class="tb" x="330" y="66">(B) SEATED — SECTION</text>
+  <ellipse class="ln" cx="440" cy="110" rx="86" ry="24"/>
+  <path class="ln" d="M354,110 L374,230"/>
+  <path class="ln" d="M526,110 L506,230"/>
+  <path class="ln" d="M374,230 A66,19 0 0 0 506,230"/>
+  <path class="ln" d="M380,222 A62,15 0 0 1 500,222"/>
+  <path class="ln" d="M380,222 L380,230"/>
+  <path class="ln" d="M500,222 L500,230"/>
+  <text class="ts" x="540" y="226">disc 510 seated in</text>
+  <text class="ts" x="540" y="240">interior base 502</text>
+  <path class="lnf" d="M536,228 L506,228"/>
+  <text class="ts" x="540" y="112">cup 500</text>
+  <path class="lnf" d="M536,110 L512,110"/>
+
+  <rect class="bx" x="330" y="290" width="220" height="140" rx="6"/>
+  <text class="tb" x="342" y="312">UTILIZES DEAD SPACE</text>
+  <text class="ts" x="342" y="332">The interior base of a dosing cup</text>
+  <text class="ts" x="342" y="349">is unused on every such cup</text>
+  <text class="ts" x="342" y="366">manufactured. Disc 510 occupies</text>
+  <text class="ts" x="342" y="383">it without altering cup geometry,</text>
+  <text class="ts" x="342" y="400">graduations, or volume.</text>
+  <text class="ts" x="342" y="420">Disc is medication-specific; cup is</text>
+  <text class="ts" x="342" y="426" font-size="0">.</text>
+
+  <!-- C: in use -->
+  <text class="tb" x="640" y="66">(C) IN USE</text>
+  <ellipse class="ln" cx="740" cy="110" rx="86" ry="24"/>
+  <path class="ln" d="M654,110 L674,230"/>
+  <path class="ln" d="M826,110 L806,230"/>
+  <path class="ln" d="M674,230 A66,19 0 0 0 806,230"/>
+  <ellipse class="lnf" cx="740" cy="196" rx="52" ry="14"/>
+  <text class="ts" x="740" y="226" text-anchor="middle">liquid</text>
+  <path class="lnf" d="M700,180 L780,180"/>
+  <text class="ts" x="848" y="200">fill line</text>
+  <path class="lnf" d="M844,196 L792,192"/>
+
+  <path class="lnf" d="M700,84 L740,140"/>
+  <path class="lnf" d="M780,84 L740,140"/>
+  <text class="ts" x="740" y="78" text-anchor="middle">caregiver line of sight</text>
+
+  <rect class="bx" x="600" y="260" width="270" height="170" rx="6"/>
+  <text class="tb" x="612" y="282">POINT-OF-POUR IDENTIFICATION</text>
+  <text class="ts" x="612" y="302">Name 516 sits in the caregiver's line of</text>
+  <text class="ts" x="612" y="319">sight at the moment of pouring — the point</text>
+  <text class="ts" x="612" y="336">of maximum wrong-medication risk, when</text>
+  <text class="ts" x="612" y="353">attention is on the cup, not the container.</text>
+  <text class="tb" x="612" y="378">DUAL MODALITY</text>
+  <text class="ts" x="612" y="396">NFC 512 and QR 514 encode a common</text>
+  <text class="ts" x="612" y="413">resolution target, so tap failure degrades</text>
+  <text class="ts" x="612" y="424" font-size="0">.</text>
+
+  <rect class="bx" x="30" y="452" width="840" height="52" rx="6"/>
+  <text class="ts" x="42" y="472">…cup is generic, so one cup serves an entire household's medications.   …tap failure (unsupported device, case, depleted battery,</text>
+  <text class="ts" x="42" y="490">unfamiliar user) degrades to a camera scan rather than to nothing — the basis of the system's accessibility claim.</text>
+</svg>

@@ -1,0 +1,111 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 660" width="900" height="660">
+  <style>
+    .ln{fill:none;stroke:#000;stroke-width:1.6}
+    .bx{fill:#fff;stroke:#000;stroke-width:1.8}
+    .bxh{fill:#fff;stroke:#000;stroke-width:2.6}
+    .t{font-family:Helvetica,Arial,sans-serif;font-size:12px;fill:#000}
+    .tb{font-family:Helvetica,Arial,sans-serif;font-size:12px;font-weight:bold;fill:#000}
+    .ts{font-family:Helvetica,Arial,sans-serif;font-size:10.5px;fill:#000}
+    .num{font-family:Helvetica,Arial,sans-serif;font-size:11px;font-weight:bold;fill:#000}
+    .ttl{font-family:Helvetica,Arial,sans-serif;font-size:15px;font-weight:bold;fill:#000}
+  </style>
+  <defs>
+    <marker id="a" markerWidth="9" markerHeight="9" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6 z" fill="#000"/>
+    </marker>
+  </defs>
+
+  <text class="ttl" x="20" y="26">FIG. 4 — TAG PROVISIONING AS A SIDE EFFECT OF UNMODIFIED LABEL PRINTING</text>
+  <text class="ts" x="20" y="44">Zero additional operator interaction. Fail-closed on any error.</text>
+
+  <!-- PMS -->
+  <rect class="bx" x="30" y="70" width="180" height="70" rx="6"/>
+  <text class="tb" x="120" y="96" text-anchor="middle">PHARMACY MGMT</text>
+  <text class="tb" x="120" y="112" text-anchor="middle">SYSTEM 300</text>
+  <text class="ts" x="120" y="130" text-anchor="middle">UNMODIFIED</text>
+  <text class="num" x="216" y="82">300</text>
+
+  <path class="ln" d="M120,140 L120,180" marker-end="url(#a)"/>
+  <text class="ts" x="128" y="164">label print job 302</text>
+
+  <!-- BRIDGE -->
+  <rect class="bxh" x="30" y="180" width="410" height="300" rx="8"/>
+  <text class="tb" x="46" y="204">PROVISIONING BRIDGE 310  (on-premises)</text>
+  <path class="ln" d="M46,214 L424,214"/>
+
+  <rect class="bx" x="52" y="228" width="170" height="48" rx="5"/>
+  <text class="ts" x="137" y="248" text-anchor="middle">312  parse print stream</text>
+  <text class="ts" x="137" y="264" text-anchor="middle">Rx#, NDC, patient key</text>
+
+  <rect class="bx" x="52" y="292" width="170" height="48" rx="5"/>
+  <text class="ts" x="137" y="312" text-anchor="middle">314  HMAC identifiers</text>
+  <text class="ts" x="137" y="328" text-anchor="middle">key never leaves site</text>
+
+  <rect class="bx" x="52" y="356" width="170" height="48" rx="5"/>
+  <text class="ts" x="137" y="376" text-anchor="middle">316  encode NDEF</text>
+  <text class="ts" x="137" y="392" text-anchor="middle">onto tag 200r</text>
+
+  <rect class="bx" x="52" y="420" width="170" height="44" rx="5"/>
+  <text class="ts" x="137" y="438" text-anchor="middle">318  READ BACK</text>
+  <text class="ts" x="137" y="454" text-anchor="middle">byte-compare</text>
+
+  <rect class="bx" x="248" y="420" width="176" height="44" rx="5"/>
+  <text class="ts" x="336" y="438" text-anchor="middle">320  IRREVERSIBLE LOCK</text>
+  <text class="ts" x="336" y="454" text-anchor="middle">OTP lock bytes · CC r/o</text>
+
+  <rect class="bx" x="248" y="292" width="176" height="112" rx="5"/>
+  <text class="ts" x="336" y="314" text-anchor="middle">322  DECISION</text>
+  <path class="ln" d="M258,322 L414,322"/>
+  <text class="ts" x="258" y="340">verified + locked?</text>
+  <text class="ts" x="258" y="358">YES → render tap</text>
+  <text class="ts" x="270" y="372">target indicium</text>
+  <text class="ts" x="258" y="390">NO → suppress; plain</text>
+  <text class="ts" x="270" y="396" font-size="0">.</text>
+
+  <path class="ln" d="M137,276 L137,290" marker-end="url(#a)"/>
+  <path class="ln" d="M137,340 L137,354" marker-end="url(#a)"/>
+  <path class="ln" d="M137,404 L137,418" marker-end="url(#a)"/>
+  <path class="ln" d="M222,442 L246,442" marker-end="url(#a)"/>
+  <path class="ln" d="M336,418 L336,406" marker-end="url(#a)"/>
+
+  <!-- REMOTE -->
+  <rect class="bx" x="500" y="228" width="200" height="112" rx="6"/>
+  <text class="tb" x="600" y="252" text-anchor="middle">TOKEN SERVICE 330</text>
+  <path class="ln" d="M510,262 L690,262"/>
+  <text class="ts" x="510" y="282">mint 128-bit opaque token</text>
+  <text class="ts" x="510" y="300">store SHA-256(token) only</text>
+  <text class="ts" x="510" y="318">bind to hashed identifiers</text>
+  <text class="ts" x="510" y="334">— holds NO reversible PHI</text>
+  <text class="num" x="706" y="240">330</text>
+
+  <path class="ln" d="M222,312 L498,290" marker-end="url(#a)"/>
+  <text class="ts" x="360" y="288" text-anchor="middle">hashed ids only</text>
+  <path class="ln" d="M498,326 L224,336" marker-end="url(#a)"/>
+  <text class="ts" x="360" y="352" text-anchor="middle">token</text>
+
+  <!-- PRINTER -->
+  <rect class="bx" x="500" y="392" width="200" height="72" rx="6"/>
+  <text class="tb" x="600" y="418" text-anchor="middle">LABEL PRINTER 340</text>
+  <text class="ts" x="600" y="437" text-anchor="middle">+ integrated NFC encoder</text>
+  <text class="ts" x="600" y="454" text-anchor="middle">tag on shared liner</text>
+  <text class="num" x="706" y="404">340</text>
+  <path class="ln" d="M440,428 L498,428" marker-end="url(#a)"/>
+
+  <!-- OUTPUT -->
+  <rect class="bx" x="500" y="500" width="200" height="96" rx="6"/>
+  <text class="tb" x="600" y="524" text-anchor="middle">DISPENSED CONTAINER 350</text>
+  <text class="ts" x="600" y="544" text-anchor="middle">tag 200r under label</text>
+  <text class="ts" x="600" y="561" text-anchor="middle">tap indicium printed</text>
+  <text class="ts" x="600" y="578" text-anchor="middle">claim code in aux block</text>
+  <text class="num" x="706" y="512">350</text>
+  <path class="ln" d="M600,464 L600,498" marker-end="url(#a)"/>
+
+  <!-- properties -->
+  <rect class="bx" x="30" y="500" width="440" height="130" rx="6"/>
+  <text class="tb" x="42" y="522">PROPERTIES</text>
+  <text class="ts" x="42" y="542">ZERO-KEYSTROKE — technician performs no additional action; job 302 is forwarded unmodified.</text>
+  <text class="ts" x="42" y="560">FAIL-CLOSED — on any failure the label prints without indicium; the container is a normal</text>
+  <text class="ts" x="42" y="576">untagged fill. Failure mode is "not smart," never "points at the wrong medication."</text>
+  <text class="ts" x="42" y="596">IRREVERSIBLE — after 320 the tag cannot be rewritten by anyone, including the issuer.</text>
+  <text class="ts" x="42" y="614">PHI-MINIMAL — service 330 never receives a reversible patient or prescription identifier.</text>
+</svg>

@@ -1,0 +1,108 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 560" width="900" height="560">
+  <style>
+    .ln{fill:none;stroke:#000;stroke-width:1.6}
+    .lnT{fill:none;stroke:#000;stroke-width:1.4;stroke-dasharray:5 4}
+    .bx{fill:#fff;stroke:#000;stroke-width:1.8}
+    .bxh{fill:#fff;stroke:#000;stroke-width:2.6}
+    .tb{font-family:Helvetica,Arial,sans-serif;font-size:12px;font-weight:bold;fill:#000}
+    .ts{font-family:Helvetica,Arial,sans-serif;font-size:10.5px;fill:#000}
+    .num{font-family:Helvetica,Arial,sans-serif;font-size:11px;font-weight:bold;fill:#000}
+    .ttl{font-family:Helvetica,Arial,sans-serif;font-size:15px;font-weight:bold;fill:#000}
+  </style>
+  <defs>
+    <marker id="a" markerWidth="9" markerHeight="9" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6 z" fill="#000"/>
+    </marker>
+  </defs>
+
+  <text class="ttl" x="20" y="26">FIG. 6 — CROSS-SOURCE INTERACTION DETECTION WITH ASYMMETRIC WINDOWS</text>
+  <text class="ts" x="20" y="44">Detects a conflict invisible to every clinical record, because neither agent is a prescription.</text>
+
+  <!-- sources -->
+  <rect class="bx" x="30" y="72" width="200" height="86" rx="6"/>
+  <text class="tb" x="130" y="96" text-anchor="middle">DISPENSED Rx RECORD 400</text>
+  <text class="ts" x="130" y="115" text-anchor="middle">from provisioning (FIG. 4)</text>
+  <text class="ts" x="130" y="132" text-anchor="middle">visible to pharmacy</text>
+  <text class="ts" x="130" y="149" text-anchor="middle">system</text>
+  <text class="num" x="236" y="84">400</text>
+
+  <rect class="bxh" x="30" y="180" width="200" height="106" rx="6"/>
+  <text class="tb" x="130" y="204" text-anchor="middle">HOUSEHOLD OTC RECORD 410</text>
+  <text class="ts" x="130" y="223" text-anchor="middle">from class-level tag scans</text>
+  <text class="ts" x="130" y="240" text-anchor="middle">(FIG. 2)</text>
+  <text class="ts" x="130" y="262" text-anchor="middle">VISIBLE TO NO CLINICAL</text>
+  <text class="ts" x="130" y="277" text-anchor="middle">RECORD ANYWHERE</text>
+  <text class="num" x="236" y="192">410</text>
+
+  <!-- unified -->
+  <rect class="bx" x="290" y="110" width="180" height="118" rx="6"/>
+  <text class="tb" x="380" y="136" text-anchor="middle">UNIFIED PER-PATIENT</text>
+  <text class="tb" x="380" y="152" text-anchor="middle">RECORD 420</text>
+  <path class="ln" d="M300,162 L460,162"/>
+  <text class="ts" x="300" y="182">each entry carries:</text>
+  <text class="ts" x="300" y="199">· medication class</text>
+  <text class="ts" x="300" y="216">· administered-at</text>
+  <text class="num" x="476" y="122">420</text>
+
+  <path class="ln" d="M230,120 L288,150" marker-end="url(#a)"/>
+  <path class="ln" d="M230,225 L288,190" marker-end="url(#a)"/>
+
+  <!-- rule table -->
+  <rect class="bx" x="290" y="256" width="180" height="118" rx="6"/>
+  <text class="tb" x="380" y="280" text-anchor="middle">INTERACTION RULES 430</text>
+  <path class="ln" d="M300,290 L460,290"/>
+  <text class="ts" x="300" y="308">class_a  ×  class_b</text>
+  <text class="ts" x="300" y="325">window_a  ≠  window_b</text>
+  <text class="ts" x="300" y="342">severity · copy</text>
+  <text class="ts" x="300" y="362">table-driven, not hardcoded</text>
+  <text class="num" x="476" y="268">430</text>
+
+  <!-- engine -->
+  <rect class="bxh" x="530" y="150" width="200" height="150" rx="6"/>
+  <text class="tb" x="630" y="176" text-anchor="middle">DETECTION ENGINE 440</text>
+  <path class="ln" d="M540,186 L720,186"/>
+  <text class="ts" x="540" y="206">on scan of proposed agent:</text>
+  <text class="ts" x="540" y="226">1. resolve class of proposed</text>
+  <text class="ts" x="540" y="243">2. select window BY WHICH</text>
+  <text class="ts" x="552" y="258">AGENT WAS GIVEN FIRST</text>
+  <text class="ts" x="540" y="275">3. query 420 within window</text>
+  <text class="ts" x="540" y="292">4. emit verdict</text>
+  <text class="num" x="736" y="162">440</text>
+
+  <path class="ln" d="M470,180 L528,200" marker-end="url(#a)"/>
+  <path class="ln" d="M470,300 L528,265" marker-end="url(#a)"/>
+
+  <!-- asymmetric window illustration -->
+  <rect class="bx" x="30" y="330" width="440" height="126" rx="6"/>
+  <text class="tb" x="42" y="352">ASYMMETRIC WINDOW — direction matters</text>
+  <path class="ln" d="M60,384 L300,384"/>
+  <path class="ln" d="M60,378 L60,390"/><path class="ln" d="M300,378 L300,390"/>
+  <text class="ts" x="60" y="374">DIPHENHYDRAMINE given</text>
+  <text class="ts" x="180" y="402" text-anchor="middle">lookback 6 h  (duration of action ~4–6 h)</text>
+  <text class="ts" x="310" y="388">→ warn on cetirizine</text>
+
+  <path class="ln" d="M60,432 L380,432"/>
+  <path class="ln" d="M60,426 L60,438"/><path class="ln" d="M380,426 L380,438"/>
+  <text class="ts" x="60" y="422">CETIRIZINE given</text>
+  <text class="ts" x="220" y="450" text-anchor="middle">lookback 24 h  (duration of action ~24 h)</text>
+  <text class="ts" x="390" y="436">→ warn on diphen.</text>
+
+  <!-- verdict -->
+  <rect class="bx" x="530" y="330" width="340" height="200" rx="6"/>
+  <text class="tb" x="700" y="354" text-anchor="middle">VERDICT / INTERSTITIAL 450</text>
+  <path class="ln" d="M540,364 L860,364"/>
+  <text class="ts" x="540" y="386">"Ava was given diphenhydramine 2 hours ago.</text>
+  <text class="ts" x="540" y="403">Giving cetirizine now means two antihistamines</text>
+  <text class="ts" x="540" y="420">at once — more drowsiness, no added benefit."</text>
+  <rect class="bx" x="540" y="434" width="140" height="30" rx="4"/>
+  <text class="ts" x="610" y="453" text-anchor="middle">DON'T GIVE</text>
+  <rect class="bx" x="694" y="434" width="166" height="30" rx="4"/>
+  <text class="ts" x="777" y="453" text-anchor="middle">ADVISED TO GIVE BOTH</text>
+  <text class="ts" x="540" y="486">override → audit-logged (460)</text>
+  <text class="ts" x="540" y="503">      → propagated to other caregivers (FIG. 5)</text>
+  <text class="ts" x="540" y="520">      → not disableable in settings</text>
+  <text class="num" x="876" y="342">450</text>
+  <path class="ln" d="M630,300 L630,328" marker-end="url(#a)"/>
+
+  <path class="lnT" d="M470,393 L528,330"/>
+</svg>

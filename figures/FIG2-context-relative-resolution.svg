@@ -1,0 +1,123 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 620" width="900" height="620">
+  <style>
+    .ln{fill:none;stroke:#000;stroke-width:1.6}
+    .lnT{fill:none;stroke:#000;stroke-width:1.6;stroke-dasharray:6 4}
+    .bx{fill:#fff;stroke:#000;stroke-width:1.8}
+    .t{font-family:Helvetica,Arial,sans-serif;font-size:12px;fill:#000}
+    .tb{font-family:Helvetica,Arial,sans-serif;font-size:12px;font-weight:bold;fill:#000}
+    .ts{font-family:Helvetica,Arial,sans-serif;font-size:10.5px;fill:#000}
+    .num{font-family:Helvetica,Arial,sans-serif;font-size:11px;font-weight:bold;fill:#000}
+    .ttl{font-family:Helvetica,Arial,sans-serif;font-size:15px;font-weight:bold;fill:#000}
+  </style>
+  <defs>
+    <marker id="a" markerWidth="9" markerHeight="9" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6 z" fill="#000"/>
+    </marker>
+  </defs>
+
+  <text class="ttl" x="20" y="26">FIG. 2 — CONTEXT-RELATIVE RESOLUTION OF AN IDENTITY-FREE TAG</text>
+  <text class="ts" x="20" y="44">Two identical tags (200), two scanning users, two different correct outputs. No tag was provisioned to either user.</text>
+
+  <!-- TAG A -->
+  <rect class="bx" x="30" y="80" width="150" height="70" rx="8"/>
+  <text class="tb" x="105" y="104" text-anchor="middle">TAG 200a</text>
+  <text class="ts" x="105" y="121" text-anchor="middle">NDEF URI record</text>
+  <text class="ts" x="105" y="136" text-anchor="middle">.../t/ace-child</text>
+  <text class="num" x="18" y="92">200a</text>
+
+  <!-- TAG B -->
+  <rect class="bx" x="30" y="400" width="150" height="70" rx="8"/>
+  <text class="tb" x="105" y="424" text-anchor="middle">TAG 200b</text>
+  <text class="ts" x="105" y="441" text-anchor="middle">NDEF URI record</text>
+  <text class="ts" x="105" y="456" text-anchor="middle">.../t/ace-child</text>
+  <text class="num" x="18" y="412">200b</text>
+
+  <!-- identical note -->
+  <path class="lnT" d="M105,150 L105,400"/>
+  <rect fill="#fff" x="46" y="258" width="120" height="34"/>
+  <text class="ts" x="106" y="272" text-anchor="middle">BYTE-IDENTICAL</text>
+  <text class="ts" x="106" y="286" text-anchor="middle">no patient data</text>
+
+  <!-- DEVICE A -->
+  <rect class="bx" x="230" y="70" width="150" height="90" rx="8"/>
+  <text class="tb" x="305" y="94" text-anchor="middle">DEVICE 210a</text>
+  <text class="ts" x="305" y="112" text-anchor="middle">user: caregiver U1</text>
+  <text class="ts" x="305" y="128" text-anchor="middle">household: H1</text>
+  <text class="ts" x="305" y="146" text-anchor="middle">credential C1</text>
+  <text class="num" x="222" y="82">210a</text>
+
+  <!-- DEVICE B -->
+  <rect class="bx" x="230" y="390" width="150" height="90" rx="8"/>
+  <text class="tb" x="305" y="414" text-anchor="middle">DEVICE 210b</text>
+  <text class="ts" x="305" y="432" text-anchor="middle">user: caregiver U2</text>
+  <text class="ts" x="305" y="448" text-anchor="middle">household: H2</text>
+  <text class="ts" x="305" y="466" text-anchor="middle">credential C2</text>
+  <text class="num" x="222" y="402">210b</text>
+
+  <path class="ln" d="M180,115 L228,115" marker-end="url(#a)"/>
+  <text class="ts" x="204" y="108" text-anchor="middle">tap</text>
+  <path class="ln" d="M180,435 L228,435" marker-end="url(#a)"/>
+  <text class="ts" x="204" y="428" text-anchor="middle">tap</text>
+
+  <!-- RESOLVER -->
+  <rect class="bx" x="430" y="215" width="180" height="190" rx="8"/>
+  <text class="tb" x="520" y="240" text-anchor="middle">RESOLUTION</text>
+  <text class="tb" x="520" y="256" text-anchor="middle">SERVICE 220</text>
+  <path class="ln" d="M440,266 L600,266"/>
+  <text class="ts" x="444" y="284">1. authenticate user</text>
+  <text class="ts" x="444" y="301">2. resolve household</text>
+  <text class="ts" x="444" y="318">3. map class → product</text>
+  <text class="ts" x="444" y="335">4. enumerate recipients</text>
+  <text class="ts" x="444" y="352">5. compute per-recipient</text>
+  <text class="ts" x="456" y="367">dose + safety verdict</text>
+  <text class="ts" x="444" y="384">6. return decisions</text>
+  <text class="num" x="616" y="228">220</text>
+
+  <path class="ln" d="M380,140 L406,140 L406,265 L428,265" marker-end="url(#a)"/>
+  <text class="ts" x="398" y="200" text-anchor="end">identifier + C1</text>
+  <path class="ln" d="M380,435 L520,435 L520,407" marker-end="url(#a)"/>
+  <text class="ts" x="450" y="452" text-anchor="middle">identifier + C2</text>
+
+  <!-- RECORD STORE -->
+  <rect class="bx" x="430" y="80" width="180" height="90" rx="8"/>
+  <text class="tb" x="520" y="104" text-anchor="middle">HOUSEHOLD RECORD 230</text>
+  <text class="ts" x="520" y="122" text-anchor="middle">patients · attributes</text>
+  <text class="ts" x="520" y="138" text-anchor="middle">administration history</text>
+  <text class="ts" x="520" y="154" text-anchor="middle">across ALL caregivers</text>
+  <text class="num" x="616" y="92">230</text>
+  <path class="ln" d="M520,172 L520,213" marker-end="url(#a)"/>
+
+  <!-- OUTPUT A -->
+  <rect class="bx" x="668" y="70" width="212" height="170" rx="8"/>
+  <text class="tb" x="774" y="94" text-anchor="middle">OUTPUT 240a</text>
+  <path class="ln" d="M678,104 L870,104"/>
+  <text class="ts" x="678" y="124">Ava, 4 yr, 40 lb</text>
+  <text class="ts" x="678" y="141">→ 272 mg / 8.5 mL</text>
+  <text class="ts" x="678" y="158">→ OK TO GIVE NOW</text>
+  <text class="ts" x="678" y="182">Noah, 9 mo, 19 lb</text>
+  <text class="ts" x="678" y="199">→ 129 mg / 4.0 mL</text>
+  <text class="ts" x="678" y="216">→ TOO EARLY, 2 h 10 m</text>
+  <text class="ts" x="678" y="233">   (co-parent dosed 21:50)</text>
+  <text class="num" x="656" y="82" text-anchor="end">240a</text>
+  <path class="ln" d="M610,290 L640,290 L640,155 L666,155" marker-end="url(#a)"/>
+
+  <!-- OUTPUT B -->
+  <rect class="bx" x="668" y="380" width="212" height="170" rx="8"/>
+  <text class="tb" x="774" y="404" text-anchor="middle">OUTPUT 240b</text>
+  <path class="ln" d="M678,414 L870,414"/>
+  <text class="ts" x="678" y="434">Ren, 14 yr, 110 lb</text>
+  <text class="ts" x="678" y="451">→ 748 mg / 23.4 mL</text>
+  <text class="ts" x="678" y="468">→ OK TO GIVE NOW</text>
+  <text class="ts" x="678" y="492">Dana (adult caregiver)</text>
+  <text class="ts" x="678" y="509">→ 1000 mg fixed dose</text>
+  <text class="ts" x="678" y="526">→ 24 h LIMIT REACHED</text>
+  <text class="num" x="656" y="392" text-anchor="end">240b</text>
+  <path class="ln" d="M610,330 L640,330 L640,465 L666,465" marker-end="url(#a)"/>
+
+  <!-- key -->
+  <rect class="bx" x="30" y="520" width="600" height="76" rx="6"/>
+  <text class="tb" x="42" y="540">KEY PROPERTY</text>
+  <text class="ts" x="42" y="558">Tags 200a and 200b are indistinguishable and were never bound to any user, household, or patient.</text>
+  <text class="ts" x="42" y="574">All specificity in outputs 240a / 240b derives from the scanning credential, the household record 230,</text>
+  <text class="ts" x="42" y="590">and the server clock — resolved at scan time by service 220. Provisioning step: none.</text>
+</svg>
