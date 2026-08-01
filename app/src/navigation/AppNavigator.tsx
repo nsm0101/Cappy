@@ -23,6 +23,7 @@ import { ChildDetailScreen } from '@/screens/ChildDetailScreen';
 import { FamilyDashboardScreen } from '@/screens/FamilyDashboardScreen';
 import { ShareViaTapScreen } from '@/screens/ShareViaTapScreen';
 import { NotificationsScreen } from '@/screens/NotificationsScreen';
+import { DoseDetailScreen } from '@/screens/DoseDetailScreen';
 
 import type { AppStackParamList, TabParamList } from './types';
 
@@ -111,6 +112,32 @@ export const AppNavigator: React.FC = () => {
       {/* Card-presentation screens */}
       <Stack.Screen name="ChildDetail" component={ChildDetailScreen} />
       <Stack.Screen name="FamilyDashboard" component={FamilyDashboardScreen} />
+      {/* The destination when a caregiver taps a dose notification. Often the
+          first screen of a cold launch, so it carries a header with a Home
+          button — there may be nothing to go "back" to. */}
+      <Stack.Screen
+        name="DoseDetail"
+        component={DoseDetailScreen}
+        options={({ navigation }) => ({
+          headerShown: true,
+          title: 'Dose',
+          headerStyle: { backgroundColor: t.bgCard },
+          headerTintColor: t.fg1,
+          headerShadowVisible: false,
+          headerLeft: () => (
+            <Pressable
+              onPress={() => navigation.navigate('Tabs')}
+              accessibilityRole="button"
+              accessibilityLabel="Go to Home"
+              hitSlop={12}
+              style={{ paddingHorizontal: 4 }}
+            >
+              <Ionicons name="home-outline" size={22} color={t.brand} />
+            </Pressable>
+          ),
+        })}
+      />
+
       {/* Notifications lives outside the tab navigator, and this stack hides
           headers by default — without an explicit one there is no way back
           to Settings. */}

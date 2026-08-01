@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
 import {
   Badge,
@@ -27,6 +28,7 @@ import {
   formatTimeUntil,
   initialsFromName,
 } from '@/lib';
+import type { AppStackParamList } from '@/navigation/types';
 
 /**
  * ADR-0009 ticket 7 — the tap destination for a dose notification.
@@ -36,10 +38,10 @@ import {
  * `LastDoseBlock` (the safety-critical block from the scan sheet) and adds
  * nothing that mutates: no Log button, no amount field, no time picker.
  *
- * Route param shape: `{ doseId: string }`.
+ * Route param shape: `{ doseId: string }` (registered as `DoseDetail`).
  */
-type DoseDetailParams = { doseId?: string };
-type DoseDetailRoute = RouteProp<Record<string, DoseDetailParams | undefined>, string>;
+type Nav = NativeStackNavigationProp<AppStackParamList>;
+type Rt = RouteProp<AppStackParamList, 'DoseDetail'>;
 
 /**
  * TECH DEBT (flagged for the Orchestrator): this query belongs in
@@ -81,9 +83,9 @@ const NOT_AVAILABLE = "This dose isn't available. It may have been removed, or i
 export const DoseDetailScreen: React.FC = () => {
   const theme = useTheme();
   const t = theme.tokens;
-  const navigation = useNavigation();
+  const navigation = useNavigation<Nav>();
   const { user } = useAuth();
-  const doseId = useRoute<DoseDetailRoute>().params?.doseId;
+  const { doseId } = useRoute<Rt>().params;
 
   const [dose, setDose] = useState<DoseEventWithDetails | null>(null);
   const [status, setStatus] = useState<DoseStatusResult | null>(null);
@@ -173,6 +175,17 @@ export const DoseDetailScreen: React.FC = () => {
             >
               {errorText || NOT_AVAILABLE}
             </Text>
+            {errorText ? (
+              <View style={{ marginTop: theme.spacing.md }}>
+                <Button
+                  label="Try again"
+                  onPress={() => {
+                    setLoading(true);
+                    void load();
+                  }}
+                />
+              </View>
+            ) : null}
           </Card>
         </View>
       </SafeAreaView>
