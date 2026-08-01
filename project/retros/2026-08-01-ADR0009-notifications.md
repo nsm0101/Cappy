@@ -3,7 +3,7 @@
 **Date:** 2026-08-01
 **Agent role:** Orchestrator, with four specialists dispatched in parallel
 **Ticket:** ADR-0009 tickets 1–11 (`docs/adr/0009-cross-platform-caregiver-dose-notifications.md`)
-**Outcome:** Tickets 2, 5, 6, 7, 8, 9 Done · ticket 11 Done as a plan, not a run · tickets 1, 3, 4, 10 see below
+**Outcome:** Tickets 1–10 Done (code complete, unrun) · ticket 11 Done as a plan, not a run
 
 Per AGENTS.md §5 this covers the ADR as one unit rather than eleven files;
 each ticket is called out by number where its outcome differs.
@@ -76,8 +76,13 @@ each ticket is called out by number where its outcome differs.
   server logs, and Android's channel set to `lockscreenVisibility: PRIVATE`.
   **This needs a founder decision in one document or the other.** iOS has no
   equivalent mitigation applied.
-- **[high] Tickets 1, 3, 4, 10 (the backend tracer bullet) did not land in
-  this session** — see "Honest accounting" below.
+- **[high] Nothing in this ADR has ever run.** No migration was applied, no
+  function deployed, no notification delivered. The tracer bullet is code
+  complete and unproven.
+- **[medium] No family timezone.** `notify-dose` formats the dose time in UTC
+  because there is no per-family timezone anywhere in the schema. A caregiver
+  in UTC-5 reads "7:14 PM" for a 2:14 PM dose. The fix is a timezone column on
+  `families`, which is outside this ADR.
 - **[medium] Adult-recipient dose notifications** — see above.
 - **[medium] iOS Time Sensitive entitlement not added.** ADR decision 5 needs
   `com.apple.developer.usernotifications.time-sensitive`. Adding it can fail an
@@ -105,13 +110,24 @@ recommended-dose card and both Log buttons, `DoseDetailScreen` loads and
 renders read-only, and typecheck, lint and the full suite are green. The work
 is complete; the *reporting* is what was lost.
 
-The **backend agent (tickets 1, 3, 4, 10)** had produced no files at the time
-this entry was written. Those four tickets are the tracer bullet — the
-migration, the trigger, the `notify-dose` Edge Function and token hygiene.
-**Until they land, nothing actually notifies anyone.** Everything shipped so
-far is the client half: it will compile, run, show settings, and route a tap,
-but no push will ever arrive to route. That is the single most important thing
-to know about the current state of this branch.
+The **backend agent (tickets 1, 3, 4, 10) died on dispatch** — 116 bytes of
+output, no files, and no failure notification ever arrived. It was written by
+the orchestrator directly instead. Those four tickets are the tracer bullet:
+the migration, the trigger, the `notify-dose` Edge Function and token hygiene.
+
+**The Edge Function code is not covered by any tooling in this environment.**
+`tsconfig.json` excludes `supabase/functions` (it is Deno, not React Native),
+and Deno is not installed here, so `notify-dose`, `pushSender.ts` and the
+`accept-invite` change were verified by reading, not by running. The SQL is in
+the same position — there is no database in this session. The repo's existing
+Edge Functions have always been in this position, so this is the established
+convention rather than a new gap, but it means the first real test of the
+tracer bullet is `supabase db push` + `functions deploy` against `cappy-dev`.
+
+One bug was caught this way and fixed before it shipped: the migration
+originally read `create extension pg_net with schema extensions`, which would
+have failed outright — pg_net is not relocatable and its control file pins it
+to the `net` schema.
 
 ## Suggested change to my own system prompt
 
