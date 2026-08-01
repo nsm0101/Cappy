@@ -4,7 +4,7 @@
 // crypto polyfill required for the alpha.)
 import 'react-native-url-polyfill/auto';
 
-import { useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -18,6 +18,11 @@ import { ActiveFamilyProvider } from '@/family/ActiveFamilyContext';
 import { RootNavigator } from '@/navigation';
 import { useTagLinkObserver } from '@/navigation/useTagLinkObserver';
 import * as Notifications from 'expo-notifications';
+import {
+  ensureDoseActivityChannel,
+  startDeviceTokenSync,
+  startDoseNotificationRouting,
+} from '@/api/notifications';
 import { initMonitoring } from '@/lib/monitoring';
 
 SplashScreen.preventAutoHideAsync().catch(() => undefined);
@@ -42,6 +47,25 @@ export default function App() {
   // handled by NavigationContainer's linking config — this is a safe,
   // non-navigating diagnostic + extension point.
   useTagLinkObserver();
+
+  // ADR-0009 — caregiver dose notifications.
+  //  - the Android `dose-activity` channel only exists at runtime, so it is
+  //    (re)created on every launch, before any notification can arrive;
+  //  - `device_tokens` is refreshed now, on every foreground, and on sign-in
+  //    (tokens rotate — ADR-0009 decision 4);
+  //  - a tapped dose notification is decoded here and handed to whatever
+  //    registered a navigator via `setDoseNotificationNavigator`.
+  // All three fail soft: none of them can throw, and none of them fires an OS
+  // permission prompt — the priming sheet owns that.
+  useEffect(() => {
+    void ensureDoseActivityChannel();
+    const stopTokenSync = startDeviceTokenSync();
+    const stopDoseRouting = startDoseNotificationRouting();
+    return () => {
+      stopTokenSync();
+      stopDoseRouting();
+    };
+  }, []);
 
   // CAPPY_FONT_MAP (theme/fonts.ts) is the single source of truth for these
   // family names — they must match the `fonts.*` strings in theme/tokens.ts.

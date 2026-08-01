@@ -52,7 +52,8 @@
       "versionCode": 1,
       "permissions": [
         "android.permission.NFC",
-        "android.permission.VIBRATE"
+        "android.permission.VIBRATE",
+        "android.permission.POST_NOTIFICATIONS"
       ],
       "intentFilters": [
         {

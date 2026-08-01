@@ -8,19 +8,23 @@ import {
   MemberAvatar,
   Button,
   Card,
-  DosePill,
   DoseSafetyText,
   Field,
+  LastDoseBlock,
+  describeLastDose,
+  childDoseStatusPill,
+  DOSE_STATUS_LABEL,
   Segmented,
   SuccessOverlay,
 } from '@/components';
-import type { ResolvedTag } from '@/api';
+import type { DoseEventWithDetails, DoseStatus, ResolvedTag } from '@/api';
 import {
   doses as dosesApi,
   children as childrenApi,
   allergies as allergiesApi,
   brands as brandsApi,
 } from '@/api';
+import { useAuth } from '@/auth/AuthContext';
 import { useTheme } from '@/theme';
 import {
   ageMonthsFromDob,
@@ -30,6 +34,7 @@ import {
   isAllergicToMedication,
   brandFor,
   formatClockTime,
+  formatDoseAmount,
   formatRelativeTime,
   formatTimeUntil,
   initialsFromName,
@@ -64,15 +69,6 @@ const recipientName = (r: Recipient): string =>
 const recipientAvatarUrl = (r: Recipient): string | null =>
   r.kind === 'child' ? r.child.avatar_url : r.caregiver.avatar_url;
 
-const CAREGIVER_STATUS_LABEL: Record<ResolvedCaregiver['status'], string> = {
-  due: 'OK to give now',
-  early: 'Too early',
-  recent: 'Given recently',
-  overdue: 'Window passed — check before giving',
-  max_reached: '24-hour limit reached',
-  unknown: 'Status unavailable',
-};
-
 const round1 = (n: number): number => Math.round(n * 10) / 10;
 
 const medKind = (genericName: string): MedicationKind =>
@@ -82,6 +78,7 @@ export const DoseSheetScreen: React.FC = () => {
   const theme = useTheme();
   const t = theme.tokens;
   const navigation = useNavigation<Nav>();
+  const { user } = useAuth();
   const { resolved } = useRoute<Rt>().params;
   const med = resolved.medication;
   const kind = medKind(med.generic_name);
@@ -125,6 +122,27 @@ export const DoseSheetScreen: React.FC = () => {
   useEffect(() => {
     void getReminderPref().then(setReminderEnabled).catch(() => undefined);
   }, []);
+
+  // ADR-0009 ticket 8: "who gave it" is not in the tap-resolve payload —
+  // `compute_dose_status` returns the clock (last_dose_at / next_safe_at /
+  // 24h count) but not the row. One family-wide read gives us the amount and
+  // the logger's display name for every recipient on this sheet, so switching
+  // recipients costs no extra round trip. Best-effort: if the matching row
+  // isn't in the window (an old dose in a busy family) the block still renders
+  // from the server's authoritative timestamp, just without amount/name.
+  const [recentDoses, setRecentDoses] = useState<DoseEventWithDetails[]>([]);
+  useEffect(() => {
+    let mounted = true;
+    void dosesApi
+      .listDosesWithDetailsForFamily(resolved.family.id, { limit: 50 })
+      .then((rows) => {
+        if (mounted) setRecentDoses(rows);
+      })
+      .catch(() => undefined);
+    return () => {
+      mounted = false;
+    };
+  }, [resolved.family.id]);
 
   // Family brand preference for this medication (drives the accent color).
   useEffect(() => {
@@ -211,6 +229,120 @@ export const DoseSheetScreen: React.FC = () => {
     medDose && med.concentration_mg_per_ml > 0
       ? round1(medDose.recommendedMg / med.concentration_mg_per_ml)
       : null;
+
+  // ── ADR-0009 ticket 8: the last-dose block ────────────────────────────
+  // Everything below feeds the block that now sits above the suggested dose
+  // and above the Log button. The server owns the clock; `recentDoses` only
+  // supplies the amount and the name of whoever logged it.
+
+  const recipientStatus: DoseStatus | null =
+    selectedChild?.status ?? selectedCaregiver?.status ?? null;
+  const lastDoseAtISO = selectedChild?.last_dose_at ?? selectedCaregiver?.last_dose_at ?? null;
+  const dosesInLast24h = selectedChild?.doses_in_last_24h ?? selectedCaregiver?.doses_in_last_24h ?? 0;
+
+  /**
+   * The dose row behind `lastDoseAtISO`, when we have it.
+   *
+   * Guarded on the timestamp: we only attach an amount and a name to the
+   * block when the row we found is provably the same dose the server's status
+   * calculation used. A near-miss would put the wrong amount or the wrong
+   * caregiver in front of someone holding a bottle — showing less is correct.
+   */
+  const lastDoseRow = useMemo<DoseEventWithDetails | null>(() => {
+    if (!selectedRecipient || !lastDoseAtISO) return null;
+    const match = recentDoses.find(
+      (row) =>
+        row.status === 'active' &&
+        row.medication_id === med.id &&
+        (selectedRecipient.kind === 'child'
+          ? row.child_id === selectedRecipient.child.id
+          : row.caregiver_user_id === selectedRecipient.caregiver.id),
+    );
+    if (!match) return null;
+    const drift = Math.abs(
+      new Date(match.given_at).getTime() - new Date(lastDoseAtISO).getTime(),
+    );
+    return drift < 1000 ? match : null;
+  }, [recentDoses, selectedRecipient, lastDoseAtISO, med.id]);
+
+  const lastDoseAmountLabel = lastDoseRow
+    ? formatDoseAmount({
+        formulation: lastDoseRow.medication.formulation,
+        amountMg: lastDoseRow.amount_mg,
+        amountVolumeMl: lastDoseRow.amount_volume_ml,
+        unitCount: lastDoseRow.unit_count,
+      }).primary
+    : null;
+
+  const lastDoseLoggedByLabel = lastDoseRow
+    ? lastDoseRow.logged_by === user?.id
+      ? 'you'
+      : lastDoseRow.profiles?.display_name ?? null
+    : null;
+
+  const recipientLabel = selectedRecipient ? recipientName(selectedRecipient) : '';
+
+  /** Nothing-on-record is a normal state, not a failure. Read it that way. */
+  const lastDoseEmptyText = selectedRecipient
+    ? `No one has logged ${medDisplayName} for ${recipientLabel} yet. This would be the first.`
+    : undefined;
+
+  const lastDosePill = selectedChild
+    ? childDoseStatusPill(selectedChild.status, Boolean(selectedChild.last_dose_at))
+    : selectedCaregiver
+      ? { label: DOSE_STATUS_LABEL[selectedCaregiver.status], status: selectedCaregiver.status }
+      : null;
+
+  /** The dose-safety line — ADR-0009 ordering item 3, directly under the block. */
+  const lastDoseSafetyText = useMemo(() => {
+    if (selectedCaregiver) {
+      return "Cappy doesn't calculate an adult dose — enter the amount from the product label.";
+    }
+    if (!selectedChild) return null;
+    const nextSafeLine = selectedChild.next_safe_at
+      ? ` The next dose is safe ${formatTimeUntil(selectedChild.next_safe_at)} (at ${formatClockTime(
+          selectedChild.next_safe_at,
+        )}).`
+      : '';
+    if (selectedChild.status === 'max_reached') {
+      return `The 24-hour maximum for ${med.generic_name} has been reached.${nextSafeLine}`;
+    }
+    if (selectedChild.status === 'unknown') {
+      return "Couldn't check the last dose right now — Cappy will re-check when you log.";
+    }
+    if (selectedChild.status === 'due' || selectedChild.status === 'overdue') {
+      if (!selectedChild.last_dose_at) {
+        return 'No prior dose logged. Always confirm against the product label.';
+      }
+      return medDose
+        ? `Minimum ${medDose.intervalHours}-hour interval met. Always confirm against the product label.`
+        : 'Always confirm against the product label.';
+    }
+    return selectedChild.next_safe_at
+      ? `Last dose too recent.${nextSafeLine}`
+      : 'Last dose too recent.';
+  }, [selectedChild, selectedCaregiver, medDose, med.generic_name]);
+
+  const lastDoseFootnotes = recipientStatus
+    ? [`${dosesInLast24h} of ${med.max_doses_per_24h} doses in the last 24 hours.`]
+    : [];
+
+  /** Spoken summary reused as the Log button's accessibility hint. */
+  const lastDoseSummary = describeLastDose({
+    givenAt: lastDoseAtISO,
+    amountLabel: lastDoseAmountLabel,
+    loggedByLabel: lastDoseLoggedByLabel,
+    emptyText: lastDoseEmptyText,
+  });
+  const logAccessibilityHint = `Last dose: ${lastDoseSummary}`;
+
+  // The two refusal states answer "don't give this at all"; a green
+  // "OK to give now" pill above them would contradict the card. They carry no
+  // Log action either, so the ordering mandate doesn't apply.
+  const childRefusal = selectedChild != null && (ageGate === 'emergency' || allergic);
+  const showLastDoseBlock =
+    selectedCaregiver != null ||
+    (selectedChild != null && !weightLoading && !allergyLoading && !childRefusal);
 
   const manualAmountValue = parseFloat(manualAmountMg);
   const manualAmountValid = Number.isFinite(manualAmountValue) && manualAmountValue > 0;
@@ -458,6 +590,55 @@ export const DoseSheetScreen: React.FC = () => {
         </View>
       )}
 
+      {/* ADR-0009 ticket 8 — required scan-sheet ordering.
+          1. Child identity (avatar + name)
+          2. Last dose: amount, who logged it, how long ago — pill status
+          3. The dose-safety line
+          4. …then the suggested dose and the Log button.
+          The last-dose block must stay above the primary action. If a
+          caregiver can tap Log without having read it, the design has
+          failed regardless of how good the notifications are. */}
+      {selectedRecipient ? (
+        <View
+          style={[styles.identityRow, { marginBottom: theme.spacing.md }]}
+          accessible
+          accessibilityRole="header"
+          accessibilityLabel={`Dose for ${recipientLabel}`}
+        >
+          <MemberAvatar
+            avatarPath={recipientAvatarUrl(selectedRecipient)}
+            initials={initialsFromName(recipientLabel)}
+            tint={theme.palette.blue[500]}
+            size="lg"
+          />
+          <Text
+            style={{
+              color: t.fg1,
+              fontFamily: theme.fonts.display,
+              fontSize: theme.fontSize.xl,
+              fontWeight: '800',
+              flexShrink: 1,
+            }}
+          >
+            {recipientLabel}
+          </Text>
+        </View>
+      ) : null}
+
+      {showLastDoseBlock ? (
+        <LastDoseBlock
+          status={lastDosePill?.status}
+          statusLabel={lastDosePill?.label}
+          givenAt={lastDoseAtISO}
+          amountLabel={lastDoseAmountLabel}
+          loggedByLabel={lastDoseLoggedByLabel}
+          emptyText={lastDoseEmptyText}
+          safetyText={lastDoseSafetyText}
+          footnotes={lastDoseFootnotes}
+          style={{ marginBottom: theme.spacing.lg }}
+        />
+      ) : null}
+
       {!selectedRecipient ? (
         <Card inset style={{ alignItems: 'center', paddingVertical: 28 }}>
           <Ionicons name="people-outline" size={32} color={t.fgMuted} />
@@ -467,33 +648,9 @@ export const DoseSheetScreen: React.FC = () => {
         </Card>
       ) : selectedCaregiver ? (
         <>
-          <Card inset style={{ alignItems: 'center', borderTopWidth: 3, borderTopColor: accent }}>
-            <Text
-              style={{
-                color: t.fg3,
-                fontSize: theme.fontSize.xs,
-                letterSpacing: 1,
-                textTransform: 'uppercase',
-                fontWeight: '600',
-              }}
-            >
-              Current status
-            </Text>
-            <View style={{ marginTop: 8 }}>
-              <DosePill
-                label={CAREGIVER_STATUS_LABEL[selectedCaregiver.status]}
-                status={selectedCaregiver.status}
-              />
-            </View>
-            <DoseSafetyText style={{ textAlign: 'center', marginTop: theme.spacing.sm }}>
-              {selectedCaregiver.last_dose_at
-                ? `Last dose ${formatRelativeTime(selectedCaregiver.last_dose_at)}.`
-                : 'No prior dose logged.'}{' '}
-              Cappy doesn&apos;t calculate an adult dose — enter the amount from the product label.
-            </DoseSafetyText>
-          </Card>
-
-          <View style={{ marginTop: theme.spacing.lg }}>
+          {/* Status, last dose and the safety line all render in the
+              LastDoseBlock above — this branch is the entry form only. */}
+          <View>
             <Field
               label="Amount taken (mg)"
               placeholder="e.g. 500"
@@ -537,6 +694,7 @@ export const DoseSheetScreen: React.FC = () => {
               onPress={handleLog}
               loading={logging}
               disabled={logging || !manualAmountValid}
+              accessibilityHint={logAccessibilityHint}
               block
             />
             <Button label="Cancel" variant="ghost" onPress={() => navigation.goBack()} block />
@@ -586,6 +744,7 @@ export const DoseSheetScreen: React.FC = () => {
               <Button
                 label="Log anyway"
                 variant="ghost"
+                accessibilityHint={logAccessibilityHint}
                 onPress={() =>
                   Alert.alert(
                     'Exceed the 24-hour maximum?',
@@ -657,36 +816,9 @@ export const DoseSheetScreen: React.FC = () => {
               {medDose.displayMg} mg · {medDose.frequencyLabel}
             </Text>
 
-            {/* Safe-to-give banner */}
-            <DosePill
-              label={
-                safety?.safe
-                  ? selectedChild.last_dose_at
-                    ? 'OK to give now'
-                    : 'No prior dose'
-                  : selectedChild.status === 'unknown'
-                    ? 'Status unavailable'
-                    : 'Too early'
-              }
-              status={safety?.safe ? 'due' : selectedChild.status === 'unknown' ? 'unknown' : 'early'}
-            />
-            <View style={{ height: theme.spacing.sm }} />
-            <DoseSafetyText style={{ textAlign: 'center' }}>
-              {safety?.safe
-                ? selectedChild.last_dose_at
-                  ? `Minimum ${medDose.intervalHours}-hour interval met. Always confirm against the product label.`
-                  : 'No prior dose logged. Always confirm against the product label.'
-                : safety?.nextSafeAt
-                  ? `Last dose too recent. Next dose is safe ${formatTimeUntil(
-                      safety.nextSafeAt.toISOString(),
-                    )} (at ${formatClockTime(safety.nextSafeAt.toISOString())}).`
-                  : selectedChild.status === 'unknown'
-                    ? "Couldn't check the last dose right now — Cappy will re-check when you log."
-                    : ''}
-            </DoseSafetyText>
-            <DoseSafetyText style={{ textAlign: 'center', marginTop: 6 }}>
-              {`${selectedChild.doses_in_last_24h} of ${med.max_doses_per_24h} doses in the last 24 hours.`}
-            </DoseSafetyText>
+            {/* The status pill, the dose-safety line and the 24-hour count
+                now lead the sheet in the LastDoseBlock above (ADR-0009). What
+                stays here is what qualifies *this* recommendation. */}
             {medDose.capped ? (
               <DoseSafetyText style={{ textAlign: 'center', marginTop: 6 }}>
                 {dosing?.spacingReminder}
@@ -734,6 +866,7 @@ export const DoseSheetScreen: React.FC = () => {
               onPress={handleLog}
               loading={logging}
               disabled={logging}
+              accessibilityHint={logAccessibilityHint}
               block
             />
             <Button label="Cancel" variant="ghost" onPress={() => navigation.goBack()} block />
@@ -781,5 +914,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'flex-start',
     justifyContent: 'space-between',
+  },
+  identityRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
   },
 });

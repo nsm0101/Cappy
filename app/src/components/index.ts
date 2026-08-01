@@ -19,6 +19,14 @@ export type { DosePillProps, DoseStatus } from './DosePill';
 export { DoseSafetyText } from './DoseSafetyText';
 export type { DoseSafetyTextProps } from './DoseSafetyText';
 
+export {
+  LastDoseBlock,
+  describeLastDose,
+  childDoseStatusPill,
+  DOSE_STATUS_LABEL,
+} from './LastDoseBlock';
+export type { LastDoseBlockProps } from './LastDoseBlock';
+
 export { Field } from './Field';
 export type { FieldProps } from './Field';
 
@@ -57,3 +65,9 @@ export type { OnboardingStepsProps } from './OnboardingSteps';
 
 export { SuccessOverlay } from './SuccessOverlay';
 export type { SuccessOverlayProps, SuccessOverlayReminder } from './SuccessOverlay';
+
+export { Switch } from './Switch';
+export type { SwitchProps } from './Switch';
+
+export { NotificationPrimingSheet } from './NotificationPrimingSheet';
+export type { NotificationPrimingSheetProps } from './NotificationPrimingSheet';

@@ -317,6 +317,14 @@ export const SettingsScreen: React.FC = () => {
             accessibilityLabel={`Theme configuration. Current setting is ${getThemeLabel(mode)}.`}
             accessibilityHint="Double tap to change the application theme."
           />
+          <RowItem
+            title="Notifications"
+            subtitle="Choose which children you hear about"
+            leftSlot={<Ionicons name="notifications-outline" size={20} color={t.brand} />}
+            onPress={() => navigation.navigate('Notifications')}
+            accessibilityLabel="Notification settings"
+            accessibilityHint="Choose which children you are told about when another caregiver logs a dose."
+          />
         </View>
 
         {/* Family & caregivers */}

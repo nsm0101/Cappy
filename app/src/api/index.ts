@@ -11,6 +11,7 @@ export * as avatars from './avatars';
 export * as allergies from './allergies';
 export * as brands from './brands';
 export * as profiles from './profiles';
+export * as notifications from './notifications';
 
 export type { Database } from './database.types';
 export type { ChildAllergy } from './allergies';
@@ -19,4 +20,10 @@ export type { Child } from './children';
 export type { DoseEvent, DoseStatus, DoseStatusResult, LogDoseInput, DoseEventWithDetails } from './doses';
 export type { ResolvedTag } from './nfc';
 export type { CaregiverProfile } from './profiles';
+export type {
+  ChildSubscription,
+  DoseNotificationTarget,
+  NotificationPermission,
+  PushPlatform,
+} from './notifications';
 
