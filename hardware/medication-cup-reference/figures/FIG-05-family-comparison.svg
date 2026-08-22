@@ -1,0 +1,86 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1360 860" width="1360" height="860" role="img">
+  <style>
+.ol   { fill:none; stroke:#14181d;   stroke-width:1.6;  stroke-linejoin:round; stroke-linecap:round; }
+.ol2  { fill:none; stroke:#14181d;   stroke-width:1.0;  stroke-linejoin:round; stroke-linecap:round; }
+.hid  { fill:none; stroke:#9aa4ae; stroke-width:1.0;  stroke-dasharray:6 4; }
+.cl   { fill:none; stroke:#4a5560;   stroke-width:0.8;  stroke-dasharray:14 4 3 4; }
+.dim  { fill:none; stroke:#4a5560;   stroke-width:0.9; }
+.ext  { fill:none; stroke:#4a5560;   stroke-width:0.7; }
+.acc  { fill:none; stroke:#b4331f;stroke-width:1.8; }
+.accf { fill:#b4331f; fill-opacity:0.13; stroke:#b4331f; stroke-width:1.4; }
+.good { fill:none; stroke:#1d6b4a;  stroke-width:1.8; }
+.goodf{ fill:#1d6b4a; fill-opacity:0.12; stroke:#1d6b4a; stroke-width:1.4; }
+.t    { font-family:"Helvetica Neue",Helvetica,Arial,sans-serif; font-size:13px; fill:#14181d; }
+.td   { font-family:"Helvetica Neue",Helvetica,Arial,sans-serif; font-size:13px; fill:#4a5560; }
+.ta   { font-family:"Helvetica Neue",Helvetica,Arial,sans-serif; font-size:13px; fill:#b4331f; font-weight:600; }
+.tg   { font-family:"Helvetica Neue",Helvetica,Arial,sans-serif; font-size:13px; fill:#1d6b4a; font-weight:600; }
+.tt   { font-family:"Helvetica Neue",Helvetica,Arial,sans-serif; font-size:15px; fill:#14181d; font-weight:600;
+         letter-spacing:0.04em; }
+.ts   { font-family:"Helvetica Neue",Helvetica,Arial,sans-serif; font-size:11.5px; fill:#4a5560; }
+.arrow{ fill:#4a5560; }
+.arrowa{ fill:#b4331f; }
+</style>
+  <rect width="1360" height="860" fill="#ffffff"/>
+  <path d="M 107.92,430.00 L 71.72,98.00 L 83.96,98.00 L 114.28,412.72 L 365.72,412.72 L 396.04,98.00 L 408.28,98.00 L 372.08,430.00 Z" class="ol"/>
+  <line x1="240.00" y1="84.00" x2="240.00" y2="448.00" class="cl"/>
+  <path d="M 117.9,430.0 L 117.9,420.4 L 362.1,420.4 L 362.1,430.0" class="acc"/>
+  <text x="240.00" y="484.00" text-anchor="middle" class="tt">22-0263</text>
+  <text x="240.00" y="506.00" text-anchor="middle" class="ts">30 mL Embossed</text>
+  <line x1="124.00" y1="522.00" x2="356.00" y2="522.00" class="ext"/>
+  <text x="124.00" y="544.00" text-anchor="start" class="ts">rim ⌀</text>
+  <text x="356.00" y="544.00" text-anchor="end" class="td">42.07</text>
+  <text x="124.00" y="566.00" text-anchor="start" class="ts">base ⌀</text>
+  <text x="356.00" y="566.00" text-anchor="end" class="td">33.02</text>
+  <text x="124.00" y="588.00" text-anchor="start" class="ts">height</text>
+  <text x="356.00" y="588.00" text-anchor="end" class="td">41.50</text>
+  <text x="124.00" y="610.00" text-anchor="start" class="ts">recess ⌀</text>
+  <text x="356.00" y="610.00" text-anchor="end" class="td">30.53</text>
+  <text x="124.00" y="632.00" text-anchor="start" class="ts">recess depth</text>
+  <text x="356.00" y="632.00" text-anchor="end" class="td">1.20</text>
+  <text x="240.00" y="674.00" text-anchor="middle" class="ts">manufacturer drawing</text>
+  <path d="M 531.24,430.00 L 502.20,139.44 L 509.20,139.44 L 535.72,417.20 L 824.28,417.20 L 850.80,139.44 L 857.80,139.44 L 828.76,430.00 Z" class="hid"/>
+  <line x1="680.00" y1="125.44" x2="680.00" y2="448.00" class="cl"/>
+  <text x="680.00" y="484.00" text-anchor="middle" class="tt">22-1211</text>
+  <text x="680.00" y="506.00" text-anchor="middle" class="ts">30 mL AccuCup Printed</text>
+  <line x1="564.00" y1="522.00" x2="796.00" y2="522.00" class="ext"/>
+  <text x="564.00" y="544.00" text-anchor="start" class="ts">rim ⌀</text>
+  <text x="796.00" y="544.00" text-anchor="end" class="td">44.45</text>
+  <text x="564.00" y="566.00" text-anchor="start" class="ts">base ⌀</text>
+  <text x="796.00" y="566.00" text-anchor="end" class="td">37.19</text>
+  <text x="564.00" y="588.00" text-anchor="start" class="ts">height</text>
+  <text x="796.00" y="588.00" text-anchor="end" class="td">36.32</text>
+  <text x="564.00" y="610.00" text-anchor="start" class="ts">recess ⌀</text>
+  <text x="796.00" y="610.00" text-anchor="end" class="ta">UNKNOWN</text>
+  <text x="564.00" y="632.00" text-anchor="start" class="ts">recess depth</text>
+  <text x="796.00" y="632.00" text-anchor="end" class="ta">UNKNOWN</text>
+  <text x="680.00" y="674.00" text-anchor="middle" class="ts">distributor catalogue</text>
+  <text x="680.00" y="694.00" text-anchor="middle" class="ta">dashed — nothing verified</text>
+  <path d="M 1005.68,430.00 L 929.48,150.56 L 937.48,150.56 L 1012.08,417.20 L 1227.92,417.20 L 1302.52,150.56 L 1310.52,150.56 L 1234.32,430.00 Z" class="hid"/>
+  <line x1="1120.00" y1="136.56" x2="1120.00" y2="448.00" class="cl"/>
+  <text x="1120.00" y="484.00" text-anchor="middle" class="tt">family envelope</text>
+  <text x="1120.00" y="506.00" text-anchor="middle" class="ts">Institutional 1 oz graduated medicine cup</text>
+  <line x1="1004.00" y1="522.00" x2="1236.00" y2="522.00" class="ext"/>
+  <text x="1004.00" y="544.00" text-anchor="start" class="ts">rim ⌀</text>
+  <text x="1236.00" y="544.00" text-anchor="end" class="td">47.63</text>
+  <text x="1004.00" y="566.00" text-anchor="start" class="ts">base ⌀</text>
+  <text x="1236.00" y="566.00" text-anchor="end" class="td">28.58</text>
+  <text x="1004.00" y="588.00" text-anchor="start" class="ts">height</text>
+  <text x="1236.00" y="588.00" text-anchor="end" class="td">34.93</text>
+  <text x="1004.00" y="610.00" text-anchor="start" class="ts">recess ⌀</text>
+  <text x="1236.00" y="610.00" text-anchor="end" class="ta">UNKNOWN</text>
+  <text x="1004.00" y="632.00" text-anchor="start" class="ts">recess depth</text>
+  <text x="1236.00" y="632.00" text-anchor="end" class="ta">UNKNOWN</text>
+  <text x="1120.00" y="674.00" text-anchor="middle" class="ts">distributor catalogue</text>
+  <text x="1120.00" y="694.00" text-anchor="middle" class="ta">dashed — nothing verified</text>
+  <text x="680.00" y="46.00" text-anchor="middle" class="tt">three cups that all get called a medication cup</text>
+  <text x="680.00" y="70.00" text-anchor="middle" class="ts">drawn to one scale — the base diameters differ by 8.6 mm across the set</text>
+  <rect x="980" y="750" width="360" height="80" fill="none" stroke="#4a5560" stroke-width="1"/>
+  <line x1="980.00" y1="770.00" x2="1340.00" y2="770.00" class="ext"/>
+  <text x="990.00" y="764.00" text-anchor="start" class="tt">FIG. 5  THREE CUPS, ONE SCALE</text>
+  <text x="990.00" y="784.00" text-anchor="start" class="ts">scale</text>
+  <text x="1330.00" y="784.00" text-anchor="end" class="ts">≈2.1:1</text>
+  <text x="990.00" y="804.00" text-anchor="start" class="ts">22-0263 / 22-1211</text>
+  <text x="1330.00" y="804.00" text-anchor="end" class="ts">manufacturer drawings</text>
+  <text x="990.00" y="824.00" text-anchor="start" class="ts">institutional 1 oz</text>
+  <text x="1330.00" y="824.00" text-anchor="end" class="ts">catalogue specs only</text>
+</svg>

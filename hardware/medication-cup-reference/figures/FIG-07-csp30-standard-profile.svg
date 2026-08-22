@@ -1,0 +1,94 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1300 1000" width="1300" height="1000" role="img">
+  <style>
+.ol   { fill:none; stroke:#14181d;   stroke-width:1.6;  stroke-linejoin:round; stroke-linecap:round; }
+.ol2  { fill:none; stroke:#14181d;   stroke-width:1.0;  stroke-linejoin:round; stroke-linecap:round; }
+.hid  { fill:none; stroke:#9aa4ae; stroke-width:1.0;  stroke-dasharray:6 4; }
+.cl   { fill:none; stroke:#4a5560;   stroke-width:0.8;  stroke-dasharray:14 4 3 4; }
+.dim  { fill:none; stroke:#4a5560;   stroke-width:0.9; }
+.ext  { fill:none; stroke:#4a5560;   stroke-width:0.7; }
+.acc  { fill:none; stroke:#b4331f;stroke-width:1.8; }
+.accf { fill:#b4331f; fill-opacity:0.13; stroke:#b4331f; stroke-width:1.4; }
+.good { fill:none; stroke:#1d6b4a;  stroke-width:1.8; }
+.goodf{ fill:#1d6b4a; fill-opacity:0.12; stroke:#1d6b4a; stroke-width:1.4; }
+.t    { font-family:"Helvetica Neue",Helvetica,Arial,sans-serif; font-size:13px; fill:#14181d; }
+.td   { font-family:"Helvetica Neue",Helvetica,Arial,sans-serif; font-size:13px; fill:#4a5560; }
+.ta   { font-family:"Helvetica Neue",Helvetica,Arial,sans-serif; font-size:13px; fill:#b4331f; font-weight:600; }
+.tg   { font-family:"Helvetica Neue",Helvetica,Arial,sans-serif; font-size:13px; fill:#1d6b4a; font-weight:600; }
+.tt   { font-family:"Helvetica Neue",Helvetica,Arial,sans-serif; font-size:15px; fill:#14181d; font-weight:600;
+         letter-spacing:0.04em; }
+.ts   { font-family:"Helvetica Neue",Helvetica,Arial,sans-serif; font-size:11.5px; fill:#4a5560; }
+.arrow{ fill:#4a5560; }
+.arrowa{ fill:#b4331f; }
+</style>
+  <rect width="1300" height="1000" fill="#ffffff"/>
+  <defs><pattern id="h1" patternUnits="userSpaceOnUse" width="7" height="7" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="7" stroke="#4a5560" stroke-width="0.8"/></pattern></defs>
+  <path d="M 336.50,330.00 L 327.80,250.20 L 349.13,250.20 L 351.70,273.76 L 948.30,273.76 L 950.87,250.20 L 972.20,250.20 L 963.50,330.00 L 939.75,330.00 L 939.75,292.00 L 360.25,292.00 L 360.25,330.00 Z" fill="url(#h1)" stroke="#14181d" stroke-width="1.4" stroke-linejoin="round"/>
+  <line x1="650.00" y1="226.20" x2="650.00" y2="396.00" class="cl"/>
+  <path d="M 353.1,330.0 L 353.1,286.3 L 946.9,286.3 L 946.9,330.0" class="hid"/>
+  <text x="363.12" y="282.30" text-anchor="start" class="ts">largest in band</text>
+  <path d="M 367.4,330.0 L 367.4,297.7 L 932.6,297.7 L 932.6,330.0" class="hid"/>
+  <text x="377.38" y="315.70" text-anchor="start" class="ts">smallest in band</text>
+  <line x1="360.25" y1="330.00" x2="360.25" y2="444.00" class="ext"/>
+  <line x1="939.75" y1="330.00" x2="939.75" y2="444.00" class="ext"/>
+  <line x1="334.25" y1="448.00" x2="965.75" y2="448.00" class="acc"/>
+  <polygon points="360.25,448.00 368.25,450.40 368.25,445.60" class="arrowa"/>
+  <polygon points="939.75,448.00 931.75,445.60 931.75,450.40" class="arrowa"/>
+  <text x="650.00" y="468.00" text-anchor="middle" class="ta">⌀30.50  -0.75 / +0.75   RECESS</text>
+  <text x="650.00" y="488.00" text-anchor="middle" class="ta">29.75 to 31.25</text>
+  <line x1="336.50" y1="330.00" x2="336.50" y2="524.00" class="ext"/>
+  <line x1="963.50" y1="330.00" x2="963.50" y2="524.00" class="ext"/>
+  <line x1="310.50" y1="528.00" x2="989.50" y2="528.00" class="dim"/>
+  <polygon points="336.50,528.00 344.50,530.40 344.50,525.60" class="arrow"/>
+  <polygon points="963.50,528.00 955.50,525.60 955.50,530.40" class="arrow"/>
+  <text x="650.00" y="548.00" text-anchor="middle" class="td">⌀33.00  ±0.75   base outside</text>
+  <line x1="963.50" y1="292.00" x2="1039.50" y2="292.00" class="ext"/>
+  <line x1="963.50" y1="330.00" x2="1039.50" y2="330.00" class="ext"/>
+  <line x1="1043.50" y1="266.00" x2="1043.50" y2="356.00" class="acc"/>
+  <polygon points="1043.50,292.00 1041.10,300.00 1045.90,300.00" class="arrowa"/>
+  <polygon points="1043.50,330.00 1045.90,322.00 1041.10,322.00" class="arrowa"/>
+  <text x="1050.50" y="315.00" text-anchor="start" class="ta">2.00</text>
+  <text x="1089.50" y="296.00" text-anchor="start" class="ta">-0.30 / +0.30</text>
+  <text x="1089.50" y="314.00" text-anchor="start" class="ts">DEPTH  1.70 to 2.30</text>
+  <line x1="351.70" y1="273.76" x2="260.50" y2="273.76" class="ext"/>
+  <line x1="351.70" y1="292.00" x2="260.50" y2="292.00" class="ext"/>
+  <line x1="256.50" y1="247.76" x2="256.50" y2="318.00" class="dim"/>
+  <polygon points="256.50,273.76 254.10,281.76 258.90,281.76" class="arrow"/>
+  <polygon points="256.50,292.00 258.90,284.00 254.10,284.00" class="arrow"/>
+  <text x="249.50" y="286.88" text-anchor="end" class="td">0.96</text>
+  <text x="249.50" y="304.88" text-anchor="end" class="ts">base panel</text>
+  <line x1="344.81" y1="320.50" x2="270.50" y2="374.00" class="ext"/>
+  <line x1="270.50" y1="374.00" x2="256.50" y2="374.00" class="ext"/>
+  <circle cx="344.81" cy="320.50" r="2.2" fill="#4a5560"/>
+  <text x="252.50" y="378.00" text-anchor="end" class="td">foot ring</text>
+  <text x="650.00" y="46.00" text-anchor="middle" class="tt">CSP-30  ·  the profile Cappy designs to</text>
+  <text x="650.00" y="70.00" text-anchor="middle" class="ts">a nominal and a band, owned by us — not any supplier's part number</text>
+  <line x1="80.00" y1="600.00" x2="1220.00" y2="600.00" class="ext"/>
+  <text x="80.00" y="632.00" text-anchor="start" class="tt">the three banded dimensions</text>
+  <text x="80.00" y="668.00" text-anchor="start" class="ts">recess ⌀</text>
+  <text x="80.00" y="688.00" text-anchor="start" class="ta">30.50 -0.75/+0.75 (29.75–31.25)</text>
+  <text x="80.00" y="714.00" text-anchor="start" class="ts">recess depth</text>
+  <text x="80.00" y="734.00" text-anchor="start" class="ta">2.00 -0.30/+0.30 (1.70–2.30)</text>
+  <text x="80.00" y="760.00" text-anchor="start" class="ts">base outside ⌀</text>
+  <text x="80.00" y="780.00" text-anchor="start" class="td">33.00 -0.75/+0.75 (32.25–33.75)</text>
+  <text x="560.00" y="632.00" text-anchor="start" class="tt">how to read it</text>
+  <text x="560.00" y="664.00" text-anchor="start" class="ts">The dashed outlines are the two limit recesses the puck has to work in —</text>
+  <text x="560.00" y="685.00" text-anchor="start" class="ts">the smallest it must still enter, and the largest it must still grip.</text>
+  <text x="560.00" y="706.00" text-anchor="start" class="ts"></text>
+  <text x="560.00" y="727.00" text-anchor="start" class="ts">The band is PROVISIONAL: centred on the evidence in this package and</text>
+  <text x="560.00" y="748.00" text-anchor="start" class="ts">widened to a defensible guess. Twelve cups off the pharmacy shelf</text>
+  <text x="560.00" y="769.00" text-anchor="start" class="ts">replaces the guess with a measurement.</text>
+  <text x="560.00" y="790.00" text-anchor="start" class="ts"></text>
+  <text x="560.00" y="811.00" text-anchor="start" class="ts">Every 0.1 mm the diameter band tightens hands 0.05 mm of pad travel</text>
+  <text x="560.00" y="832.00" text-anchor="start" class="ts">back to the design. Tightening it is worth real money in retention.</text>
+  <rect x="904" y="882" width="370" height="100" fill="none" stroke="#4a5560" stroke-width="1"/>
+  <line x1="904.00" y1="902.00" x2="1274.00" y2="902.00" class="ext"/>
+  <text x="914.00" y="896.00" text-anchor="start" class="tt">FIG. 7  CSP-30 STANDARD PROFILE</text>
+  <text x="914.00" y="916.00" text-anchor="start" class="ts">status</text>
+  <text x="1264.00" y="916.00" text-anchor="end" class="ts">PROVISIONAL — pending samples</text>
+  <text x="914.00" y="936.00" text-anchor="start" class="ts">owner</text>
+  <text x="1264.00" y="936.00" text-anchor="end" class="ts">Cappy</text>
+  <text x="914.00" y="956.00" text-anchor="start" class="ts">supplier dependency</text>
+  <text x="1264.00" y="956.00" text-anchor="end" class="ts">none</text>
+  <text x="914.00" y="976.00" text-anchor="start" class="ts">scale</text>
+  <text x="1264.00" y="976.00" text-anchor="end" class="ts">≈5:1</text>
+</svg>
