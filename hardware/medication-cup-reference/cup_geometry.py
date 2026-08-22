@@ -265,6 +265,161 @@ RECESSES = (RECESS_CAST_SAMPLE, RECESS_22_0263, RECESS_NMP001)
 
 
 # --------------------------------------------------------------------------
+# CSP-30 — the Cappy Standard Profile
+#
+# The design target. Not any supplier's part: a profile Cappy owns, describing
+# the 30 mL graduated dosing cup that ships on OTC liquid medications, held as
+# a nominal plus a tolerance band rather than a point dimension.
+#
+# The reason to work this way is independence. A point fit to one catalogue
+# SKU makes the product hostage to that moulder's next tool revision. A band
+# wide enough to cover the population makes the puck fit whatever cup is in
+# the house, and the only thing that has to be true is that the population
+# really does cluster — which is a question samples answer, not suppliers.
+#
+# The band below is PROVISIONAL. It is centred on the evidence in this
+# package and widened to a defensible guess; SAMPLING_PLAN says how to
+# replace the guess with data. Every number is meant to be tightened, and
+# tightening the diameter band is what buys back pad travel.
+# --------------------------------------------------------------------------
+
+@dataclass(frozen=True)
+class Band:
+    """A nominal dimension and the spread the design must tolerate."""
+    nominal: float
+    minus: float
+    plus: float
+    basis: str
+
+    @property
+    def lo(self) -> float:
+        return self.nominal - self.minus
+
+    @property
+    def hi(self) -> float:
+        return self.nominal + self.plus
+
+    @property
+    def spread(self) -> float:
+        return self.hi - self.lo
+
+    def __str__(self) -> str:
+        return f"{self.nominal:.2f} -{self.minus:.2f}/+{self.plus:.2f} " \
+               f"({self.lo:.2f}–{self.hi:.2f})"
+
+
+CSP30_RECESS_D = Band(
+    nominal=30.50, minus=0.75, plus=0.75,
+    basis="Two independent observations land on ~30.5: the recess measured off "
+          "Comar 22-0263's geometry (30.53) and the founder's photo-derived "
+          "circle on the sample cup's base (30.5). Band is a provisional guess "
+          "at population spread, not a measurement of it.",
+)
+
+CSP30_RECESS_DEPTH = Band(
+    nominal=2.00, minus=0.30, plus=0.30,
+    basis="The founder's cast of an actual OTC cup reads ~2.0, and reports every "
+          "recent OTC cup as consistent. Comar 22-0263's drawing reads 1.20, "
+          "which is the one datum that disagrees — see DEPTH_CONFLICT.",
+)
+
+CSP30_BASE_OD = Band(
+    nominal=33.00, minus=0.75, plus=0.75,
+    basis="Comar 22-0263 states 33.02. Not a puck-critical dimension, carried "
+          "so a cup can be identified as in-family without inverting it.",
+)
+
+DEPTH_CONFLICT = """\
+Depth is the one place the evidence splits. A physical cast of a real OTC cup
+reads ~2.0 mm; Comar 22-0263's published geometry reads 1.20 mm. A physical
+measurement of an actual target beats a read of a catalogue drawing, so 2.00
+is the nominal.
+
+The split still matters, because a puck is only safe down to the SHALLOWEST
+cup it will ever meet, and 1.20 is either (a) a cup outside the family, (b) a
+cup inside it that nobody has cast yet, or (c) a bad read. Worth ten seconds
+to rule out (c): put calipers on the cast itself, across its thickness. If it
+reads ~1.2 rather than ~2.0, the cast captured the recess and the 2.0 came
+from somewhere else — 22-0263's floor-to-foot-plane distance is 2.16, which is
+close enough to ~2.0 to be worth eliminating.
+"""
+
+
+def puck_for_band(recess_d: Band = CSP30_RECESS_D,
+                  recess_depth: Band = CSP30_RECESS_DEPTH,
+                  interference: float = 0.15,
+                  compressed_clearance: float = 0.20,
+                  face_clearance: float = 0.20) -> dict:
+    """
+    The puck envelope that grips anywhere in the band.
+
+    Two conditions have to hold at once, at opposite ends of the band:
+
+      fits the SMALLEST recess   core + compressed pads must clear recess_d.lo
+      grips the LARGEST recess   free pad envelope must exceed recess_d.hi
+
+    The pads span the difference, so the band's spread sets the pad projection
+    the design needs. That is the whole relationship: every 0.1 mm shaved off
+    the diameter band is 0.05 mm of pad travel handed back.
+    """
+    core_d = recess_d.lo - 2 * compressed_clearance
+    envelope_d = recess_d.hi + 2 * interference
+    required_proj = (envelope_d - core_d) / 2.0
+    max_thickness = recess_depth.lo - face_clearance
+    return {
+        "core_d": round(core_d, 2),
+        "envelope_d": round(envelope_d, 2),
+        "required_pad_projection": round(required_proj, 2),
+        "available_pad_projection": PUCK_PAD_PROJ,
+        "pad_projection_ok": required_proj <= PUCK_PAD_PROJ,
+        "pad_margin": round(PUCK_PAD_PROJ - required_proj, 2),
+        "max_thickness": round(max_thickness, 2),
+        "current_thickness": PUCK_T,
+        "thickness_ok": PUCK_T <= max_thickness,
+        "thickness_margin": round(max_thickness - PUCK_T, 2),
+    }
+
+
+def max_tolerable_spread(interference: float = 0.15,
+                         compressed_clearance: float = 0.20) -> float:
+    """
+    How much diametral spread the CURRENT pad geometry can absorb.
+
+    Solving required_proj <= PUCK_PAD_PROJ for the band spread. This is the
+    number that decides whether "design to the standard" is viable with the
+    puck as drawn: sample enough cups, and if their diameters fall inside this
+    much total spread, the existing six-pad architecture already covers the
+    population and only the nominal has to move.
+    """
+    return 2 * PUCK_PAD_PROJ - 2 * interference - 2 * compressed_clearance
+
+
+SAMPLING_PLAN = """\
+Replacing the provisional band with a measured one needs cups, not suppliers.
+
+  1. Collect at least 12 cups from as many different OTC products and brands
+     as the house and the nearest pharmacy shelf can supply. Different
+     manufacturers matter far more than different bottles of the same product:
+     one product is one mould.
+  2. For each, record recess diameter, recess depth and base OD. Diameter
+     across three axes at 60 degrees; note any cup where those disagree by
+     more than 0.1 mm.
+  3. Also record the product and manufacturer, so an outlier can be traced to
+     a family rather than written off.
+  4. Set each band to the observed min and max, then add the moulder's likely
+     lot-to-lot drift on top — assume at least +/-0.15 mm beyond what a single
+     sample of each mould shows.
+  5. Compare the resulting diameter spread against max_tolerable_spread().
+     Under it, the puck as architected already covers the population. Over it,
+     either the pads grow or the product ships with a cup.
+
+Twelve cups is enough to find out whether the population is one cluster or
+two. It is not enough to characterise the tails, and the tails are where
+retention fails.
+"""
+
+
+# --------------------------------------------------------------------------
 # The puck as drawn in NMP-001 Rev B — all ASSUMED
 # --------------------------------------------------------------------------
 

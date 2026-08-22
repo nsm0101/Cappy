@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1340 1040" width="1340" height="1040" role="img">
+  <style>
+.ol   { fill:none; stroke:#14181d;   stroke-width:1.6;  stroke-linejoin:round; stroke-linecap:round; }
+.ol2  { fill:none; stroke:#14181d;   stroke-width:1.0;  stroke-linejoin:round; stroke-linecap:round; }
+.hid  { fill:none; stroke:#9aa4ae; stroke-width:1.0;  stroke-dasharray:6 4; }
+.cl   { fill:none; stroke:#4a5560;   stroke-width:0.8;  stroke-dasharray:14 4 3 4; }
+.dim  { fill:none; stroke:#4a5560;   stroke-width:0.9; }
+.ext  { fill:none; stroke:#4a5560;   stroke-width:0.7; }
+.acc  { fill:none; stroke:#b4331f;stroke-width:1.8; }
+.accf { fill:#b4331f; fill-opacity:0.13; stroke:#b4331f; stroke-width:1.4; }
+.good { fill:none; stroke:#1d6b4a;  stroke-width:1.8; }
+.goodf{ fill:#1d6b4a; fill-opacity:0.12; stroke:#1d6b4a; stroke-width:1.4; }
+.t    { font-family:"Helvetica Neue",Helvetica,Arial,sans-serif; font-size:13px; fill:#14181d; }
+.td   { font-family:"Helvetica Neue",Helvetica,Arial,sans-serif; font-size:13px; fill:#4a5560; }
+.ta   { font-family:"Helvetica Neue",Helvetica,Arial,sans-serif; font-size:13px; fill:#b4331f; font-weight:600; }
+.tg   { font-family:"Helvetica Neue",Helvetica,Arial,sans-serif; font-size:13px; fill:#1d6b4a; font-weight:600; }
+.tt   { font-family:"Helvetica Neue",Helvetica,Arial,sans-serif; font-size:15px; fill:#14181d; font-weight:600;
+         letter-spacing:0.04em; }
+.ts   { font-family:"Helvetica Neue",Helvetica,Arial,sans-serif; font-size:11.5px; fill:#4a5560; }
+.arrow{ fill:#4a5560; }
+.arrowa{ fill:#b4331f; }
+</style>
+  <rect width="1340" height="1040" fill="#ffffff"/>
+  <defs><pattern id="h1" patternUnits="userSpaceOnUse" width="7" height="7" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="7" stroke="#4a5560" stroke-width="0.8"/></pattern></defs>
+  <path d="M 102.50,430.00 L 96.94,379.00 L 113.29,379.00 L 114.50,390.10 L 585.50,390.10 L 586.71,379.00 L 603.06,379.00 L 597.50,430.00 L 573.12,430.00 L 573.12,404.50 L 126.88,404.50 L 126.88,430.00 Z" fill="url(#h1)" stroke="#14181d" stroke-width="1.4" stroke-linejoin="round"/>
+  <line x1="350.00" y1="367.00" x2="350.00" y2="482.00" class="cl"/>
+  <line x1="76.50" y1="430.00" x2="623.50" y2="430.00" class="cl"/>
+  <rect x="126.88" y="404.50" width="446.25" height="22.50" rx="2" class="goodf"/>
+  <rect x="129.88" y="404.50" width="440.25" height="22.50" rx="2" class="good"/>
+  <text x="350.00" y="420.75" text-anchor="middle" class="tg">core ⌀29.35</text>
+  <text x="350.00" y="270.00" text-anchor="middle" class="tt">smallest recess in band</text>
+  <text x="350.00" y="292.00" text-anchor="middle" class="ts">⌀29.75 × 1.70 deep</text>
+  <text x="350.00" y="560.00" text-anchor="middle" class="tg">pads compressed 0.90 mm per side</text>
+  <text x="350.00" y="584.00" text-anchor="middle" class="tg">puck face 0.20 mm inside the foot plane</text>
+  <path d="M 742.50,430.00 L 736.94,379.00 L 754.27,379.00 L 754.50,381.10 L 1225.50,381.10 L 1225.73,379.00 L 1243.06,379.00 L 1237.50,430.00 L 1224.38,430.00 L 1224.38,395.50 L 755.62,395.50 L 755.62,430.00 Z" fill="url(#h1)" stroke="#14181d" stroke-width="1.4" stroke-linejoin="round"/>
+  <line x1="990.00" y1="367.00" x2="990.00" y2="482.00" class="cl"/>
+  <line x1="716.50" y1="430.00" x2="1263.50" y2="430.00" class="cl"/>
+  <rect x="755.62" y="395.50" width="468.75" height="22.50" rx="2" class="goodf"/>
+  <rect x="769.88" y="395.50" width="440.25" height="22.50" rx="2" class="good"/>
+  <text x="990.00" y="411.75" text-anchor="middle" class="tg">core ⌀29.35</text>
+  <text x="990.00" y="270.00" text-anchor="middle" class="tt">largest recess in band</text>
+  <text x="990.00" y="292.00" text-anchor="middle" class="ts">⌀31.25 × 2.30 deep</text>
+  <text x="990.00" y="560.00" text-anchor="middle" class="tg">pads compressed 0.15 mm per side</text>
+  <text x="990.00" y="584.00" text-anchor="middle" class="tg">puck face 0.80 mm inside the foot plane</text>
+  <text x="670.00" y="46.00" text-anchor="middle" class="tt">one puck, both ends of the band</text>
+  <text x="670.00" y="70.00" text-anchor="middle" class="ts">rigid core ⌀29.35 · free pad envelope ⌀31.55 · 6 pads</text>
+  <text x="240.00" y="656.00" text-anchor="start" class="tt">pad travel</text>
+  <rect x="240.00" y="672.00" width="860.00" height="26.00" rx="4" class="ol2"/>
+  <rect x="240" y="672" width="756.8" height="26" rx="4" fill="#1d6b4a" fill-opacity="0.30" stroke="#1d6b4a" stroke-width="1.4"/>
+  <text x="252.00" y="690.00" text-anchor="start" class="tg">needs 1.10 mm</text>
+  <text x="1100.00" y="656.00" text-anchor="end" class="td">1.25 mm available</text>
+  <text x="240.00" y="720.00" text-anchor="start" class="tg">the six pads as drawn already span the band, with 0.15 mm to spare</text>
+  <text x="240.00" y="780.00" text-anchor="start" class="tt">puck thickness</text>
+  <rect x="240.00" y="796.00" width="860.00" height="26.00" rx="4" class="ol2"/>
+  <rect x="240" y="796" width="860.0" height="26" rx="4" fill="#b4331f" fill-opacity="0.30" stroke="#b4331f" stroke-width="1.4"/>
+  <text x="252.00" y="814.00" text-anchor="start" class="ta">needs 1.80 mm</text>
+  <text x="1100.00" y="780.00" text-anchor="end" class="td">1.50 mm available</text>
+  <text x="240.00" y="844.00" text-anchor="start" class="ta">at the shallow end of the band the 1.80 puck stands 0.30 mm proud — thin it to 1.50 or prove no cup is shallower than 2.00</text>
+  <text x="240.00" y="916.00" text-anchor="start" class="ts">Population budget: these pads can absorb 1.80 mm of total diametral spread across the cups.</text>
+  <text x="240.00" y="937.00" text-anchor="start" class="ts">The provisional band assumes 1.50 mm. Sampling decides whether that was optimistic.</text>
+  <rect x="944" y="922" width="370" height="100" fill="none" stroke="#4a5560" stroke-width="1"/>
+  <line x1="944.00" y1="942.00" x2="1314.00" y2="942.00" class="ext"/>
+  <text x="954.00" y="936.00" text-anchor="start" class="tt">FIG. 8  PUCK FROM THE BAND</text>
+  <text x="954.00" y="956.00" text-anchor="start" class="ts">core / envelope</text>
+  <text x="1304.00" y="956.00" text-anchor="end" class="ts">⌀29.35 / ⌀31.55</text>
+  <text x="954.00" y="976.00" text-anchor="start" class="ts">was</text>
+  <text x="1304.00" y="976.00" text-anchor="end" class="ts">⌀25.00 / ⌀27.50</text>
+  <text x="954.00" y="996.00" text-anchor="start" class="ts">max thickness</text>
+  <text x="1304.00" y="996.00" text-anchor="end" class="ts">1.50</text>
+  <text x="954.00" y="1016.00" text-anchor="start" class="ts">pad margin</text>
+  <text x="1304.00" y="1016.00" text-anchor="end" class="ts">+0.15 mm</text>
+</svg>

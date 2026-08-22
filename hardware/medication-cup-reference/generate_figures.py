@@ -636,9 +636,199 @@ def fig06():
     return sh.save(os.path.join(OUT, "FIG-06-controlled-vs-uncontrolled.svg"))
 
 
+# ---------------------------------------------------------------- FIG-07
+
+def base_profile(v, base_od, recess_d, recess_depth, panel_t, ztop):
+    """A base section built from loose numbers rather than a catalogue part."""
+    ro, rr = base_od / 2, recess_d / 2
+    ri = ro - 0.80                      # wall just above the base
+    bh = panel_t + recess_depth
+    rit = ri + (ztop - bh) * 0.109      # nominal 6.2 deg outside taper
+    rot = ro + ztop * 0.109
+    pts = [(-ro, 0), (-rot, ztop), (-rit, ztop), (-ri, bh),
+           (ri, bh), (rit, ztop), (rot, ztop), (ro, 0),
+           (rr, 0), (rr, recess_depth), (-rr, recess_depth), (-rr, 0)]
+    return "M " + " L ".join(f"{v.x(r):.2f},{v.y(z):.2f}" for r, z in pts) + " Z"
+
+
+def fig07():
+    """CSP-30: the profile Cappy owns, as a nominal plus a band."""
+    D, Z, B = G.CSP30_RECESS_D, G.CSP30_RECESS_DEPTH, G.CSP30_BASE_OD
+    panel_t = 0.96
+    W, H = 1300, 1000
+    sh = Sheet(W, H, "FIG. 7  CSP-30 STANDARD PROFILE")
+    sh.hatch_defs("h1", 45, 7)
+    s = 19.0
+    ztop = 4.2
+    v = View(cx=650, y_base=330, s=s)
+
+    sh.hatched(base_profile(v, B.nominal, D.nominal, Z.nominal, panel_t, ztop), "h1")
+    sh.line(v.x(0), v.y(ztop) - 24, v.x(0), v.y(0) + 66, "cl")
+
+    # the band, drawn as the two limit recesses
+    for dia, dep, lbl, dy in [(D.hi, Z.hi, "largest in band", -8),
+                              (D.lo, Z.lo, "smallest in band", 14)]:
+        rr = dia / 2
+        sh.path(f"M {v.x(-rr):.1f},{v.y(0):.1f} L {v.x(-rr):.1f},{v.y(dep):.1f} "
+                f"L {v.x(rr):.1f},{v.y(dep):.1f} L {v.x(rr):.1f},{v.y(0):.1f}", "hid")
+        sh.text(v.x(-rr) + 10, v.y(dep) + dy + 4, lbl, "ts", anchor="start")
+
+    yb = v.y(0)
+    sh.dim_h(v.x(-D.nominal / 2), v.x(D.nominal / 2), yb + 118,
+             f"{DIA}{D.nominal:.2f}  -{D.minus:.2f} / +{D.plus:.2f}   RECESS",
+             ext_y=yb, outside=True, cls="acc", tcls="ta", label_dy=20)
+    sh.text(v.x(0), yb + 158, f"{D.lo:.2f} to {D.hi:.2f}", "ta")
+    sh.dim_h(v.x(-B.nominal / 2), v.x(B.nominal / 2), yb + 198,
+             f"{DIA}{B.nominal:.2f}  ±{B.plus:.2f}   base outside",
+             ext_y=yb, outside=True, label_dy=20)
+
+    xr = v.x(B.nominal / 2) + 80
+    sh.dim_v(v.y(Z.nominal), v.y(0), xr, f"{Z.nominal:.2f}",
+             ext_x=v.x(B.nominal / 2), side="right", outside=True,
+             cls="acc", tcls="ta")
+    sh.text(xr + 46, v.y(Z.nominal) + 4, f"-{Z.minus:.2f} / +{Z.plus:.2f}", "ta",
+            anchor="start")
+    sh.text(xr + 46, v.y(Z.nominal) + 22, f"DEPTH  {Z.lo:.2f} to {Z.hi:.2f}",
+            "ts", anchor="start")
+
+    xl = v.x(-B.nominal / 2) - 80
+    sh.dim_v(v.y(Z.nominal + panel_t), v.y(Z.nominal), xl, f"{panel_t:.2f}",
+             ext_x=v.x(-B.nominal / 2 + 0.8), side="left", outside=True)
+    sh.text(xl - 7, v.y(Z.nominal + panel_t / 2) + 22, "base panel", "ts", anchor="end")
+
+    sh.leader(v.x(-(D.hi / 2 + B.nominal / 2) / 2), v.y(0.5),
+              v.x(-B.nominal / 2) - 80, v.y(0) + 44, "foot ring", anchor="end")
+
+    sh.text(W / 2, 46, "CSP-30  ·  the profile Cappy designs to", "tt")
+    sh.text(W / 2, 70,
+            "a nominal and a band, owned by us — not any supplier's part number", "ts")
+
+    # ---- below the drawing: the spec table and the reasoning
+    sh.line(80, 600, W - 80, 600, "ext")
+    sh.text(80, 632, "the three banded dimensions", "tt", anchor="start")
+    for i, (k, val, kind) in enumerate([
+        (f"recess {DIA}", str(D), "acc"),
+        ("recess depth", str(Z), "acc"),
+        (f"base outside {DIA}", str(B), "dim"),
+    ]):
+        y = 668 + i * 46
+        sh.text(80, y, k, "ts", anchor="start")
+        sh.text(80, y + 20, val, "ta" if kind == "acc" else "td", anchor="start")
+
+    sh.text(560, 632, "how to read it", "tt", anchor="start")
+    for i, t in enumerate([
+        "The dashed outlines are the two limit recesses the puck has to work in —",
+        "the smallest it must still enter, and the largest it must still grip.",
+        "",
+        "The band is PROVISIONAL: centred on the evidence in this package and",
+        "widened to a defensible guess. Twelve cups off the pharmacy shelf",
+        "replaces the guess with a measurement.",
+        "",
+        "Every 0.1 mm the diameter band tightens hands 0.05 mm of pad travel",
+        "back to the design. Tightening it is worth real money in retention.",
+    ]):
+        sh.text(560, 664 + i * 21, t, "ts", anchor="start")
+
+    sh.title_block([
+        ("status", "PROVISIONAL — pending samples"),
+        ("owner", "Cappy"),
+        ("supplier dependency", "none"),
+        ("scale", "≈5:1"),
+    ], x=W - 396, y=H - 118, w=370)
+    return sh.save(os.path.join(OUT, "FIG-07-csp30-standard-profile.svg"))
+
+
+# ---------------------------------------------------------------- FIG-08
+
+def fig08():
+    """The puck that falls out of the band, and whether the pads can span it."""
+    D, Z = G.CSP30_RECESS_D, G.CSP30_RECESS_DEPTH
+    fit = G.puck_for_band()
+    panel_t = 0.96
+    W, H = 1340, 1040
+    sh = Sheet(W, H, "FIG. 8  PUCK FROM THE BAND")
+    sh.hatch_defs("h1", 45, 7)
+    s = 15.0
+    ztop = 3.4
+
+    for cx, dia, dep, title, sub in [
+        (350, D.lo, Z.lo, "smallest recess in band",
+         f"{DIA}{D.lo:.2f} × {Z.lo:.2f} deep"),
+        (990, D.hi, Z.hi, "largest recess in band",
+         f"{DIA}{D.hi:.2f} × {Z.hi:.2f} deep"),
+    ]:
+        v = View(cx=cx, y_base=430, s=s)
+        sh.hatched(base_profile(v, G.CSP30_BASE_OD.nominal, dia, dep, panel_t, ztop), "h1")
+        sh.line(v.x(0), v.y(ztop) - 12, v.x(0), v.y(0) + 52, "cl")
+        sh.line(v.x(-G.CSP30_BASE_OD.nominal / 2) - 26, v.y(0),
+                v.x(G.CSP30_BASE_OD.nominal / 2) + 26, v.y(0), "cl")
+
+        core = fit["core_d"]
+        pad = min(dia, fit["envelope_d"])          # pads compress to the wall
+        t = min(fit["max_thickness"], dep - 0.20)
+        sh.rect(v.x(-pad / 2), v.y(dep), pad * s, t * s, "goodf", rx=2)
+        sh.rect(v.x(-core / 2), v.y(dep), core * s, t * s, "good", rx=2)
+        sh.text(v.x(0), v.y(dep) + t * s / 2 + 5, f"core {DIA}{core:.2f}", "tg")
+
+        squeeze = (fit["envelope_d"] - dia) / 2
+        sh.text(cx, 270, title, "tt")
+        sh.text(cx, 292, sub, "ts")
+        sh.text(cx, 560, f"pads compressed {squeeze:.2f} mm per side", "tg")
+        sh.text(cx, 584,
+                f"puck face {dep - t:.2f} mm inside the foot plane", "tg")
+
+    sh.text(W / 2, 46, "one puck, both ends of the band", "tt")
+    sh.text(W / 2, 70,
+            f"rigid core {DIA}{fit['core_d']:.2f} · free pad envelope "
+            f"{DIA}{fit['envelope_d']:.2f} · {G.PUCK_PAD_N} pads", "ts")
+
+    # ---- the two budgets
+    def budget(y, label, need, have, unit, ok_note, bad_note):
+        x0, x1 = 240, 1100
+        sh.text(x0, y - 16, label, "tt", anchor="start")
+        sh.rect(x0, y, x1 - x0, 26, "ol2", rx=4)
+        frac = min(1.0, need / have)
+        sh.raw(f'<rect x="{x0}" y="{y}" width="{(x1-x0)*frac:.1f}" height="26" '
+               f'rx="4" fill="{GOOD if need <= have else ACCENT}" fill-opacity="0.30" '
+               f'stroke="{GOOD if need <= have else ACCENT}" stroke-width="1.4"/>')
+        sh.text(x0 + 12, y + 18, f"needs {need:.2f} {unit}",
+                "tg" if need <= have else "ta", anchor="start")
+        sh.text(x1, y - 16, f"{have:.2f} {unit} available", "td", anchor="end")
+        sh.text(x0, y + 48, ok_note if need <= have else bad_note,
+                "tg" if need <= have else "ta", anchor="start")
+
+    budget(672, "pad travel", fit["required_pad_projection"],
+           fit["available_pad_projection"], "mm",
+           f"the six pads as drawn already span the band, with "
+           f"{fit['pad_margin']:.2f} mm to spare",
+           "the pads cannot span the band — they have to grow or the band has to tighten")
+
+    budget(796, "puck thickness", G.PUCK_T, fit["max_thickness"], "mm",
+           "the puck finishes inside the foot ring at every depth in the band",
+           f"at the shallow end of the band the {G.PUCK_T:.2f} puck stands "
+           f"{-fit['thickness_margin']:.2f} mm proud — thin it to "
+           f"{fit['max_thickness']:.2f} or prove no cup is shallower than "
+           f"{G.PUCK_T + 0.20:.2f}")
+
+    sh.text(240, 916,
+            f"Population budget: these pads can absorb {G.max_tolerable_spread():.2f} mm of "
+            f"total diametral spread across the cups.", "ts", anchor="start")
+    sh.text(240, 937,
+            f"The provisional band assumes {D.spread:.2f} mm. Sampling decides whether "
+            f"that was optimistic.", "ts", anchor="start")
+
+    sh.title_block([
+        ("core / envelope", f"{DIA}{fit['core_d']:.2f} / {DIA}{fit['envelope_d']:.2f}"),
+        ("was", f"{DIA}{G.PUCK_CORE_D:.2f} / {DIA}{G.PUCK_ENV_D:.2f}"),
+        ("max thickness", f"{fit['max_thickness']:.2f}"),
+        ("pad margin", f"{fit['pad_margin']:+.2f} mm"),
+    ], x=W - 396, y=H - 118, w=370)
+    return sh.save(os.path.join(OUT, "FIG-08-puck-from-band.svg"))
+
+
 if __name__ == "__main__":
     os.makedirs(OUT, exist_ok=True)
-    for fn in (fig01, fig02, fig03, fig04, fig05, fig06):
+    for fn in (fig01, fig02, fig03, fig04, fig05, fig06, fig07, fig08):
         print("wrote", os.path.relpath(fn(), HERE))
     c = G.EMBOSSED_30ML
     print(f"\ncheck: modelled brim capacity {brim_capacity(c):.1f} mL "

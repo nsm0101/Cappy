@@ -1,201 +1,205 @@
 # Medication cup reference
 
-Dimensioned drawings of the cups the Cappy puck seats into, and an honest
-account of how well the recess it seats into is actually known.
+The design target is **CSP-30** — a profile Cappy owns, describing the 30 mL
+graduated dosing cup that ships on OTC liquid medications. Not any supplier's
+part number.
 
 Everything is generated from one dimensional model, `cup_geometry.py`, so no
-drawing can carry a number the model disagrees with. Regenerate with:
+drawing can carry a number the model disagrees with:
 
 ```
 pip install pymupdf pillow numpy       # for measure/ only
 python3 generate_figures.py
 ```
 
-## Start here: the recess is not a specified feature
+## Why a profile and not a part
 
-**No manufacturer publishes a dimensioned base recess, and it looks like none
-ever will.** Comar publishes technical drawings for its whole dosage-cup range.
-All four were checked — 22-0263, 22-1211, 22-0717 and 22-1525 — and every one
-of them dimensions the same short list:
+A point fit to one catalogue SKU makes the product hostage to that moulder's
+next tool revision, and it puts a supplier relationship on the critical path
+of a hardware decision. A **nominal plus a band** wide enough to cover the
+population does not. The only thing that has to be true is that the population
+really does cluster — and that is a question samples answer, not suppliers.
 
-| dimensioned on every sheet | drawn on every sheet, dimensioned on none |
-|---|---|
-| rim outside diameter | base recess diameter |
-| rim inside diameter | base recess depth |
-| overall height | recess wall draft |
-| base outside diameter | foot ring radial width |
-| internal core diameters | gate witness height, corner radii |
+There is a second reason, and it is the finding that forced this structure.
+Comar publishes drawings for its whole dosage-cup range; all four were checked
+(22-0263, 22-1211, 22-0717, 22-1525). Every one dimensions the rim, the height,
+the base OD and the internal cores. **None of them dimensions the base recess.**
+It exists because the cup needs a standing ring — a consequence of the design,
+not a specification. No published tolerance, and nothing obliging a moulder to
+hold it across a tool revision.
 
-That is not an oversight on one sheet. The recess exists because the cup needs
-a standing ring to nest and to sit flat; it is a *consequence* of the wall,
-base and ring design rather than a feature anyone specifies. Nothing published
-carries a tolerance for it, and nothing obliges a moulder to hold it across a
-tool revision or a cavity change. [FIG. 6](figures/FIG-06-controlled-vs-uncontrolled.svg)
-draws the split.
+So there was never a supplier number to depend on for this feature. Owning the
+profile isn't the riskier path; it's the only one that has a number in it.
+[FIG. 6](figures/FIG-06-controlled-vs-uncontrolled.svg) draws that split.
 
-The design consequence is the important part: **NMP-001 currently specifies an
-interference fit against a diameter that nobody controls.** The base outside
-diameter, sitting 1.25 mm away from it, *is* controlled — ⌀33.02 on 22-0263,
-⌀37.19 on 22-1211, ⌀41.79 on 22-0717. Any retention that registers on the base
-OD is designed to a number the supplier holds. That is worth weighing against
-the recess press-fit before the geometry is frozen.
+## CSP-30 — provisional
 
-### What can still be got
-
-1. **Your cast.** It is a physical copy of the actual recess, which beats every
-   drawing here for your cup. You have the depth at ~2.0 mm. The diameter is
-   still the open number — see [the protocol](#measuring-your-cast).
-2. **A part specification from the cup's maker.** A published catalogue drawing
-   stamped *REFERENCE ONLY … SUBJECT TO CHANGE* is not a controlled document.
-   A part spec or cavity print under NDA is where a toleranced recess dimension
-   would live, if one exists at all. That is a conversation with the supplier,
-   not a search.
-3. **A cored cup.** Comar's own flyer says the AccuCup "can be custom-cored for
-   a perfect bottle cap fit" and that "custom rib designs can modify the cup to
-   accommodate various closure sizes". The tooling is already treated as
-   modifiable. A recess cored to a dimension *you* specify is the only route to
-   a controlled interference fit — and it turns the fit from something you
-   reverse-engineer into something you own.
-
-Everything below is the best available evidence in the meantime. Treat the
-DERIVED numbers as "what one manufacturer's CAD happens to say", not as spec.
-
-## The drawings
-
-| figure | what it shows |
-|---|---|
-| [FIG. 1](figures/FIG-01-cup-section.svg) | Whole cup in section, every stated dimension, graduations at their true heights |
-| [FIG. 2](figures/FIG-02-base-recess-detail.svg) | The base recess, section plus a ≈25:1 detail of the corner |
-| [FIG. 3](figures/FIG-03-base-plan-view.svg) | Base from below — recess, foot ring, gate, mould marks |
-| [FIG. 4](figures/FIG-04-fit-check.svg) | The ⌀27.50 × 1.80 puck in each of the three recesses we have numbers for |
-| [FIG. 5](figures/FIG-05-family-comparison.svg) | Three cups that all get called a medication cup, at one scale |
-| [FIG. 6](figures/FIG-06-controlled-vs-uncontrolled.svg) | **What the drawings control and what they don't** |
-
-## Where the recess numbers stand
-
-| | diameter | depth | status |
+| dimension | nominal | band | basis |
 |---|---|---|---|
-| your cast | **not measured** | **~2.0 mm** | MEASURED — the only physical evidence |
-| Comar 22-0263 | 30.53 ±0.12 | 1.20 ±0.12 | DERIVED from undimensioned CAD geometry |
-| Comar 22-1211 | unresolved | unreadable | ribbed base, circles cannot be told apart |
-| NMP-001 Rev B | 27.50 | 2.10 | ASSUMED, never checked against a cup |
+| recess ⌀ | **30.50** | −0.75 / +0.75 → 29.75–31.25 | two independent observations at ~30.5 |
+| recess depth | **2.00** | −0.30 / +0.30 → 1.70–2.30 | cast of a real OTC cup |
+| base outside ⌀ | 33.00 | ±0.75 → 32.25–33.75 | identification only, not puck-critical |
 
-**Depth.** Your cast at ~2.0 mm broadly vindicates NMP-001's 2.10: the 1.80 mm
-puck finishes about 0.20 mm inside the foot-ring plane, so the cup still stands
-on its own ring. The catalogue cup at 1.20 mm would leave the same puck 0.60 mm
-proud and rocking — which is a good illustration of why this dimension cannot
-be assumed to travel between SKUs.
+[FIG. 7](figures/FIG-07-csp30-standard-profile.svg) draws it, with the two
+limit recesses the puck has to work in.
 
-**Diameter.** Still the open question and the one that decides the design.
-NMP-001 assumes ⌀27.50; the one drawing that can be read says ⌀30.53. Against
-friction pads that project 1.25 mm, that is the difference between a grip and a
-drop-out.
+The **band is a provisional guess**, centred on the evidence in this package and
+widened to something defensible. It is not a measurement of population spread.
+[Sampling](#replacing-the-guess-with-data) replaces it, and tightening the
+diameter band is what buys back pad travel.
+
+## What the band does to the puck
+
+[FIG. 8](figures/FIG-08-puck-from-band.svg) works it through. Two conditions
+have to hold at opposite ends of the band — the puck must still *enter* the
+smallest recess and still *grip* the largest — and the pads span the difference.
+
+| | required | available | |
+|---|---|---|---|
+| pad travel | 1.10 mm | 1.25 mm | ✅ **0.15 mm to spare** |
+| puck thickness | 1.80 mm | 1.50 mm | ⚠️ **0.30 mm over** |
+
+**The six-pad architecture works.** That is the important result. Those pads can
+absorb **1.80 mm of total diametral spread** across the cup population — so if
+sampling shows the cups fall inside that much spread, the puck as architected
+already covers the whole family and nothing structural has to change.
+
+Two things do have to move:
+
+**The diameter has to be re-centred.** Core ⌀25.00 / envelope ⌀27.50 becomes
+**core ⌀29.35 / envelope ⌀31.55**. At ⌀27.50 the puck sits ~3 mm under the
+nominal recess and never touches the wall — no grip at any point in the band.
+This is independent of the standard-versus-supplier question: two separate
+observations put the recess at ~30.5, and neither of them is ⌀27.50.
+
+**The thickness is bounded by the shallow end of the depth band, not the
+nominal.** At the 2.00 nominal, a 1.80 puck finishes 0.20 mm inside the foot
+ring — exactly the fit intended. But at the band's 1.70 edge it stands 0.30 mm
+proud and the cup rocks on it. Either thin the puck to 1.50, or establish by
+sampling that no cup in the family is shallower than 2.00. That is a real
+choice, and sampling is what makes it cheaply.
+
+## The one datum that disagrees
+
+Depth is where the evidence splits: a physical cast of a real OTC cup reads
+**~2.0 mm**; Comar 22-0263's published geometry reads **1.20 mm**. A physical
+measurement of an actual target beats a read of a catalogue drawing, so 2.00 is
+the nominal.
+
+The split still matters, because a puck is only safe down to the shallowest cup
+it will ever meet. 1.20 is either a cup outside the family, a cup inside it that
+nobody has cast yet, or a bad read.
+
+**Worth ten seconds to rule out the third.** Put calipers on the cast itself,
+across its thickness. If it reads ~1.2 rather than ~2.0, the cast captured the
+recess and the 2.0 came from somewhere else — 22-0263's floor-to-foot-plane
+distance is 2.16 mm, close enough to ~2.0 to be worth eliminating before it
+propagates into a thickness decision.
+
+## Replacing the guess with data
+
+Cups, not suppliers. Fully within your control, and it is what turns CSP-30
+from a provisional guess into a spec.
+
+1. **Collect at least 12 cups** from as many different OTC products and brands
+   as the house and the nearest pharmacy shelf supply. Different manufacturers
+   matter far more than different bottles of the same product — one product is
+   one mould.
+2. **For each, record** recess ⌀, recess depth, base OD. Diameter across three
+   axes at 60°; flag any cup where those disagree by more than 0.1 mm.
+3. **Record the product and manufacturer** too, so an outlier can be traced to
+   a family rather than written off.
+4. **Set each band** to the observed min and max, then add likely lot-to-lot
+   drift on top — assume at least ±0.15 mm beyond what a single sample of each
+   mould shows.
+5. **Compare the diameter spread** against `max_tolerable_spread()` (1.80 mm).
+   Under it, the puck as architected covers the population. Over it, either the
+   pads grow or the product ships with a cup.
+
+Twelve cups is enough to find out whether the population is one cluster or two.
+It is not enough to characterise the tails, and the tails are where retention
+fails.
+
+Then update `CSP30_RECESS_D` / `CSP30_RECESS_DEPTH` in `cup_geometry.py` and
+re-run `generate_figures.py`; every figure and every derived puck dimension
+follows automatically.
 
 ## The 30.5 coincidence
 
-The earlier measurement pass (`cappy-patent/reference/MEASUREMENTS.md`, in the
-now-deleted `cappy-patent/` tree) derived a base outside diameter of **30.5 mm**
-from a photograph of the inverted sample cup, reasoning that the token label
-spanned about 90 % of the base disc "with only a thin rim of base wall visible
-around it".
+The earlier measurement pass derived a base outside diameter of **30.5 mm** from
+a photograph of the inverted sample cup, reasoning that the token label spanned
+about 90 % of the base disc "with only a thin rim of base wall visible around
+it".
 
-On the Comar cup, the measured recess is ⌀**30.53** and the foot ring around it
-is **1.25 mm** wide — a thin rim of base wall.
+On the Comar cup, the measured recess is ⌀**30.53**, with a **1.25 mm** foot ring
+around it — a thin rim of base wall.
 
-The likeliest reading is that the photograph was measured correctly and
-labelled wrongly: the circle that dominates an inverted cup is the recess, not
-the base outside diameter, and the thin rim around it is the foot ring. If so,
-30.5 mm was always a good measurement *of the recess*, and sizing the token to
-90 % of it left the puck about 3 mm undersize.
+The likeliest reading is that the photograph was measured correctly and labelled
+wrongly: the circle that dominates an inverted cup is the recess, not the base
+outside diameter. If so, 30.5 mm was always a good measurement *of the recess*,
+and sizing the token to 90 % of it is what left the puck ~3 mm undersize. That
+is the second observation putting the recess at ~30.5, and it is the reason
+CSP-30 is centred there.
 
-That is a hypothesis fitting two independent observations, not a conclusion.
-Your cast settles it: ~30.5 across and it holds; ~27.5 and NMP-001 was right
-and the Comar cup is simply a different cup.
+## The evidence behind the profile
 
-## Measuring your cast
+The Comar drawings are **samples of the class**, not the target. They are the
+only published dimensional evidence about this cup family that exists, which is
+why they are archived here — using them as evidence creates no dependency.
 
-Five numbers, and the first is the one that matters.
+| figure | what it shows |
+|---|---|
+| [FIG. 1](figures/FIG-01-cup-section.svg) | An in-family cup in section, every stated dimension, graduations at true heights |
+| [FIG. 2](figures/FIG-02-base-recess-detail.svg) | The base recess, plus a ≈25:1 detail of the corner |
+| [FIG. 3](figures/FIG-03-base-plan-view.svg) | Base from below — recess, foot ring, gate, mould marks |
+| [FIG. 4](figures/FIG-04-fit-check.svg) | The old ⌀27.50 × 1.80 puck in each recess we have numbers for |
+| [FIG. 5](figures/FIG-05-family-comparison.svg) | Three cups that all get called a medication cup |
+| [FIG. 6](figures/FIG-06-controlled-vs-uncontrolled.svg) | What the drawings control and what they don't |
+| [FIG. 7](figures/FIG-07-csp30-standard-profile.svg) | **CSP-30 — the design target** |
+| [FIG. 8](figures/FIG-08-puck-from-band.svg) | **The puck that falls out of the band** |
 
-1. **Diameter across the widest face** — the face that was at the recess
-   opening. Three readings at 60° to each other; record all three. More than
-   0.1 mm of spread means the recess is not round, which is itself worth
-   knowing.
-2. **Diameter across the opposite face.** The difference between this and (1),
-   over the depth, is the draft angle. Expect the deep face to be smaller, by
-   0 to 0.15 mm.
-3. **Depth again, near the wall rather than at the centre** — tells you whether
-   the recess ceiling is flat or domed.
-4. **Any dimple or pip in the middle of a face?** That is the gate witness
-   printing into your cast. If it stands proud on the cup it holds a rigid puck
-   off the ceiling and lets it rock, whatever the diameters say.
-5. **The cup's base outside diameter**, straight off the cup. With (1) this
-   gives the foot ring width and places your cup in FIG. 5.
+FIG. 5 is the caution worth keeping in view: the wider "medication cup" world
+spans 8.6 mm at the base once institutional souffle-style cups are included.
+CSP-30 deliberately does **not** try to cover those. It covers the OTC dosing
+cup that ships on the bottle, which is the cup Cappy is actually for.
 
-Then update `RECESS_CAST_SAMPLE` in `cup_geometry.py` and re-run
-`generate_figures.py`; every figure follows.
+## How the derived values were obtained
 
-Two cautions. A cast can read deep if the material crept past the foot ring or
-pulled a meniscus at the opening, and wide if it picked up the corner radius —
-so cross-check (3) with a depth gauge on the cup itself. And one cast is one
-cavity of one lot: the number that matters for retention is the *spread* across
-cups, which needs several samples from different bags.
+`measure/measure_source_drawing.py` measures the recess off the geometry of
+Comar's drawing. That sheet is stamped *NOT TO SCALE*, so the script proves
+scale before reporting: it calibrates on the stated ⌀42.07 rim, then measures
+the stated ⌀33.02 base, which returns 33.030 — 0.03 % out. It reads the recess
+twice from two independently drawn views, which agree to a third of a pixel,
+and exits rather than reporting if a future revision fails the check. Output:
+[`measure/RESULTS.md`](measure/RESULTS.md).
 
-## Two cups, and why the difference matters
-
-`FIG. 5` draws them at one scale. Both 30 mL, both polypropylene, both sold as
-dosage cups:
-
-| | Comar 22-0263 | Comar 22-1211 |
-|---|---|---|
-| rim ⌀ | 42.07 | 44.45 |
-| base ⌀ | 33.02 | 37.19 |
-| height | 41.50 | 36.32 |
-| graduations | embossed, 5–30 mL | printed, 15 / 30 mL |
-| inside the base | plain | ribbed, cores over a 24 or 28 mm CR closure |
-
-Their base diameters differ by 4.2 mm. Add the institutional 1 oz souffle-style
-medicine cup — catalogue base ⌀ 28.58 to 30.36 depending on whose you buy — and
-the family spans 8.6 mm at the base. A puck that grips one need not touch
-another, and 1.25 mm of pad projection does not cover 8.6 mm of spread.
-
-That is a product decision as much as an engineering one: whether the puck
-ships *with* a cup whose recess you control, or has to survive whatever cup is
-already in the house.
+That rigour is about the reading, not the number underneath. A precise
+measurement of an unspecified feature is still a measurement of an unspecified
+feature — which is the whole argument for owning CSP-30.
 
 ## Files
 
 ```
-cup_geometry.py            the dimensional model — single source of truth
-generate_figures.py        emits figures/FIG-*.svg
+cup_geometry.py            the model — CSP-30, the evidence samples, the puck math
+generate_figures.py        emits figures/FIG-01..08.svg
 svgkit.py                  small technical-drawing toolkit
 figures/                   the drawing set
-sources/                   Comar's published drawings + PROVENANCE.md
+sources/                   the evidence drawings + PROVENANCE.md
 measure/                   the metrology behind the DERIVED values
 ```
 
-## How the DERIVED values were obtained
-
-`measure/measure_source_drawing.py` measures the recess off the geometry of
-Comar's drawing. That sheet is stamped *NOT TO SCALE*, so the script proves the
-scale before reporting anything: it calibrates on the stated ⌀42.07 rim, then
-measures the stated ⌀33.02 base, which comes back 33.030 — 0.03 % out. It then
-reads the recess twice from two independently drawn views, which agree to a
-third of a pixel. Output and the list of what the method cannot recover:
-[`measure/RESULTS.md`](measure/RESULTS.md).
-
-That rigour is about the *reading*, not about the underlying number. A precise
-measurement of an unspecified feature is still a measurement of an unspecified
-feature.
-
 ## Standing caveats
 
-- Comar's drawings are *REFERENCE ONLY … SUBJECT TO CHANGE*. Good enough to
-  design against and to decide what to measure; not a supply agreement. See
-  [`sources/PROVENANCE.md`](sources/PROVENANCE.md).
-- Every number here is one nominal geometry. None of it describes mould
-  tolerance, cavity-to-cavity variation or lot-to-lot drift. A retention design
+- CSP-30's band is provisional until the sampling above is done. Every number
+  derived from it inherits that status, including the ⌀29.35 / ⌀31.55 puck.
+- The archived Comar drawings are *REFERENCE ONLY … SUBJECT TO CHANGE*, and are
+  evidence about the class, not a specification of it. See
+  [`sources/PROVENANCE.md`](sources/PROVENANCE.md). Not for redistribution or
+  filing.
+- Nothing here describes mould tolerance or lot-to-lot drift. A retention design
   that only works at nominal will fail on a real bag of cups.
-- Draft angle and corner radii on the recess are below the resolution of the
-  source drawing and remain unmeasured.
+- Draft angle and corner radii on the recess remain unmeasured.
 - NMP-001 Rev B note 6 still stands: no lip or positive snap feature assumed,
-  and retention force needs material and tolerance testing.
+  and retention force needs material and tolerance testing. The pad-travel
+  budget in FIG. 8 is geometry only — it says the pads *reach*, not that they
+  *hold*.
