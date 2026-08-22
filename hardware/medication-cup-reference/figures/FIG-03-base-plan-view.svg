@@ -1,0 +1,82 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1240 1120" width="1240" height="1120" role="img">
+  <style>
+.ol   { fill:none; stroke:#14181d;   stroke-width:1.6;  stroke-linejoin:round; stroke-linecap:round; }
+.ol2  { fill:none; stroke:#14181d;   stroke-width:1.0;  stroke-linejoin:round; stroke-linecap:round; }
+.hid  { fill:none; stroke:#9aa4ae; stroke-width:1.0;  stroke-dasharray:6 4; }
+.cl   { fill:none; stroke:#4a5560;   stroke-width:0.8;  stroke-dasharray:14 4 3 4; }
+.dim  { fill:none; stroke:#4a5560;   stroke-width:0.9; }
+.ext  { fill:none; stroke:#4a5560;   stroke-width:0.7; }
+.acc  { fill:none; stroke:#b4331f;stroke-width:1.8; }
+.accf { fill:#b4331f; fill-opacity:0.13; stroke:#b4331f; stroke-width:1.4; }
+.good { fill:none; stroke:#1d6b4a;  stroke-width:1.8; }
+.goodf{ fill:#1d6b4a; fill-opacity:0.12; stroke:#1d6b4a; stroke-width:1.4; }
+.t    { font-family:"Helvetica Neue",Helvetica,Arial,sans-serif; font-size:13px; fill:#14181d; }
+.td   { font-family:"Helvetica Neue",Helvetica,Arial,sans-serif; font-size:13px; fill:#4a5560; }
+.ta   { font-family:"Helvetica Neue",Helvetica,Arial,sans-serif; font-size:13px; fill:#b4331f; font-weight:600; }
+.tg   { font-family:"Helvetica Neue",Helvetica,Arial,sans-serif; font-size:13px; fill:#1d6b4a; font-weight:600; }
+.tt   { font-family:"Helvetica Neue",Helvetica,Arial,sans-serif; font-size:15px; fill:#14181d; font-weight:600;
+         letter-spacing:0.04em; }
+.ts   { font-family:"Helvetica Neue",Helvetica,Arial,sans-serif; font-size:11.5px; fill:#4a5560; }
+.arrow{ fill:#4a5560; }
+.arrowa{ fill:#b4331f; }
+</style>
+  <rect width="1240" height="1120" fill="#ffffff"/>
+  <path d="M 182.34999999999997,476 a 247.65000000000003,247.65000000000003 0 1,0 495.30000000000007,0 a 247.65000000000003,247.65000000000003 0 1,0 -495.30000000000007,0 Z M 201.02499999999998,476 a 228.97500000000002,228.97500000000002 0 1,1 457.95000000000005,0 a 228.97500000000002,228.97500000000002 0 1,1 -457.95000000000005,0 Z" fill="#4a5560" fill-opacity="0.18" stroke="none" fill-rule="evenodd"/>
+  <circle cx="430" cy="476" r="228.98" fill="#b4331f" fill-opacity="0.07" stroke="none"/>
+  <circle cx="430.00" cy="476.00" r="315.52" class="ol2"/>
+  <circle cx="430.00" cy="476.00" r="247.65" class="ol"/>
+  <circle cx="430.00" cy="476.00" r="228.98" class="acc"/>
+  <circle cx="430.00" cy="476.00" r="27.75" class="ol2"/>
+  <line x1="82.48" y1="476.00" x2="777.52" y2="476.00" class="cl"/>
+  <line x1="430.00" y1="128.48" x2="430.00" y2="823.52" class="cl"/>
+  <rect x="552.29" y="674.10" width="8.00" height="8.00" rx="0" class="ol2"/>
+  <rect x="187.83" y="480.32" width="8.00" height="8.00" rx="0" class="ol2"/>
+  <rect x="537.88" y="261.58" width="8.00" height="8.00" rx="0" class="ol2"/>
+  <line x1="175.02" y1="883.52" x2="684.98" y2="883.52" class="acc"/>
+  <polygon points="201.02,883.52 209.02,885.92 209.02,881.12" class="arrowa"/>
+  <polygon points="658.98,883.52 650.98,881.12 650.98,885.92" class="arrowa"/>
+  <text x="430.00" y="903.52" text-anchor="middle" class="ta">⌀30.53  RECESS — the puck seat</text>
+  <line x1="156.35" y1="939.52" x2="703.65" y2="939.52" class="dim"/>
+  <polygon points="182.35,939.52 190.35,941.92 190.35,937.12" class="arrow"/>
+  <polygon points="677.65,939.52 669.65,937.12 669.65,941.92" class="arrow"/>
+  <text x="430.00" y="959.52" text-anchor="middle" class="td">⌀33.02  base outside</text>
+  <line x1="88.48" y1="995.52" x2="771.52" y2="995.52" class="dim"/>
+  <polygon points="114.48,995.52 122.48,997.92 122.48,993.12" class="arrow"/>
+  <polygon points="745.52,995.52 737.52,993.12 737.52,997.92" class="arrow"/>
+  <text x="430.00" y="1015.52" text-anchor="middle" class="td">⌀42.07  rim, seen past the base</text>
+  <line x1="541.88" y1="265.58" x2="858.00" y2="300.00" class="ext"/>
+  <line x1="858.00" y1="300.00" x2="872.00" y2="300.00" class="ext"/>
+  <circle cx="541.88" cy="265.58" r="2.2" fill="#4a5560"/>
+  <text x="876.00" y="304.00" text-anchor="start" class="td">mould marks in the ring</text>
+  <line x1="449.98" y1="456.02" x2="858.00" y2="444.00" class="ext"/>
+  <line x1="858.00" y1="444.00" x2="872.00" y2="444.00" class="ext"/>
+  <circle cx="449.98" cy="456.02" r="2.2" fill="#4a5560"/>
+  <text x="876.00" y="448.00" text-anchor="start" class="td">⌀3.7 gate witness</text>
+  <line x1="560.88" y1="551.56" x2="858.00" y2="516.00" class="ext"/>
+  <line x1="858.00" y1="516.00" x2="872.00" y2="516.00" class="ext"/>
+  <circle cx="560.88" cy="551.56" r="2.2" fill="#4a5560"/>
+  <text x="876.00" y="520.00" text-anchor="start" class="td">recess floor — the puck seats here</text>
+  <line x1="556.29" y1="678.10" x2="858.00" y2="588.00" class="ext"/>
+  <line x1="858.00" y1="588.00" x2="872.00" y2="588.00" class="ext"/>
+  <circle cx="556.29" cy="678.10" r="2.2" fill="#4a5560"/>
+  <text x="876.00" y="592.00" text-anchor="start" class="td">foot ring — the cup stands on this</text>
+  <text x="872.00" y="668.00" text-anchor="start" class="ts">The shaded annulus is the only part of the base</text>
+  <text x="872.00" y="689.00" text-anchor="start" class="ts">that touches the table. It is 1.25 mm wide.</text>
+  <text x="872.00" y="710.00" text-anchor="start" class="ts"></text>
+  <text x="872.00" y="731.00" text-anchor="start" class="ts">Anything seated in the recess must finish inside</text>
+  <text x="872.00" y="752.00" text-anchor="start" class="ts">the ring plane, or the cup stops standing on the</text>
+  <text x="872.00" y="773.00" text-anchor="start" class="ts">ring and starts standing on the puck.</text>
+  <text x="620.00" y="46.00" text-anchor="middle" class="tt">Comar 22-0263  ·  base seen from below</text>
+  <text x="620.00" y="70.00" text-anchor="middle" class="ts">shaded annulus is the foot ring the cup actually stands on</text>
+  <rect x="872" y="136" width="340" height="100" fill="none" stroke="#4a5560" stroke-width="1"/>
+  <line x1="872.00" y1="156.00" x2="1212.00" y2="156.00" class="ext"/>
+  <text x="882.00" y="150.00" text-anchor="start" class="tt">FIG. 3  BASE — PLAN FROM BELOW</text>
+  <text x="882.00" y="170.00" text-anchor="start" class="ts">scale</text>
+  <text x="1202.00" y="170.00" text-anchor="end" class="ts">≈4:1</text>
+  <text x="882.00" y="190.00" text-anchor="start" class="ts">ring width</text>
+  <text x="1202.00" y="190.00" text-anchor="end" class="ts">1.25 radial</text>
+  <text x="882.00" y="210.00" text-anchor="start" class="ts">puck seat area</text>
+  <text x="1202.00" y="210.00" text-anchor="end" class="ts">732 mm²</text>
+  <text x="882.00" y="230.00" text-anchor="start" class="ts">source</text>
+  <text x="1202.00" y="230.00" text-anchor="end" class="ts">Comar 22-0263, 2026-08-22</text>
+</svg>

@@ -1,0 +1,136 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 1140" width="1280" height="1140" role="img">
+  <style>
+.ol   { fill:none; stroke:#14181d;   stroke-width:1.6;  stroke-linejoin:round; stroke-linecap:round; }
+.ol2  { fill:none; stroke:#14181d;   stroke-width:1.0;  stroke-linejoin:round; stroke-linecap:round; }
+.hid  { fill:none; stroke:#9aa4ae; stroke-width:1.0;  stroke-dasharray:6 4; }
+.cl   { fill:none; stroke:#4a5560;   stroke-width:0.8;  stroke-dasharray:14 4 3 4; }
+.dim  { fill:none; stroke:#4a5560;   stroke-width:0.9; }
+.ext  { fill:none; stroke:#4a5560;   stroke-width:0.7; }
+.acc  { fill:none; stroke:#b4331f;stroke-width:1.8; }
+.accf { fill:#b4331f; fill-opacity:0.13; stroke:#b4331f; stroke-width:1.4; }
+.good { fill:none; stroke:#1d6b4a;  stroke-width:1.8; }
+.goodf{ fill:#1d6b4a; fill-opacity:0.12; stroke:#1d6b4a; stroke-width:1.4; }
+.t    { font-family:"Helvetica Neue",Helvetica,Arial,sans-serif; font-size:13px; fill:#14181d; }
+.td   { font-family:"Helvetica Neue",Helvetica,Arial,sans-serif; font-size:13px; fill:#4a5560; }
+.ta   { font-family:"Helvetica Neue",Helvetica,Arial,sans-serif; font-size:13px; fill:#b4331f; font-weight:600; }
+.tg   { font-family:"Helvetica Neue",Helvetica,Arial,sans-serif; font-size:13px; fill:#1d6b4a; font-weight:600; }
+.tt   { font-family:"Helvetica Neue",Helvetica,Arial,sans-serif; font-size:15px; fill:#14181d; font-weight:600;
+         letter-spacing:0.04em; }
+.ts   { font-family:"Helvetica Neue",Helvetica,Arial,sans-serif; font-size:11.5px; fill:#4a5560; }
+.arrow{ fill:#4a5560; }
+.arrowa{ fill:#b4331f; }
+</style>
+  <rect width="1280" height="1140" fill="#ffffff"/>
+  <defs><pattern id="h1" patternUnits="userSpaceOnUse" width="7" height="7" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="7" stroke="#4a5560" stroke-width="0.8"/></pattern></defs>
+  <path d="M 298.05,300.00 L 288.70,214.20 L 309.35,214.20 L 313.56,257.88 L 926.44,257.88 L 930.65,214.20 L 951.30,214.20 L 941.95,300.00 L 917.67,300.00 L 917.67,276.60 L 322.33,276.60 L 322.33,300.00 Z" fill="url(#h1)" stroke="#14181d" stroke-width="1.4" stroke-linejoin="round"/>
+  <line x1="309.35" y1="214.20" x2="288.70" y2="214.20" class="ol2"/>
+  <line x1="930.65" y1="214.20" x2="951.30" y2="214.20" class="ol2"/>
+  <line x1="620.00" y1="186.20" x2="620.00" y2="374.00" class="cl"/>
+  <line x1="583.92" y1="276.60" x2="656.08" y2="276.60" class="ol2"/>
+  <line x1="313.56" y1="257.88" x2="313.56" y2="156.20" class="ext"/>
+  <line x1="926.44" y1="257.88" x2="926.44" y2="156.20" class="ext"/>
+  <line x1="313.56" y1="152.20" x2="926.44" y2="152.20" class="dim"/>
+  <polygon points="313.56,152.20 305.56,149.80 305.56,154.60" class="arrow"/>
+  <polygon points="926.44,152.20 934.44,154.60 934.44,149.80" class="arrow"/>
+  <text x="620.00" y="145.20" text-anchor="middle" class="td">⌀31.43  inside floor</text>
+  <line x1="583.92" y1="276.60" x2="583.92" y2="380.00" class="ext"/>
+  <line x1="656.08" y1="276.60" x2="656.08" y2="380.00" class="ext"/>
+  <line x1="557.92" y1="384.00" x2="682.08" y2="384.00" class="dim"/>
+  <polygon points="583.92,384.00 591.92,386.40 591.92,381.60" class="arrow"/>
+  <polygon points="656.08,384.00 648.08,381.60 648.08,386.40" class="arrow"/>
+  <text x="620.00" y="404.00" text-anchor="middle" class="td">⌀3.7  gate witness</text>
+  <line x1="322.33" y1="300.00" x2="322.33" y2="438.00" class="ext"/>
+  <line x1="917.67" y1="300.00" x2="917.67" y2="438.00" class="ext"/>
+  <line x1="296.33" y1="442.00" x2="943.67" y2="442.00" class="acc"/>
+  <polygon points="322.33,442.00 330.33,444.40 330.33,439.60" class="arrowa"/>
+  <polygon points="917.67,442.00 909.67,439.60 909.67,444.40" class="arrowa"/>
+  <text x="620.00" y="462.00" text-anchor="middle" class="ta">⌀30.53   RECESS</text>
+  <text x="620.00" y="482.00" text-anchor="middle" class="ta">sets the puck diameter</text>
+  <line x1="298.05" y1="300.00" x2="298.05" y2="520.00" class="ext"/>
+  <line x1="941.95" y1="300.00" x2="941.95" y2="520.00" class="ext"/>
+  <line x1="272.05" y1="524.00" x2="967.95" y2="524.00" class="dim"/>
+  <polygon points="298.05,524.00 306.05,526.40 306.05,521.60" class="arrow"/>
+  <polygon points="941.95,524.00 933.95,521.60 933.95,526.40" class="arrow"/>
+  <text x="620.00" y="544.00" text-anchor="middle" class="td">⌀33.02  base outside</text>
+  <line x1="941.95" y1="276.60" x2="1017.95" y2="276.60" class="ext"/>
+  <line x1="941.95" y1="300.00" x2="1017.95" y2="300.00" class="ext"/>
+  <line x1="1021.95" y1="250.60" x2="1021.95" y2="326.00" class="acc"/>
+  <polygon points="1021.95,276.60 1019.55,284.60 1024.35,284.60" class="arrowa"/>
+  <polygon points="1021.95,300.00 1024.35,292.00 1019.55,292.00" class="arrowa"/>
+  <text x="1028.95" y="292.30" text-anchor="start" class="ta">1.20</text>
+  <text x="1067.95" y="282.60" text-anchor="start" class="ta">RECESS DEPTH</text>
+  <text x="1067.95" y="300.60" text-anchor="start" class="ts">sets the puck thickness</text>
+  <line x1="313.56" y1="257.88" x2="232.05" y2="257.88" class="ext"/>
+  <line x1="313.56" y1="276.60" x2="232.05" y2="276.60" class="ext"/>
+  <line x1="228.05" y1="231.88" x2="228.05" y2="302.60" class="dim"/>
+  <polygon points="228.05,257.88 225.65,265.88 230.45,265.88" class="arrow"/>
+  <polygon points="228.05,276.60 230.45,268.60 225.65,268.60" class="arrow"/>
+  <text x="221.05" y="271.24" text-anchor="end" class="td">0.96</text>
+  <text x="221.05" y="288.24" text-anchor="end" class="ts">base panel</text>
+  <line x1="298.05" y1="257.88" x2="140.05" y2="257.88" class="ext"/>
+  <line x1="298.05" y1="300.00" x2="140.05" y2="300.00" class="ext"/>
+  <line x1="136.05" y1="231.88" x2="136.05" y2="326.00" class="dim"/>
+  <polygon points="136.05,257.88 133.65,265.88 138.45,265.88" class="arrow"/>
+  <polygon points="136.05,300.00 138.45,292.00 133.65,292.00" class="arrow"/>
+  <text x="129.05" y="282.94" text-anchor="end" class="td">2.16</text>
+  <text x="129.05" y="299.94" text-anchor="end" class="ts">floor → foot</text>
+  <line x1="929.81" y1="289.27" x2="1007.95" y2="358.00" class="ext"/>
+  <line x1="1007.95" y1="358.00" x2="1021.95" y2="358.00" class="ext"/>
+  <circle cx="929.81" cy="289.27" r="2.2" fill="#4a5560"/>
+  <text x="1025.95" y="362.00" text-anchor="start" class="td">1.25  foot ring, radial</text>
+  <path d="M 365.68,930.00 L 395.62,655.44 L 295.83,655.44 L 289.36,722.64 L 155.44,722.64 L 155.44,814.80 L 246.16,814.80 L 246.16,930.00 Z" fill="url(#h1)" stroke="#14181d" stroke-width="1.4" stroke-linejoin="round"/>
+  <path d="M 155.4,722.6 L 145.4,751.4 L 165.4,782.2 L 155.4,814.8" class="ol2"/>
+  <text x="286.00" y="618.00" text-anchor="middle" class="tt">DETAIL A</text>
+  <text x="286.00" y="640.00" text-anchor="middle" class="ts">base corner, enlarged ≈25:1</text>
+  <line x1="246.16" y1="930.00" x2="246.16" y2="988.00" class="ext"/>
+  <line x1="365.68" y1="930.00" x2="365.68" y2="988.00" class="ext"/>
+  <line x1="220.16" y1="992.00" x2="391.68" y2="992.00" class="dim"/>
+  <polygon points="246.16,992.00 254.16,994.40 254.16,989.60" class="arrow"/>
+  <polygon points="365.68,992.00 357.68,989.60 357.68,994.40" class="arrow"/>
+  <text x="305.92" y="1012.00" text-anchor="middle" class="td">1.25</text>
+  <text x="305.92" y="1030.00" text-anchor="middle" class="ts">foot ring</text>
+  <line x1="365.68" y1="814.80" x2="427.68" y2="814.80" class="ext"/>
+  <line x1="365.68" y1="930.00" x2="427.68" y2="930.00" class="ext"/>
+  <line x1="431.68" y1="788.80" x2="431.68" y2="956.00" class="acc"/>
+  <polygon points="431.68,814.80 429.28,822.80 434.08,822.80" class="arrowa"/>
+  <polygon points="431.68,930.00 434.08,922.00 429.28,922.00" class="arrowa"/>
+  <text x="438.68" y="876.40" text-anchor="start" class="ta">1.20</text>
+  <line x1="365.68" y1="722.64" x2="517.68" y2="722.64" class="ext"/>
+  <line x1="365.68" y1="814.80" x2="517.68" y2="814.80" class="ext"/>
+  <line x1="521.68" y1="696.64" x2="521.68" y2="840.80" class="dim"/>
+  <polygon points="521.68,722.64 519.28,730.64 524.08,730.64" class="arrow"/>
+  <polygon points="521.68,814.80 524.08,806.80 519.28,806.80" class="arrow"/>
+  <text x="528.68" y="772.72" text-anchor="start" class="td">0.96</text>
+  <line x1="327.52" y1="689.04" x2="417.68" y2="647.44" class="ext"/>
+  <line x1="417.68" y1="647.44" x2="431.68" y2="647.44" class="ext"/>
+  <circle cx="327.52" cy="689.04" r="2.2" fill="#4a5560"/>
+  <text x="435.68" y="651.44" text-anchor="start" class="td">0.80 wall</text>
+  <line x1="246.16" y1="872.40" x2="140.16" y2="760.80" class="ext"/>
+  <line x1="140.16" y1="760.80" x2="126.16" y2="760.80" class="ext"/>
+  <circle cx="246.16" cy="872.40" r="2.2" fill="#4a5560"/>
+  <text x="122.16" y="764.80" text-anchor="end" class="td">recess wall</text>
+  <text x="662.00" y="662.00" text-anchor="start" class="ts">Draft on the recess wall is real but sits below the resolution of the</text>
+  <text x="662.00" y="683.00" text-anchor="start" class="ts">source drawing: any half-angle from 0° to about 3° is consistent with it.</text>
+  <text x="662.00" y="704.00" text-anchor="start" class="ts">Treat ⌀30.53 as the diameter at the opening and allow the deepest</text>
+  <text x="662.00" y="725.00" text-anchor="start" class="ts">plane to be up to 0.13 mm smaller until a sample is measured.</text>
+  <text x="662.00" y="746.00" text-anchor="start" class="ts"></text>
+  <text x="662.00" y="767.00" text-anchor="start" class="ts">Corner radii are likewise not resolvable; ~0.3 mm is typical for the</text>
+  <text x="662.00" y="788.00" text-anchor="start" class="ts">heel of a moulded PP cup.</text>
+  <text x="662.00" y="809.00" text-anchor="start" class="ts"></text>
+  <text x="662.00" y="830.00" text-anchor="start" class="ts">The ⌀3.7 gate witness sits in the centre of the recess ceiling. If it</text>
+  <text x="662.00" y="851.00" text-anchor="start" class="ts">stands proud rather than flush, a rigid puck will rock on it — check a</text>
+  <text x="662.00" y="872.00" text-anchor="start" class="ts">sample with a straightedge before fixing the puck's back face flat.</text>
+  <text x="640.00" y="46.00" text-anchor="middle" class="tt">Comar 22-0263  ·  base underside, section</text>
+  <text x="640.00" y="70.00" text-anchor="middle" class="ts">the two red dimensions are the ones that constrain the puck</text>
+  <rect x="880" y="1012" width="370" height="100" fill="none" stroke="#4a5560" stroke-width="1"/>
+  <line x1="880.00" y1="1032.00" x2="1250.00" y2="1032.00" class="ext"/>
+  <text x="890.00" y="1026.00" text-anchor="start" class="tt">FIG. 2  BASE RECESS</text>
+  <text x="890.00" y="1046.00" text-anchor="start" class="ts">main view</text>
+  <text x="1240.00" y="1046.00" text-anchor="end" class="ts">≈5:1</text>
+  <text x="890.00" y="1066.00" text-anchor="start" class="ts">⌀30.53 / 1.20 / 0.96</text>
+  <text x="1240.00" y="1066.00" text-anchor="end" class="ts">DERIVED, ±0.12</text>
+  <text x="890.00" y="1086.00" text-anchor="start" class="ts">⌀33.02 / ⌀31.43</text>
+  <text x="1240.00" y="1086.00" text-anchor="end" class="ts">STATED</text>
+  <text x="890.00" y="1106.00" text-anchor="start" class="ts">source</text>
+  <text x="1240.00" y="1106.00" text-anchor="end" class="ts">Comar 22-0263, 2026-08-22</text>
+</svg>

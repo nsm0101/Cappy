@@ -1,0 +1,121 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1060" width="1200" height="1060" role="img">
+  <style>
+.ol   { fill:none; stroke:#14181d;   stroke-width:1.6;  stroke-linejoin:round; stroke-linecap:round; }
+.ol2  { fill:none; stroke:#14181d;   stroke-width:1.0;  stroke-linejoin:round; stroke-linecap:round; }
+.hid  { fill:none; stroke:#9aa4ae; stroke-width:1.0;  stroke-dasharray:6 4; }
+.cl   { fill:none; stroke:#4a5560;   stroke-width:0.8;  stroke-dasharray:14 4 3 4; }
+.dim  { fill:none; stroke:#4a5560;   stroke-width:0.9; }
+.ext  { fill:none; stroke:#4a5560;   stroke-width:0.7; }
+.acc  { fill:none; stroke:#b4331f;stroke-width:1.8; }
+.accf { fill:#b4331f; fill-opacity:0.13; stroke:#b4331f; stroke-width:1.4; }
+.good { fill:none; stroke:#1d6b4a;  stroke-width:1.8; }
+.goodf{ fill:#1d6b4a; fill-opacity:0.12; stroke:#1d6b4a; stroke-width:1.4; }
+.t    { font-family:"Helvetica Neue",Helvetica,Arial,sans-serif; font-size:13px; fill:#14181d; }
+.td   { font-family:"Helvetica Neue",Helvetica,Arial,sans-serif; font-size:13px; fill:#4a5560; }
+.ta   { font-family:"Helvetica Neue",Helvetica,Arial,sans-serif; font-size:13px; fill:#b4331f; font-weight:600; }
+.tg   { font-family:"Helvetica Neue",Helvetica,Arial,sans-serif; font-size:13px; fill:#1d6b4a; font-weight:600; }
+.tt   { font-family:"Helvetica Neue",Helvetica,Arial,sans-serif; font-size:15px; fill:#14181d; font-weight:600;
+         letter-spacing:0.04em; }
+.ts   { font-family:"Helvetica Neue",Helvetica,Arial,sans-serif; font-size:11.5px; fill:#4a5560; }
+.arrow{ fill:#4a5560; }
+.arrowa{ fill:#b4331f; }
+</style>
+  <rect width="1200" height="1060" fill="#ffffff"/>
+  <defs><pattern id="h1" patternUnits="userSpaceOnUse" width="7" height="7" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="7" stroke="#4a5560" stroke-width="0.8"/></pattern></defs>
+  <path d="M 202.07,804.00 L 142.34,256.20 L 162.53,256.20 L 212.56,775.49 L 627.44,775.49 L 677.47,256.20 L 697.66,256.20 L 637.93,804.00 L 621.50,804.00 L 621.50,788.16 L 218.50,788.16 L 218.50,804.00 Z" fill="url(#h1)" stroke="#14181d" stroke-width="1.4" stroke-linejoin="round"/>
+  <line x1="420.00" y1="216.20" x2="420.00" y2="844.00" class="cl"/>
+  <path d="M 412.0,775.5 L 420.0,767.5 L 428.0,775.5" class="ol2"/>
+  <line x1="636.33" y1="693.58" x2="648.97" y2="693.58" class="ol2"/>
+  <line x1="203.67" y1="693.58" x2="191.03" y2="693.58" class="ol2"/>
+  <line x1="174.03" y1="693.58" x2="186.03" y2="693.58" class="ext"/>
+  <text x="168.03" y="697.58" text-anchor="end" class="ts">5 mL</text>
+  <line x1="643.68" y1="617.26" x2="657.29" y2="617.26" class="ol2"/>
+  <line x1="196.32" y1="617.26" x2="182.71" y2="617.26" class="ol2"/>
+  <line x1="165.71" y1="617.26" x2="177.71" y2="617.26" class="ext"/>
+  <text x="159.71" y="621.26" text-anchor="end" class="ts">10 mL</text>
+  <line x1="650.58" y1="545.68" x2="665.10" y2="545.68" class="ol2"/>
+  <line x1="189.42" y1="545.68" x2="174.90" y2="545.68" class="ol2"/>
+  <line x1="157.90" y1="545.68" x2="169.90" y2="545.68" class="ext"/>
+  <text x="151.90" y="549.68" text-anchor="end" class="ts">15 mL</text>
+  <line x1="657.08" y1="478.16" x2="672.46" y2="478.16" class="ol2"/>
+  <line x1="182.92" y1="478.16" x2="167.54" y2="478.16" class="ol2"/>
+  <line x1="150.54" y1="478.16" x2="162.54" y2="478.16" class="ext"/>
+  <text x="144.54" y="482.16" text-anchor="end" class="ts">20 mL</text>
+  <line x1="663.25" y1="414.17" x2="679.44" y2="414.17" class="ol2"/>
+  <line x1="176.75" y1="414.17" x2="160.56" y2="414.17" class="ol2"/>
+  <line x1="143.56" y1="414.17" x2="155.56" y2="414.17" class="ext"/>
+  <text x="137.56" y="418.17" text-anchor="end" class="ts">25 mL</text>
+  <line x1="669.11" y1="353.28" x2="686.08" y2="353.28" class="ol2"/>
+  <line x1="170.89" y1="353.28" x2="153.92" y2="353.28" class="ol2"/>
+  <line x1="136.92" y1="353.28" x2="148.92" y2="353.28" class="ext"/>
+  <text x="130.92" y="357.28" text-anchor="end" class="ts">30 mL</text>
+  <line x1="142.34" y1="256.20" x2="142.34" y2="144.20" class="ext"/>
+  <line x1="697.66" y1="256.20" x2="697.66" y2="144.20" class="ext"/>
+  <line x1="142.34" y1="140.20" x2="697.66" y2="140.20" class="dim"/>
+  <polygon points="142.34,140.20 134.34,137.80 134.34,142.60" class="arrow"/>
+  <polygon points="697.66,140.20 705.66,142.60 705.66,137.80" class="arrow"/>
+  <text x="420.00" y="133.20" text-anchor="middle" class="td">⌀42.07  rim outside</text>
+  <line x1="162.53" y1="256.20" x2="162.53" y2="192.20" class="ext"/>
+  <line x1="677.47" y1="256.20" x2="677.47" y2="192.20" class="ext"/>
+  <line x1="162.53" y1="188.20" x2="677.47" y2="188.20" class="dim"/>
+  <polygon points="162.53,188.20 154.53,185.80 154.53,190.60" class="arrow"/>
+  <polygon points="677.47,188.20 685.47,190.60 685.47,185.80" class="arrow"/>
+  <text x="420.00" y="181.20" text-anchor="middle" class="td">⌀39.01  rim inside</text>
+  <line x1="202.07" y1="804.00" x2="202.07" y2="868.00" class="ext"/>
+  <line x1="637.93" y1="804.00" x2="637.93" y2="868.00" class="ext"/>
+  <line x1="176.07" y1="872.00" x2="663.93" y2="872.00" class="dim"/>
+  <polygon points="202.07,872.00 210.07,874.40 210.07,869.60" class="arrow"/>
+  <polygon points="637.93,872.00 629.93,869.60 629.93,874.40" class="arrow"/>
+  <text x="420.00" y="892.00" text-anchor="middle" class="td">⌀33.02  base outside</text>
+  <line x1="212.56" y1="775.49" x2="212.56" y2="924.00" class="ext"/>
+  <line x1="627.44" y1="775.49" x2="627.44" y2="924.00" class="ext"/>
+  <line x1="186.56" y1="928.00" x2="653.44" y2="928.00" class="dim"/>
+  <polygon points="212.56,928.00 220.56,930.40 220.56,925.60" class="arrow"/>
+  <polygon points="627.44,928.00 619.44,925.60 619.44,930.40" class="arrow"/>
+  <text x="420.00" y="948.00" text-anchor="middle" class="td">⌀31.43  inside floor</text>
+  <line x1="697.66" y1="256.20" x2="729.66" y2="256.20" class="ext"/>
+  <line x1="697.66" y1="804.00" x2="729.66" y2="804.00" class="ext"/>
+  <line x1="733.66" y1="256.20" x2="733.66" y2="804.00" class="dim"/>
+  <polygon points="733.66,256.20 736.06,248.20 731.26,248.20" class="arrow"/>
+  <polygon points="733.66,804.00 731.26,812.00 736.06,812.00" class="arrow"/>
+  <text x="740.66" y="534.10" text-anchor="start" class="td">41.50</text>
+  <text x="740.66" y="552.10" text-anchor="start" class="ts">overall</text>
+  <line x1="680.79" y1="322.20" x2="786.00" y2="290.20" class="ext"/>
+  <line x1="786.00" y1="290.20" x2="800.00" y2="290.20" class="ext"/>
+  <circle cx="680.79" cy="322.20" r="2.2" fill="#4a5560"/>
+  <text x="804.00" y="294.20" text-anchor="start" class="td">1.53  wall at rim</text>
+  <line x1="638.31" y1="735.89" x2="786.00" y2="556.20" class="ext"/>
+  <line x1="786.00" y1="556.20" x2="800.00" y2="556.20" class="ext"/>
+  <circle cx="638.31" cy="735.89" r="2.2" fill="#4a5560"/>
+  <text x="804.00" y="560.20" text-anchor="start" class="td">0.80  wall just above the base</text>
+  <line x1="426.00" y1="770.49" x2="786.00" y2="676.20" class="ext"/>
+  <line x1="786.00" y1="676.20" x2="800.00" y2="676.20" class="ext"/>
+  <circle cx="426.00" cy="770.49" r="2.2" fill="#4a5560"/>
+  <text x="804.00" y="680.20" text-anchor="start" class="td">gate vestige, inside floor</text>
+  <text x="800.00" y="348.20" text-anchor="start" class="ts">sidewall taper 6.22° per side</text>
+  <text x="800.00" y="368.20" text-anchor="start" class="ts">brim capacity 38.5 mL modelled</text>
+  <text x="800.00" y="388.20" text-anchor="start" class="ts">against 39.6 cc stated</text>
+  <text x="800.00" y="408.20" text-anchor="start" class="ts"></text>
+  <text x="800.00" y="428.20" text-anchor="start" class="ts">graduations moulded into the wall;</text>
+  <text x="800.00" y="448.20" text-anchor="start" class="ts">each tick drawn at the height that</text>
+  <text x="800.00" y="468.20" text-anchor="start" class="ts">volume actually stands at.</text>
+  <circle cx="607.93" cy="789.48" r="56.00" fill="none" stroke="#4a5560" stroke-width="1.1" stroke-dasharray="5 4"/>
+  <text x="649.93" y="745.80" text-anchor="middle" class="tt">A</text>
+  <line x1="647.93" y1="829.48" x2="786.00" y2="736.20" class="ext"/>
+  <line x1="786.00" y1="736.20" x2="800.00" y2="736.20" class="ext"/>
+  <circle cx="647.93" cy="829.48" r="2.2" fill="#4a5560"/>
+  <text x="804.00" y="740.20" text-anchor="start" class="td">DETAIL A  →  FIG. 2</text>
+  <text x="600.00" y="46.00" text-anchor="middle" class="tt">Comar 22-0263  ·  30 mL embossed dosage cup</text>
+  <text x="600.00" y="70.00" text-anchor="middle" class="ts">the puck seats in the recess on the underside of this base</text>
+  <rect x="800" y="922" width="390" height="100" fill="none" stroke="#4a5560" stroke-width="1"/>
+  <line x1="800.00" y1="942.00" x2="1190.00" y2="942.00" class="ext"/>
+  <text x="810.00" y="936.00" text-anchor="start" class="tt">FIG. 1  CUP SECTION</text>
+  <text x="810.00" y="956.00" text-anchor="start" class="ts">scale</text>
+  <text x="1180.00" y="956.00" text-anchor="end" class="ts">≈3.5:1</text>
+  <text x="810.00" y="976.00" text-anchor="start" class="ts">units</text>
+  <text x="1180.00" y="976.00" text-anchor="end" class="ts">millimetres</text>
+  <text x="810.00" y="996.00" text-anchor="start" class="ts">all dimensions</text>
+  <text x="1180.00" y="996.00" text-anchor="end" class="ts">STATED on source drawing</text>
+  <text x="810.00" y="1016.00" text-anchor="start" class="ts">source</text>
+  <text x="1180.00" y="1016.00" text-anchor="end" class="ts">Comar 22-0263, 2026-08-22</text>
+</svg>
