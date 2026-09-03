@@ -60,7 +60,9 @@ The four medications do not share a dosing shape:
 | **Diphenhydramine** | **weight (~1 mg/kg)** | **q6h** | **6 doses** | **2 yr (hard), 6 yr (soft)** |
 | **Cetirizine** | **age band, not weight** | **q24h** | **1 dose** | **2 yr (hard), 6 yr (soft)** |
 
-Cetirizine breaks the existing engine in two ways: it is dosed by **age band** rather than mg/kg, and it is **once daily**, so "next dose" is tomorrow morning, not in six hours. This is precisely why the PRN/scheduled distinction in §2 is necessary rather than cosmetic.
+Cetirizine breaks the existing engine in two ways: it is dosed by **age band** rather than mg/kg, and it is **once daily**, so "next dose" is tomorrow morning, not in six hours. This is precisely why the regimen model in §2 is necessary rather than cosmetic.
+
+A fourth medication, **PEG 3350**, is added in §2.8 as the first `caregiver_specified` entry — Cappy! computes nothing for it and records what a prescriber ordered. It is included in 0.8 specifically to prove the general case, because a scheduled-medication system that only handles medications Cappy! can compute is not a scheduled-medication system.
 
 ### 1.2 Verified dosing data
 
@@ -101,17 +103,35 @@ Extend `AgeGate` with a `.blocked(reason:)` case rather than overloading `.emerg
 ### 1.4 Type changes
 
 ```swift
+enum DoseBasis: String { case weightBased, ageBand, caregiverSpecified }
+enum DosingMode: String { case prn, scheduled }
+
 enum MedicationKind: String, CaseIterable {
-    case acetaminophen, ibuprofen, cetirizine, diphenhydramine
+    case acetaminophen, ibuprofen, cetirizine, diphenhydramine, peg3350
 
     var isAntipyretic: Bool { self == .acetaminophen || self == .ibuprofen }
     var isAntihistamine: Bool { self == .cetirizine || self == .diphenhydramine }
     /// Sedating (first-generation) antihistamine — drives the §5 warning copy.
     var isSedatingAntihistamine: Bool { self == .diphenhydramine }
-    var dosingBasis: DosingBasis { self == .cetirizine ? .ageBand : .weight }
-    var defaultDosingMode: DosingMode { self == .cetirizine ? .scheduled : .prn }
+
+    var doseBasis: DoseBasis {
+        switch self {
+        case .acetaminophen, .ibuprofen, .diphenhydramine: return .weightBased
+        case .cetirizine:                                  return .ageBand
+        case .peg3350:                                     return .caregiverSpecified
+        }
+    }
+    /// Suggested default when a caregiver creates a regimen; always overridable.
+    var defaultDosingMode: DosingMode {
+        switch self {
+        case .cetirizine, .peg3350: return .scheduled
+        default:                    return .prn
+        }
+    }
 }
 ```
+
+`doseBasis` is mirrored on the `medications` row (§2.4) so the server can enforce it independently. The Swift enum is a convenience for the client, **not** the authority — a client that computes a dose for a `caregiverSpecified` medication must be rejected server-side, not merely discouraged.
 
 `DosingResult` becomes `[MedicationKind: MedDose]` keyed storage rather than two optional named fields, so adding a fifth medication is a catalog change, not a struct change.
 
@@ -187,59 +207,201 @@ Both new medications fall to the `else` branch and use `min_interval_hours` verb
 
 ---
 
-## 2. PRN vs scheduled
+## 2. Regimens — PRN vs scheduled, and scheduled-medication tracking
 
-### 2.1 Semantics
+This section replaces the earlier family-level `dosing_mode` design. **The mode belongs to the child, not the family.** Ava takes cetirizine daily at 8 AM; Noah does not. A family-level toggle cannot express that, and it was wrong.
 
-A per-`(family, medication)` mode, defaulting from `MedicationKind.defaultDosingMode`, overridable by an admin, stored server-side so every caregiver device agrees.
+### 2.1 Two orthogonal axes
 
-**PRN (as needed)** — the med is given in response to a symptom.
-- Widget shows *time until next dose is safe*, counting down.
-- No proactive "it's time" notification. A PRN notification would be telling a parent to medicate a child who may be fine.
-- Notification on window-open is **opt-in per medication** and framed as permission, not instruction: *"Ava's next ibuprofen can be given now if she still needs it."*
-- Dashboard shows it under **Recently given** (§4) while inside its interval.
+A medication has a **dose basis** (how much) and a regimen has a **mode** (when). They are independent, and conflating them is what makes medication apps brittle.
 
-**Scheduled** — the med is given on a clock regardless of symptoms.
-- Widget shows *time until next dose is due*.
-- Proactive reminder at the due time, **on by default** for that medication.
-- Missed-dose state after a grace window (default 2h, per-medication configurable): *"Ava's cetirizine was due at 8:00 AM."*
-- Dashboard shows it under **Today's schedule**.
+**Dose basis — a property of the medication, in the catalog:**
 
-The two modes must produce visibly different widget and dashboard language. If a parent cannot tell them apart at a glance, the setting is doing nothing.
+| Basis | Input | Medications |
+|---|---|---|
+| `weight_based` | weight × mg/kg, capped | acetaminophen, ibuprofen, diphenhydramine |
+| `age_band` | date of birth → band → fixed mg | **cetirizine** |
+| `caregiver_specified` | **Cappy computes nothing**; the caregiver records what was prescribed | PEG 3350, vitamins, every future Rx |
 
-### 2.2 Schema
+**Mode — a property of the regimen, per child:**
+
+| Mode | Meaning |
+|---|---|
+| `prn` | given in response to a symptom |
+| `scheduled` | given on a clock regardless of symptoms |
+
+Cetirizine ships as `age_band` + `scheduled`. Diphenhydramine is `weight_based` + `prn`. PEG 3350 is `caregiver_specified` + `scheduled`. Nothing about the design assumes those pairings, which is the point.
+
+### 2.2 Cetirizine: dose from date of birth, zero extra data entry
+
+**Verified: `children.date_of_birth` is `date not null`** (`20260101000000_init.sql`) — captured at child creation and already required. Cetirizine's dose is therefore fully determined by data the app has on day one. No weight, no caregiver input, no setup step.
+
+```swift
+static func cetirizineDose(ageMonths: Int) -> MedDose? {
+    switch ageMonths {
+    case ..<24:   return nil            // hard block — §1.3
+    case 24..<72: return band(mg: 2.5, mL: 2.5, max24h: 5)
+    case 72..<144: return band(mg: 5,  mL: 5,   max24h: 10)
+    default:      return band(mg: 10,  mL: 10,  max24h: 10)
+    }
+}
+```
+
+**The band must be re-evaluated at every occurrence, never frozen at regimen creation.** A child on daily cetirizine will cross the 6-year and 12-year boundaries while the regimen is active. A dose captured once and stored is a dose that silently becomes wrong on a birthday.
+
+This produces a genuinely good product moment, and it should be built deliberately rather than fallen into:
+
+> **Ava turned 6.** Her daily cetirizine dose increases from 2.5 mg (2.5 mL) to 5 mg (5 mL). Cappy! has updated her schedule.
+
+Fire it as a `regimen_dose_changed` notification to all caregivers on the first occurrence after the boundary, and record it in `audit_events`. The dose on the card changed by itself — the caregivers need to be told why, or the app looks broken at best and untrustworthy at worst.
+
+### 2.3 PEG 3350 and the `caregiver_specified` mode
+
+**Cappy! must never compute a PEG 3350 dose.** MiraLAX and its generics are OTC-labeled for **17 years and older**; the label reads "ask a doctor" for 16 and under. Pediatric use is off-label, under physician supervision, typically 0.5–1.5 g/kg/day titrated to effect with a 17 g/day ceiling — and the titration is the prescriber's clinical judgment about *this* child's response, not arithmetic.
+
+Any app that renders a computed pediatric PEG 3350 number is (a) giving off-label dosing guidance it is not qualified to give and (b) inviting exactly the liability the coordination-aid framing exists to avoid.
+
+So the third mode does something different and more honest: **Cappy! records and tracks what someone else decided.**
+
+Regimen creation for a `caregiver_specified` medication captures:
+
+- Amount and unit as free entry with a unit picker (`17 g`, `1 capful`, `half capful`, `8.5 g`)
+- Schedule times
+- **Provenance, required:** "As directed by ___" — prescriber name, or "our pediatrician", or "the product label"
+
+Every dose card for that medication then displays the amount **with its provenance attached** and no Cappy!-computed figure anywhere on the surface:
+
+```
+PEG 3350                          Ava
+17 g  ·  once daily, 8:00 AM
+As directed by Dr. Okafor
+Cappy! does not calculate this dose.
+```
+
+That last line is not boilerplate — it is the visible difference between the two kinds of card, and a caregiver should be able to tell at a glance whether the number in front of them came from Cappy! or from their doctor.
+
+This mode is also the **forward compatibility hook for the entire Rx system**: a prescription regimen is a `caregiver_specified` regimen whose provenance is the pharmacy's sig rather than a caregiver's typing. Building it now means `RX-PHARMACY-ARCHITECTURE.md` §7 has somewhere to land.
+
+### 2.4 Schema
 
 ```sql
--- 20260729121000_dosing_mode.sql
+-- 20260729121000_regimens.sql
 create type dosing_mode as enum ('prn', 'scheduled');
+create type dose_basis  as enum ('weight_based', 'age_band', 'caregiver_specified');
 
-create table public.family_medication_settings (
-  family_id       uuid not null references public.families(id) on delete cascade,
-  medication_id   uuid not null references public.medications(id),
-  dosing_mode     dosing_mode not null default 'prn',
-  scheduled_times time[]      not null default '{}',   -- local wall-clock, e.g. {08:00}
-  grace_minutes   integer     not null default 120,
-  updated_by      uuid        not null references public.profiles(id),
-  updated_at      timestamptz not null default now(),
-  primary key (family_id, medication_id)
-);
-```
+alter table public.medications add column dose_basis dose_basis not null default 'weight_based';
 
-RLS: family members select; admins insert/update. Follow the `family_med_brands` policy shape (`20260630134022`) exactly — it is the closest existing analogue and is already reviewed.
-
-`scheduled_times` is wall-clock, not timestamptz, deliberately: an 8 AM daily antihistamine should stay at 8 AM across a DST boundary and across travel. Resolve against the family's timezone at notification time.
-
-**Verified: `families` has no `timezone` column** — no migration in `app/supabase/migrations/` defines one. This migration must add it:
-
-```sql
 alter table public.families add column timezone text not null default 'America/New_York';
+
+create table public.medication_regimens (
+  id                 uuid primary key default gen_random_uuid(),
+  child_id           uuid not null references public.children(id) on delete cascade,
+  medication_id      uuid not null references public.medications(id),
+  mode               dosing_mode not null,
+  scheduled_times    time[]      not null default '{}',  -- local wall-clock
+  days_of_week       smallint[]  not null default '{0,1,2,3,4,5,6}',
+  -- caregiver_specified only; null for computed medications
+  specified_amount   numeric(8,3),
+  specified_unit     text,
+  specified_by       text,                                -- provenance, required when amount is set
+  grace_minutes      integer     not null default 120,
+  starts_on          date        not null default current_date,
+  ends_on            date,                                -- null = ongoing
+  active             boolean     not null default true,
+  created_by         uuid        not null references public.profiles(id),
+  created_at         timestamptz not null default now(),
+  constraint specified_needs_provenance
+    check (specified_amount is null or (specified_unit is not null and specified_by is not null)),
+  constraint scheduled_needs_times
+    check (mode <> 'scheduled' or cardinality(scheduled_times) > 0)
+);
+create unique index on public.medication_regimens (child_id, medication_id) where active;
+
+-- Sparse: holds ONLY deviations. A given dose is a dose_event; a normal
+-- day has no row here at all.
+create table public.regimen_exceptions (
+  regimen_id   uuid not null references public.medication_regimens(id) on delete cascade,
+  occurrence_at timestamptz not null,   -- the resolved scheduled instant
+  kind         text not null check (kind in ('skipped', 'held', 'missed_ack')),
+  note         text,
+  recorded_by  uuid not null references public.profiles(id),
+  recorded_at  timestamptz not null default now(),
+  primary key (regimen_id, occurrence_at)
+);
+
+-- Freezes the occurrence a dose was logged against, at log time.
+alter table public.dose_events add column scheduled_for timestamptz;
 ```
 
-Backfill from the creating device's `TimeZone.current.identifier` on next app launch, and expose it in Family settings. Without this, scheduled reminders fire in the wrong hour for every family outside US Eastern.
+RLS: caregivers with access to the child may select; caregivers and admins may write; read-only and guest roles select only. Follow the `caregiver_child_access` policy shape in `20260101000100_rls.sql` — regimens are child-scoped, so family-scoped policies like `family_med_brands` are the wrong template here.
 
-### 2.3 UI
+`scheduled_times` is wall-clock, not `timestamptz`, deliberately: an 8 AM daily antihistamine stays at 8 AM across a DST boundary and across travel. Resolve against `families.timezone` at notification time. Backfill that column from the creating device's `TimeZone.current.identifier` on next launch and surface it in Family settings — without it, every family outside US Eastern gets reminders in the wrong hour.
 
-Family → Medications. One row per medication in the family's catalog: segmented PRN / Scheduled, and when Scheduled, a time-of-day list with add/remove. Reuse `SegmentedControl` and the `brandCard` layout in `FamilyDashboardView.swift:142`. Changing the mode is an audited event (`audit_events`, action `medication_mode_changed`) — it changes what the app will and won't tell a caregiver.
+### 2.5 Adherence tracking without a materialization job
+
+The obvious design — a nightly job that materializes a row per scheduled dose per child — is the wrong one. It needs a scheduler, it drifts when a regimen changes, it accumulates rows forever, and it fails silently.
+
+**Occurrences are computed, not stored.** For any `(regimen, date range)`, expand `scheduled_times × days_of_week` against `families.timezone`. Then:
+
+| State | Derivation |
+|---|---|
+| **Given** | a `dose_events` row whose `scheduled_for` equals the occurrence |
+| **Skipped / held** | a `regimen_exceptions` row for the occurrence |
+| **Due** | occurrence is now, within grace, nothing recorded |
+| **Missed** | occurrence is past grace, nothing recorded |
+| **Upcoming** | occurrence is in the future |
+
+Nothing is written for a normal day. `dose_events` already carries the givens; exceptions are rare by construction. Storage is proportional to *deviation*, not to time.
+
+**Why `dose_events.scheduled_for` is written at log time and never re-derived:** if a caregiver moves the schedule from 8 AM to 9 AM in March, re-deriving history would retroactively mark every February dose as an hour late. Freezing the association at log time means changing a schedule changes the future and leaves the record alone. Match rule at log time: nearest occurrence within ±`grace_minutes` on the same local day, else `null` (an off-schedule dose, which is legitimate and should display as such).
+
+**Views to expose:**
+
+- `regimen_adherence(regimen_id, from, to)` → given / missed / skipped counts and a percentage
+- `child_schedule_today(child_id)` → today's occurrences with state, powering the dashboard and widget
+
+Show adherence as **counts before percentages** — "given 24 of 28 days" is honest and actionable; "86%" invites a parent to feel graded. Offer a date-ranged export (CSV/PDF) for appointments; a parent handing a GI specialist eight weeks of PEG 3350 adherence data is the concrete payoff for tracking at all.
+
+### 2.6 Behavior by mode
+
+**PRN** — no proactive "it's time." A PRN notification tells a parent to medicate a child who may be fine.
+- Widget: *time until next dose is safe*, counting down
+- Window-open notification is **opt-in per medication**, framed as permission: *"Ava's next ibuprofen can be given now if she still needs it."*
+- Dashboard: under **Recently given** (§4), while inside its interval
+- No adherence tracking — there is nothing to adhere to
+
+**Scheduled** — proactive by default.
+- Widget: *time until next dose is due*
+- Reminder at the due time, **on by default**
+- Missed state after grace: *"Ava's cetirizine was due at 8:00 AM."* Sent once, not repeatedly
+- Dashboard: under **Today's schedule**, with a **Skip** affordance — a caregiver who deliberately holds a dose must be able to say so, or "missed" becomes noise and the adherence number becomes a lie
+- Full adherence history
+
+The two modes must read differently at a glance. If a parent can't tell them apart, the distinction is doing no work.
+
+### 2.7 UI
+
+**Child detail → Medications.** The regimen list lives on the child, next to weight and allergies, because that is where a caregiver already goes to answer "what does Ava take?"
+
+- Each row: medication card styling, mode chip, dose (computed or specified + provenance), schedule summary, adherence sparkline for scheduled meds
+- **Add medication** → pick from catalog → mode → dose (auto-filled and read-only for `weight_based` / `age_band`; required entry with provenance for `caregiver_specified`) → times → confirm
+- Editing a regimen is audited (`audit_events`, action `regimen_changed`) and notifies other caregivers. Changing what the app will and won't tell someone about a child's medication is not a silent preference change
+
+Reuse `SegmentedControl` for mode and the `brandCard` layout at `FamilyDashboardView.swift:142` for the row treatment.
+
+### 2.8 Catalog addition: PEG 3350
+
+`20260729124000_seed_peg3350.sql`:
+
+| generic_name | concentration_label | formulation | dose_basis | min_age_months | min_interval_hours | max_doses_per_24h |
+|---|---|---|---|---|---|---|
+| peg3350 | 17 g / capful | powder | caregiver_specified | 0 | 24 | 1 |
+
+`medication_formulation` has no `powder` value — the enum needs extending (`alter type medication_formulation add value 'powder'`). Note that adding an enum value cannot run inside a transaction block in older Postgres; check the Supabase migration runner's behavior before assuming it works.
+
+`min_age_months = 0` is deliberate: the age gate for an off-label medication is the prescriber's, not Cappy!'s, and a hard block would prevent a caregiver from tracking a dose their doctor actually ordered. The card carries the provenance line instead. This is the one place where the conservative default is *not* to block — because here, blocking would be the app substituting its judgment for a physician's.
+
+An asset for the med card exists at `Cappy Design System_6.29.26/assets/Components/PEG3350.png`, alongside `Loratidine.png` and `Fexofenadine.png` — the obvious next two `age_band` antihistamines once this lands.
 
 ---
 
@@ -465,7 +627,9 @@ Adopt `xclaude-plugin:accessibility-testing` for the automated portion and add a
 | **0.8.0-b** | Migrations (meds, dosing_mode, prefs, interactions) on `cappy-dev` | `compute_dose_status` verified against a q24h medication |
 | **0.8.0-c** | Cetirizine + diphenhydramine end-to-end: slugs, dosing, cards, age gates, aasa-worker | Physical tag tap → correct card → correct dose |
 | **0.8.0-d** | Interaction warning + override audit | Both directions, both windows |
-| **0.8.1** | PRN/scheduled modes + Family → Medications UI | Modes visibly change dashboard + widget language |
+| **0.8.1a** | Regimen model: `medication_regimens`, `regimen_exceptions`, `dose_events.scheduled_for`, `dose_basis`, `families.timezone` | Cetirizine daily regimen created from DOB with zero extra entry |
+| **0.8.1b** | Scheduled tracking: computed occurrences, adherence views, skip/hold, Child → Medications UI | Adherence over a 30-day window matches a hand-checked ledger, including a DST boundary |
+| **0.8.1c** | PEG 3350 + `caregiver_specified` path + age-band-change notification | No computed number renders for PEG 3350; band change at a simulated 6th birthday notifies and updates |
 | **0.8.2** | APNs infra, device tokens, Edge Function, preference matrix | Dose on device A → push on device B < 5s |
 | **0.8.3** | Dashboard RecentMedsStrip + widget v2 + ordering UI | Snapshot v1 → v2 upgrade doesn't crash a live widget |
 | **0.8.4** | Accessibility program + CI gates | AX5 clean, VoiceOver path complete |
@@ -485,6 +649,13 @@ Before merge:
 - [ ] 24–71 month child: acknowledgment required once, then persisted
 - [ ] Dosing outputs match the §1.2 tables at every band boundary and 1 lb either side
 - [ ] Interaction warning fires in both directions at the correct asymmetric windows; override is audited and pushes
+- [ ] Cetirizine regimen created with **no input beyond picking the medication** — dose derives from `children.date_of_birth`
+- [ ] Age-band boundary: a child simulated across their 6th and 12th birthdays gets the new dose on the next occurrence, plus a `regimen_dose_changed` notification
+- [ ] **No Cappy!-computed number renders anywhere for a `caregiver_specified` medication** — client and server; a client-supplied computed amount is rejected by the API, not just hidden in the UI
+- [ ] Adherence over 30 days matches a hand-checked ledger, including a DST transition and a day with a skip
+- [ ] Changing a regimen's scheduled time does **not** retroactively alter historical adherence (`scheduled_for` frozen at log time)
+- [ ] A dose logged well off-schedule records `scheduled_for = null` and displays as off-schedule rather than being force-matched
+- [ ] Missed-dose notification fires once per occurrence, not repeatedly
 - [ ] Offline dose synced 2h later does not fire a "just now" push
 - [ ] Push payloads contain no medication name, dose, or condition
 - [ ] Widget built against snapshot v1 renders the empty state (not a crash) after upgrade to v2
@@ -503,3 +674,4 @@ Pediatric dosing verified 2026-07-29 against:
 - [Cetirizine (Zyrtec) Dose Table — Children's Hospital Colorado](https://www.childrenscolorado.org/conditions-and-advice/conditions-and-symptoms/dosagetables/pediatric/cetirizine-zyrtec-dose-table/)
 - [ZYRTEC® Dosing Guide](https://www.zyrtec.com/products/zyrtec-dosage-guide)
 - [BENADRYL® Dosing Guide](https://www.benadryl.com/benadryl-dosing-guide)
+- [MiraLAX (polyethylene glycol 3350) — Drugs.com](https://www.drugs.com/miralax.html) · [Polyethylene glycol 3350 oral route — Mayo Clinic](https://www.mayoclinic.org/drugs-supplements/polyethylene-glycol-3350-oral-route/description/drg-20523233) — OTC label is 17+; "ask a doctor" at 16 and under. Pediatric use is off-label under physician supervision, which is why §2.3 computes nothing.
