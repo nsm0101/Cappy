@@ -106,7 +106,7 @@ struct ChildDetailView: View {
                 } else {
                     ForEach(vm.doses.prefix(12)) { dose in
                         HStack {
-                            let visual = Brands.visual(forGeneric: dose.medication?.genericName ?? "acetaminophen")
+                            let visual = Brands.visual(forGeneric: dose.medication?.genericName)
                             Circle().fill(visual.color).frame(width: 8, height: 8)
                             Text(CappyFormat.doseAmount(formulation: dose.medication?.formulation ?? .liquidSuspension,
                                                         amountMg: dose.amountMg, amountVolumeMl: dose.amountVolumeMl,

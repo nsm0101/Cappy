@@ -39,6 +39,21 @@ struct HomeView: View {
                 if model.families.isEmpty {
                     startFamilyCard
                 } else {
+                    // An unanswered "did you give that dose?" leaves a known
+                    // gap in the record, and every interval rule reads from
+                    // that record — so it sits above the roster, not buried in
+                    // a settings screen.
+                    UnloggedDosePrompt { intent in
+                        model.pendingTagChannel = .manualConfirmed
+                        if let uid = intent.tagUid {
+                            // Re-enter through the same resolve pipeline a tap
+                            // uses, so the dose sheet opens on the right
+                            // medication with the interlocks intact.
+                            model.pendingTagUID = uid
+                        } else {
+                            router.selection = .scan
+                        }
+                    }
                     if vm.showOnboarding { onboarding }
                     childrenSection
                 }

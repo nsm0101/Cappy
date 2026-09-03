@@ -177,8 +177,19 @@ enum Dosing {
     }
 
     /// Resolve a generic medication name to a `MedicationKind`.
-    static func kind(forGeneric genericName: String) -> MedicationKind {
-        genericName.lowercased() == "ibuprofen" ? .ibuprofen : .acetaminophen
+    ///
+    /// Fails **closed**. An unrecognised generic returns `nil` rather than a
+    /// default, because a default here is not a cosmetic error: it computes an
+    /// acetaminophen dose for a different drug. Every caller must treat `nil`
+    /// as "this build cannot dose this medication" and suppress the dose
+    /// (see `DosePresentation.medicationUnresolved`).
+    ///
+    /// Matching is on the exact generic name, so adding a `MedicationKind`
+    /// case is the only change needed to support a new drug.
+    static func kind(forGeneric genericName: String?) -> MedicationKind? {
+        guard let genericName else { return nil }
+        return MedicationKind(
+            rawValue: genericName.trimmingCharacters(in: .whitespacesAndNewlines).lowercased())
     }
 }
 

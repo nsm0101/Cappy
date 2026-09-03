@@ -17,6 +17,44 @@ options:
   createIntermediateGroups: true
   groupSortPosition: top
 
+# Shared schemes are declared here, not left as loose files in the .xcodeproj.
+#
+# XcodeGen rewrites xcshareddata/xcschemes on every `xcodegen generate`, so a
+# scheme that only exists as a committed file is deleted the next time anyone
+# regenerates — which is exactly what happened on 2026-09-03, and it is why
+# `xcodebuild -scheme Cappy` reported that the project contained no schemes.
+# Declaring them makes regeneration reproduce them instead of removing them.
+#
+# The app scheme keeps the name "Cappy!" it was committed under, so existing
+# bookmarks, CI invocations and `xcodebuild -scheme` lines keep working.
+schemes:
+  Cappy!:
+    build:
+      targets:
+        Cappy: all
+    run:
+      config: Debug
+    test:
+      config: Debug
+    profile:
+      config: Release
+    analyze:
+      config: Debug
+    archive:
+      config: Release
+  CappyWidgetExtension:
+    build:
+      targets:
+        CappyWidgetExtension: all
+    run:
+      config: Debug
+    profile:
+      config: Release
+    analyze:
+      config: Debug
+    archive:
+      config: Release
+
 settings:
   base:
     MARKETING_VERSION: "0.1.0"

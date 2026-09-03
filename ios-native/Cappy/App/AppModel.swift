@@ -24,6 +24,10 @@ final class AppModel: ObservableObject {
 
     /// Pending deep-linked tag UID to resolve on the Scan screen (cold launch).
     @Published var pendingTagUID: String?
+    /// Which channel produced `pendingTagUID` (¶[0006]). A Universal Link is a
+    /// background NFC read; a tapped reminder is not an acquisition at all and
+    /// lands on the confirmed-manual channel, because nothing was read.
+    @Published var pendingTagChannel: AcquisitionChannel = .nfc
     /// Pending deep-linked invite code (Universal Link join/:code).
     @Published var pendingInviteCode: String?
 
@@ -53,7 +57,16 @@ final class AppModel: ObservableObject {
         // which MainTabView already watches to open the Scan tab + dose
         // sheet) — regardless of whether the tap foregrounded, backgrounded,
         // or cold-launched the app.
-        notificationRouter.onTagUID = { [weak self] uid in self?.pendingTagUID = uid }
+        notificationRouter.onTagUID = { [weak self] uid in
+            self?.pendingTagChannel = .manualConfirmed
+            self?.pendingTagUID = uid
+        }
+        notificationRouter.onUnloggedIntent = { id in
+            // Tapping "did you give that dose?" is the caregiver coming back
+            // to close the gap. Surface it in-app rather than just
+            // foregrounding, so the question is still in front of them.
+            Task { @MainActor in UnloggedDoseService.shared.focus(id) }
+        }
         UNUserNotificationCenter.current().delegate = notificationRouter
     }
 
@@ -65,6 +78,7 @@ final class AppModel: ObservableObject {
         session = auth.currentSession
         if isSignedIn {
             await reloadProfileAndFamilies()
+            await startBackgroundServices()
         } else {
             profileLoading = false
             familiesLoading = false
@@ -76,6 +90,28 @@ final class AppModel: ObservableObject {
     func refreshOnForeground() async {
         await auth.refreshIfNeeded()
         session = auth.currentSession
+        guard isSignedIn else { return }
+        // The clinical rule set and the medication catalog both back the
+        // offline evaluator, so they are refreshed whenever there is a network
+        // to do it with rather than only at launch.
+        await DosingRulesRepository.refresh()
+        if let familyId = activeFamily?.id {
+            await UnloggedDoseService.shared.refresh(familyId: familyId)
+        }
+    }
+
+    /// One-time setup that needs a signed-in session: push registration and
+    /// the first rule-set fetch.
+    private func startBackgroundServices() async {
+        await DosingRulesRepository.refresh()
+        if let medications = try? await NfcRepository.listMedications() {
+            LocalDoseHistory.shared.noteMedications(medications)
+        }
+        await PushService.shared.register()
+        await DoseOutbox.shared.flush()
+        if let familyId = activeFamily?.id {
+            await UnloggedDoseService.shared.refresh(familyId: familyId)
+        }
     }
 
     private func handleSessionChange(_ newSession: AuthSession?) async {
@@ -142,11 +178,13 @@ final class AppModel: ObservableObject {
         // Invite:    https://cappy.closedose.com/join/{code} or cappy://join/{code}
         let path = url.path
         if path.hasPrefix("/t/") {
+            pendingTagChannel = .nfc
             pendingTagUID = String(path.dropFirst(3))
         } else if path.hasPrefix("/join/") {
             pendingInviteCode = String(path.dropFirst(6))
         } else if url.scheme == "cappy", let host = url.host {
             if host == "t", url.pathComponents.count > 1 {
+                pendingTagChannel = .nfc
                 pendingTagUID = url.pathComponents[1]
             } else if host == "join", url.pathComponents.count > 1 {
                 pendingInviteCode = url.pathComponents[1]
@@ -162,6 +200,8 @@ final class AppModel: ObservableObject {
 /// pendingTagUID plumbing a scanned NFC tag or Universal Link does.
 final class NotificationRouter: NSObject, UNUserNotificationCenterDelegate {
     var onTagUID: ((String) -> Void)?
+    /// A tapped "did you give that dose?" reminder.
+    var onUnloggedIntent: ((String) -> Void)?
 
     /// Show the banner + sound even while the app is already in the
     /// foreground (otherwise a foreground reminder fires silently).
@@ -176,8 +216,11 @@ final class NotificationRouter: NSObject, UNUserNotificationCenterDelegate {
     /// catch a cold launch too.
     func userNotificationCenter(_ center: UNUserNotificationCenter,
                                  didReceive response: UNNotificationResponse) async {
-        guard let tagUid = response.notification.request.content.userInfo["tagUid"] as? String,
-              !tagUid.isEmpty else { return }
+        let info = response.notification.request.content.userInfo
+        if let intentId = info["unloggedIntentId"] as? String, !intentId.isEmpty {
+            await MainActor.run { onUnloggedIntent?(intentId) }
+        }
+        guard let tagUid = info["tagUid"] as? String, !tagUid.isEmpty else { return }
         await MainActor.run { onTagUID?(tagUid) }
     }
 }

@@ -90,7 +90,7 @@ struct MainTabView: View {
             if model.pendingInviteCode != nil { showInvite = true }
         }
         .sheet(item: $resolvedBox) { box in
-            DoseSheetView(resolved: box.tag)
+            DoseSheetView(resolved: box.tag, acquisition: box.acquisition)
         }
         .cappyAlert($tagAlert)
         .sheet(isPresented: $showInvite, onDismiss: { model.pendingInviteCode = nil }) {
@@ -120,7 +120,9 @@ struct MainTabView: View {
                 return
             }
             Haptics.success()
-            resolvedBox = ResolvedTagBox(tag: resolved)
+            resolvedBox = ResolvedTagBox(tag: resolved,
+                                         acquisition: DoseAcquisition(channel: model.pendingTagChannel,
+                                                                      binding: .strong, identifier: uid))
         } catch {
             tagAlert = CappyAlert(title: "Couldn't read tag", message: error.localizedDescription)
         }

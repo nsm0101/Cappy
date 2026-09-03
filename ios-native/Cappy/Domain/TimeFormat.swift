@@ -80,6 +80,17 @@ enum CappyTime {
 
     static func clock(_ date: Date) -> String { clockFormatter.string(from: date) }
 
+    /// Date overloads. The presentation state machine works in `Date` (a
+    /// suppression reason has no business round-tripping through ISO strings
+    /// just to be shown), while the older screens still hold ISO strings from
+    /// the API.
+    static func timeUntil(_ date: Date, now: Date = Date()) -> String {
+        timeUntil(date.iso, now: now)
+    }
+    static func relative(_ date: Date, now: Date = Date()) -> String {
+        relative(date.iso, now: now)
+    }
+
     /// 'Today' / 'Yesterday' / 'Mon, Jun 29' for timeline day grouping.
     static func dayHeading(_ value: String?, now: Date = Date()) -> String {
         guard let date = date(from: value) else { return "—" }

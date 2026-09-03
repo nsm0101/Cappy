@@ -11,6 +11,10 @@ import SwiftUI
 
 @main
 struct CappyApp: App {
+    // SwiftUI's App lifecycle has no hook for the APNs token callbacks, so a
+    // minimal delegate forwards those two and nothing else.
+    @UIApplicationDelegateAdaptor(CappyAppDelegate.self) private var appDelegate
+
     @StateObject private var themeManager = ThemeManager()
     @StateObject private var model = AppModel()
     @Environment(\.scenePhase) private var scenePhase
@@ -37,7 +41,16 @@ struct CappyApp: App {
                     if let url = activity.webpageURL { model.handle(url: url) }
                 }
                 .onChange(of: scenePhase) { _, phase in
-                    if phase == .active { Task { await model.refreshOnForeground() } }
+                    if phase == .active {
+                        Task {
+                            await model.refreshOnForeground()
+                            // A dose logged offline must not sit in the outbox
+                            // until the caregiver happens to open the dose
+                            // sheet again — the other parent is relying on it
+                            // reaching the shared record.
+                            await DoseOutbox.shared.flush()
+                        }
+                    }
                 }
         }
     }

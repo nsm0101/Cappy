@@ -125,10 +125,18 @@ final class SupabaseClient {
 
     /// Execute a request, refreshing the session once on a 401 if possible.
     func execute(_ request: URLRequest, allowRefresh: Bool = true) async throws -> (Data, HTTPURLResponse) {
+        let sentAt = Date()
         let (data, response) = try await session.data(for: request)
         guard let http = response as? HTTPURLResponse else {
             throw SupabaseError(status: -1, message: "No HTTP response")
         }
+
+        // Every response carries a `Date` header, so the offset between this
+        // phone's clock and the server's is observable for free. The interlocks
+        // subtract times written by different phones (¶[0055]), so an
+        // unmeasured clock is not treated as a correct one — it widens the
+        // uncertainty stamped on the next dose instead.
+        ClockSync.observe(response: http, sentAt: sentAt)
 
         if http.statusCode == 401, allowRefresh, auth.currentSession != nil {
             // Token likely expired — refresh once and retry with a new bearer.

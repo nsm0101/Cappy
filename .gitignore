@@ -74,3 +74,17 @@ compliance/baas/*.pdf
 .tmp/
 tmp/
 .DS_Store
+
+# Signing material — NEVER commit.
+# APNs auth keys download exactly once and cannot be re-downloaded; a leaked
+# one lets anyone push notifications to every app in the team until it is
+# revoked. Checked in 2026-09-03 after two .p8 files were found untracked but
+# un-ignored under "apple dev/", one `git add -A` away from being published.
+*.p8
+*.p12
+*.pem
+*.mobileprovision
+*.cer
+*.certSigningRequest
+AuthKey_*
+apple dev/

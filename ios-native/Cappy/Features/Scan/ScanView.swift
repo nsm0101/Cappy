@@ -17,6 +17,9 @@ import VisionKit
 struct ResolvedTagBox: Identifiable {
     let id = UUID()
     let tag: ResolvedTag
+    /// How this tag was read. Recorded on any dose logged from it (¶[0006]),
+    /// and it decides whether the identification needs affirming (¶[0007]).
+    var acquisition: DoseAcquisition = .manual
 }
 
 struct ScanView: View {
@@ -59,10 +62,10 @@ struct ScanView: View {
         .navigationTitle("Scan")
         .navigationBarTitleDisplayMode(.inline)
         .sheet(item: $resolvedBox) { box in
-            DoseSheetView(resolved: box.tag)
+            DoseSheetView(resolved: box.tag, acquisition: box.acquisition)
         }
         .fullScreenCover(isPresented: $showQRScanner) {
-            QRScanSheet { uid in Task { await resolve(tagUID: uid) } }
+            QRScanSheet { uid in Task { await resolve(tagUID: uid, channel: .optical) } }
         }
         .alert("Manual Dose Log", isPresented: $showPasscodePrompt) {
             SecureField("Passcode", text: $passcodeInput)
@@ -228,10 +231,10 @@ struct ScanView: View {
                     .foregroundStyle(theme.tokens.fg2)
                 HStack(spacing: Space.sm) {
                     CappyButton(label: "Acetaminophen", variant: .secondary, block: true) {
-                        Task { await resolve(tagUID: "ace-child") }
+                        Task { await resolve(tagUID: "ace-child", channel: .manualConfirmed) }
                     }
                     CappyButton(label: "Ibuprofen", variant: .secondary, block: true) {
-                        Task { await resolve(tagUID: "ibu-child") }
+                        Task { await resolve(tagUID: "ibu-child", channel: .manualConfirmed) }
                     }
                 }
                 HStack(spacing: Space.sm) {
@@ -239,7 +242,7 @@ struct ScanView: View {
                                    autocapitalization: .never, disableAutocorrection: true)
                     CappyButton(label: "Go") {
                         let uid = manualUID.trimmingCharacters(in: .whitespaces)
-                        if !uid.isEmpty { Task { await resolve(tagUID: uid) } }
+                        if !uid.isEmpty { Task { await resolve(tagUID: uid, channel: .manualConfirmed) } }
                     }
                 }
             }
@@ -303,7 +306,7 @@ struct ScanView: View {
         do {
             let uid = try await nfc.scanTagUID()
             Haptics.impact()
-            await resolve(tagUID: uid)
+            await resolve(tagUID: uid, channel: .nfc)
         } catch let error as NfcError {
             if case .userCancelled = error { phase = .idle } else { phase = .error(error.localizedDescription) }
         } catch {
@@ -311,7 +314,11 @@ struct ScanView: View {
         }
     }
 
-    private func resolve(tagUID: String) async {
+    /// The ordered acquisition sequence of ¶[0006]: near-field first, then
+    /// optical, then a confirmed manual pick. Whichever channel actually
+    /// produced the identifier is recorded on the dose, so history can
+    /// distinguish a clean tap from a medication somebody chose off a list.
+    private func resolve(tagUID: String, channel: AcquisitionChannel) async {
         phase = .resolving
         do {
             let resolved = try await NfcRepository.resolveTag(tagUid: tagUID, activeFamilyId: model.activeFamily?.id)
@@ -323,7 +330,24 @@ struct ScanView: View {
                 return
             }
             Haptics.success()
-            resolvedBox = ResolvedTagBox(tag: resolved)
+
+            // ¶[0007]: confidence is a property of the article, not of the
+            // read. A factory sticker on the dosing cup is strongly bound —
+            // the cup lives with its bottle, so the association holds without
+            // anyone maintaining it. An article a family applied to a syringe
+            // is weakly bound however cleanly it read, and the commissioning
+            // record is what says which is which.
+            var acquisition = DoseAcquisition(channel: channel, binding: .strong,
+                                              identifier: tagUID)
+            if let familyId = model.activeFamily?.id,
+               let association = try? await TagAssociationsRepository.active(tagUid: tagUID,
+                                                                            familyId: familyId) {
+                acquisition.binding = association.bindingStrength
+                acquisition.tagAssociationId = association.id
+                acquisition.medicationClass = association.medicationClass
+            }
+
+            resolvedBox = ResolvedTagBox(tag: resolved, acquisition: acquisition)
             manualUnlocked = false
             phase = .idle
         } catch {

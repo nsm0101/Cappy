@@ -34,20 +34,21 @@ enum Brands {
 
     /// Resolve a brand for a generic + stored brand_key (defaults to Generic).
     static func brand(forGeneric genericName: String, brandKey: String?) -> Brand {
-        let kind = Dosing.kind(forGeneric: genericName)
+        guard let kind = Dosing.kind(forGeneric: genericName) else { return fallback }
         let list = byGeneric[kind] ?? []
         return list.first(where: { $0.key == brandKey }) ?? list.first ?? fallback
     }
 
     static func brands(forGeneric genericName: String) -> [Brand] {
-        let kind = Dosing.kind(forGeneric: genericName)
+        guard let kind = Dosing.kind(forGeneric: genericName) else { return [fallback] }
         return byGeneric[kind] ?? [fallback]
     }
 
     /// Stable, brand-independent visual identity so the two medications are
     /// always distinguishable at a glance.
     struct MedVisual: Hashable {
-        let kind: MedicationKind
+        /// `nil` for a medication this build does not model.
+        let kind: MedicationKind?
         let label: String
         let letter: String
         let systemIcon: String
@@ -63,8 +64,16 @@ enum Brands {
                               color: Color(cappy: "#0B62C4"))
     ]
 
-    static func visual(forGeneric genericName: String) -> MedVisual {
-        visuals[Dosing.kind(forGeneric: genericName)] ?? visuals[.acetaminophen]!
+    /// Neutral identity for a medication this build does not model. It never
+    /// borrows another drug's colour or letter: a wrong glyph at 2 AM misleads
+    /// in the same direction as a wrong dose.
+    static let unknownVisual = MedVisual(
+        kind: nil, label: "Medication", letter: "?",
+        systemIcon: "pills.fill", color: Color(cappy: "#6B7280"))
+
+    static func visual(forGeneric genericName: String?) -> MedVisual {
+        guard let kind = Dosing.kind(forGeneric: genericName) else { return unknownVisual }
+        return visuals[kind] ?? unknownVisual
     }
 
     // MARK: Medication card styling
@@ -104,7 +113,16 @@ enum Brands {
                                      logoHeight: 48)
     ]
 
-    static func cardStyle(forGeneric genericName: String) -> MedCardStyle {
-        cardStyles[Dosing.kind(forGeneric: genericName)] ?? cardStyles[.acetaminophen]!
+    /// Neutral card treatment for an unmodelled medication — no brand band,
+    /// no borrowed wordmark.
+    static let unknownCardStyle = MedCardStyle(
+        displayName: "Medication",
+        band: Color(cappy: "#6B7280"), bandText: .white,
+        panel: Color(cappy: "#EFEFEF"), uppercased: false,
+        logoAsset: "", logoHeight: 0)
+
+    static func cardStyle(forGeneric genericName: String?) -> MedCardStyle {
+        guard let kind = Dosing.kind(forGeneric: genericName) else { return unknownCardStyle }
+        return cardStyles[kind] ?? unknownCardStyle
     }
 }

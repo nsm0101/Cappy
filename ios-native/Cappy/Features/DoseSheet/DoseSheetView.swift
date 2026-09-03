@@ -17,9 +17,15 @@ struct DoseSheetView: View {
         .init(value: 60, label: "1h ago"), .init(value: 120, label: "2h ago")
     ]
 
-    init(resolved: ResolvedTag, preselectRecipientId: String? = nil) {
+    /// `acquisition` carries how the medication was identified — the channel
+    /// of ¶[0006] and the binding strength of ¶[0007] — from whichever screen
+    /// resolved the tag. It ends up on the dose record, and a weak binding
+    /// makes the sheet ask for confirmation before releasing anything.
+    init(resolved: ResolvedTag, preselectRecipientId: String? = nil,
+         acquisition: DoseAcquisition = .manual) {
         _vm = StateObject(wrappedValue: DoseSheetViewModel(resolved: resolved,
-                                                           preselectRecipientId: preselectRecipientId))
+                                                           preselectRecipientId: preselectRecipientId,
+                                                           acquisition: acquisition))
     }
 
     var body: some View {
@@ -216,8 +222,9 @@ struct DoseSheetView: View {
                     Text(reason)
                         .font(CappyFont.sans(FontSizeToken.xs))
                         .foregroundStyle(theme.tokens.warn)
-                } else if let dose = vm.multiDose(for: child) {
-                    Text(vm.multiVolumeMl(for: dose).map { "\(CappyFormat.trim($0)) mL · \(dose.displayMg) mg" } ?? "\(dose.displayMg) mg")
+                } else if let quantity = vm.multiQuantity(for: child) {
+                    Text(quantity.displayMl.map { "\(CappyFormat.trim($0)) mL · \(quantity.displayMg) mg" }
+                         ?? "\(quantity.displayMg) mg")
                         .font(CappyFont.sans(FontSizeToken.xs))
                         .foregroundStyle(theme.tokens.fg3)
                 }
@@ -273,71 +280,101 @@ struct DoseSheetView: View {
                            hint: "\(vm.med.brandName ?? vm.med.genericName) — check the product label for the correct adult dose.",
                            keyboard: .decimalPad)
             whenGiven(label: "When was it taken?")
+            if case .suppressed(let reasons, let facts) = vm.presentation, let reason = reasons.first {
+                suppressionCard(reason, facts: facts, recipient: caregiver.displayName ?? "This person")
+            }
             CappyButton(label: "Log dose now", variant: .blue, size: .lg, block: true, loading: vm.logging) {
                 vm.handleLog()
             }
-            .disabled(vm.logging || !vm.manualAmountValid)
+            .disabled(vm.logging || !vm.manualAmountValid
+                      || (!vm.presentation.isReleased && !vm.presentation.isOverridable))
             CappyButton(label: "Cancel", variant: .ghost, block: true) { dismiss() }
         }
     }
 
     // MARK: Child
+    //
+    // One switch on the presentation state. There is no branch here that can
+    // reach a dose the state machine did not release, because a suppressed
+    // state carries no quantity to reach for — ¶[0006].
 
     @ViewBuilder private func childBody(_ child: ResolvedTag.ResolvedChild) -> some View {
-        if vm.loadingChildData {
+        if vm.loadingChildData || vm.evaluating {
             Card(inset: true) {
-                Text("Loading…").foregroundStyle(theme.tokens.fg2).frame(maxWidth: .infinity).padding(.vertical, 12)
+                Text("Checking…").foregroundStyle(theme.tokens.fg2)
+                    .frame(maxWidth: .infinity).padding(.vertical, 12)
             }
-        } else if vm.ageGate == .emergency {
-            warningCard(title: "Too young for self-dosing", titleColor: theme.tokens.error,
-                        body: "For infants under 2 months, do not give medication at home. Contact your pediatrician or seek care for fever in this age group.")
-        } else if vm.allergic {
-            warningCard(title: "Allergy on file", titleColor: theme.tokens.error,
-                        body: "\(child.displayName) has a recorded allergy to \(vm.med.genericName). Cappy will not recommend this medication. Remove the allergy on the child's profile if this is incorrect.")
-        } else if vm.maxReached {
-            maxReachedCard(child)
-        } else if vm.kind == .ibuprofen && vm.ageGate == .infant {
-            warningCard(title: "Ibuprofen not recommended", titleColor: theme.tokens.fg1,
-                        body: Dosing.ibuprofenUnder6Months)
-        } else if vm.weightKg == nil {
-            weightMissingCard(child)
-        } else if let dose = vm.medDose {
-            doseCard(child, dose: dose)
+        } else {
+            switch vm.presentation {
+            case .released(let quantity, let facts):
+                if let quantity {
+                    doseCard(child, quantity: quantity, facts: facts)
+                } else {
+                    suppressionCard(.statusUnavailable, facts: facts, recipient: child.displayName)
+                }
+            case .suppressed(let reasons, let facts):
+                VStack(alignment: .leading, spacing: Space.lg) {
+                    ForEach(reasons.prefix(2), id: \.self) { reason in
+                        suppressionCard(reason, facts: facts, recipient: child.displayName)
+                    }
+                    if vm.presentation.isOverridable {
+                        whenGiven(label: "When was it given?")
+                        CappyButton(label: "Log anyway", variant: .ghost, block: true) { vm.handleLog() }
+                            .disabled(vm.logging)
+                    }
+                    CappyButton(label: "Cancel", variant: .ghost, block: true) { dismiss() }
+                }
+            }
         }
     }
 
-    private func doseCard(_ child: ResolvedTag.ResolvedChild, dose: MedDose) -> some View {
+    /// The released dose. Reached only from `.released`, and it takes the
+    /// quantity as a parameter rather than reading it off the model, so the
+    /// value cannot be rendered from any other state.
+    private func doseCard(_ child: ResolvedTag.ResolvedChild,
+                          quantity: DoseQuantity, facts: DoseFacts) -> some View {
         VStack(alignment: .leading, spacing: Space.lg) {
             Card(inset: true, topAccent: vm.brand.accent) {
                 VStack(spacing: Space.sm) {
                     SectionLabel(text: "Recommended dose")
                     HStack(alignment: .firstTextBaseline, spacing: 4) {
-                        Text(vm.volumeMl != nil ? CappyFormat.trim(vm.volumeMl!) : "\(dose.displayMg)")
+                        Text(quantity.displayMl.map(CappyFormat.trim) ?? "\(quantity.displayMg)")
                             .font(CappyFont.display(FontSizeToken.doseNumeral))
                             .foregroundStyle(vm.brand.accent)
-                        Text(vm.volumeMl != nil ? "mL" : "mg")
+                        Text(quantity.displayMl != nil ? "mL" : "mg")
                             .font(CappyFont.mono(FontSizeToken.lg))
                             .foregroundStyle(vm.brand.accent)
                     }
-                    Text("\(dose.displayMg) mg · \(dose.frequencyLabel)")
+                    Text(doseSubtitle(quantity: quantity, facts: facts))
                         .font(CappyFont.sans(FontSizeToken.sm))
                         .foregroundStyle(theme.tokens.fg3)
 
-                    DosePill(label: pillLabel(child), status: pillStatus(child))
-                    DoseSafetyText(text: safetyText(child, dose: dose), alignment: .center)
-                    DoseSafetyText(text: "\(child.dosesInLast24h) of \(vm.med.maxDosesPer24h) doses in the last 24 hours.", alignment: .center)
-                    if dose.capped, let reminder = vm.dosing?.spacingReminder {
-                        DoseSafetyText(text: reminder, alignment: .center)
+                    DosePill(label: facts.status == .overdue ? "Window open" : "OK to give now",
+                             status: .due)
+                    DoseSafetyText(text: releasedSafetyText(facts), alignment: .center)
+                    if let limit = facts.windowMaxDoses {
+                        DoseSafetyText(text: "\(facts.dosesInLast24h) of \(limit) doses in the last 24 hours.",
+                                       alignment: .center)
                     }
-                    if vm.weightStale, let recordedAt = vm.weightRecordedAt {
-                        DoseSafetyText(text: "Weight last updated \(CappyTime.relative(recordedAt)) — update it for an accurate dose.", alignment: .center)
+                    if quantity.capped {
+                        DoseSafetyText(text: "This is the per-dose ceiling for \(child.displayName)'s age, not the weight-based amount.",
+                                       alignment: .center)
+                    }
+                    if facts.evaluatedOffline {
+                        // ¶[0052]: silence in the record is not a finding that
+                        // no dose was given. Say so rather than imply the
+                        // shared record was consulted.
+                        DoseSafetyText(text: "Checked on this phone only — Cappy couldn't reach the shared record, so a dose logged on another phone may not be counted.",
+                                       alignment: .center)
+                    }
+                    if let source = facts.ruleSource {
+                        DoseSafetyText(text: "Based on \(source).", alignment: .center)
                     }
                 }
                 .frame(maxWidth: .infinity)
             }
             whenGiven(label: "When was it given?")
-            CappyButton(label: "Log \(vm.volumeMl != nil ? "\(CappyFormat.trim(vm.volumeMl!)) mL" : "\(dose.displayMg) mg") now",
-                        variant: .blue, size: .lg, block: true, loading: vm.logging) {
+            CappyButton(label: vm.logButtonLabel, variant: .blue, size: .lg, block: true, loading: vm.logging) {
                 vm.handleLog()
             }
             .disabled(vm.logging)
@@ -345,62 +382,53 @@ struct DoseSheetView: View {
         }
     }
 
-    private func pillLabel(_ child: ResolvedTag.ResolvedChild) -> String {
-        if vm.childSafe { return child.lastDoseAt != nil ? "OK to give now" : "No prior dose" }
-        return child.status == .unknown ? "Status unavailable" : "Too early"
-    }
-    private func pillStatus(_ child: ResolvedTag.ResolvedChild) -> DoseStatus {
-        vm.childSafe ? .due : (child.status == .unknown ? .unknown : .early)
-    }
-    private func safetyText(_ child: ResolvedTag.ResolvedChild, dose: MedDose) -> String {
-        if vm.childSafe {
-            return child.lastDoseAt != nil
-                ? "Minimum \(dose.intervalHours)-hour interval met. Always confirm against the product label."
-                : "No prior dose logged. Always confirm against the product label."
+    private func doseSubtitle(quantity: DoseQuantity, facts: DoseFacts) -> String {
+        var parts = ["\(quantity.displayMg) mg"]
+        if let hours = facts.minIntervalHours {
+            let h = hours == hours.rounded() ? String(Int(hours)) : String(format: "%.1f", hours)
+            parts.append("no sooner than every \(h) hours")
         }
-        if let nextSafe = child.nextSafeAt {
-            return "Last dose too recent. Next dose is safe \(CappyTime.timeUntil(nextSafe)) (at \(CappyTime.clock(nextSafe)))."
-        }
-        return child.status == .unknown
-            ? "Couldn't check the last dose right now — Cappy will re-check when you log." : ""
+        return parts.joined(separator: " · ")
     }
 
-    private func maxReachedCard(_ child: ResolvedTag.ResolvedChild) -> some View {
+    private func releasedSafetyText(_ facts: DoseFacts) -> String {
+        facts.lastDoseAt != nil
+            ? "Minimum interval met. Always confirm against the product label."
+            : "No prior dose logged. Always confirm against the product label."
+    }
+
+    /// One card per unmet precondition: what is standing in the way, what it
+    /// means, and the action that clears it where one exists.
+    private func suppressionCard(_ reason: DoseSuppressionReason,
+                                 facts: DoseFacts, recipient: String) -> some View {
         Card {
             VStack(alignment: .leading, spacing: Space.md) {
-                Text("24-hour limit reached")
+                Text(reason.title(recipient: recipient))
                     .font(CappyFont.displaySemibold(FontSizeToken.lg))
-                    .foregroundStyle(theme.tokens.error)
-                Text(maxReachedBody(child))
+                    .foregroundStyle(reason.isOverridable ? theme.tokens.warn : theme.tokens.error)
+                Text(reason.detail(recipient: recipient, facts: facts, medication: vm.medDisplayName))
                     .font(CappyFont.sans(FontSizeToken.base))
                     .foregroundStyle(theme.tokens.fg2)
-                if vm.medDose != nil {
-                    CappyButton(label: "Log anyway", variant: .ghost, block: true) { vm.confirmLogOverMax() }
+
+                if let label = reason.actionLabel(recipient: recipient) {
+                    CappyButton(label: label, variant: .ghost, block: true) {
+                        switch reason {
+                        case .identificationUnconfirmed: vm.confirmIdentification()
+                        case .historyIncomplete: vm.attestHistoryComplete()
+                        case .weightMissing, .weightStale: dismiss()
+                        default: break
+                        }
+                    }
+                }
+                if reason == .weightMissing || reason == .weightStale {
+                    Text("Open \(recipient)'s profile from Home to add today's weight.")
+                        .font(CappyFont.sans(FontSizeToken.sm))
+                        .foregroundStyle(theme.tokens.fg3)
                 }
             }
         }
-        .overlay(RoundedRectangle(cornerRadius: Radius.base).stroke(theme.tokens.error, lineWidth: 1))
-    }
-    private func maxReachedBody(_ child: ResolvedTag.ResolvedChild) -> String {
-        let doses = child.dosesInLast24h
-        let next = child.nextSafeAt.map { " The next dose is safe \(CappyTime.timeUntil($0)) (at \(CappyTime.clock($0)))." } ?? ""
-        return "\(child.displayName) has had \(doses) dose\(doses == 1 ? "" : "s") of \(vm.med.genericName) in the last 24 hours — the maximum is \(vm.med.maxDosesPer24h).\(next) If fever or pain persists, contact your pediatrician."
-    }
-
-    private func weightMissingCard(_ child: ResolvedTag.ResolvedChild) -> some View {
-        Card {
-            VStack(alignment: .leading, spacing: Space.md) {
-                Text("Add a weight for \(child.displayName)")
-                    .font(CappyFont.displaySemibold(FontSizeToken.lg))
-                    .foregroundStyle(theme.tokens.fg1)
-                Text("Dosing is based on current weight. Add \(child.displayName)'s weight to see a recommended dose.")
-                    .font(CappyFont.sans(FontSizeToken.base))
-                    .foregroundStyle(theme.tokens.fg2)
-                Text("Open \(child.displayName)'s profile from Home to add a weight.")
-                    .font(CappyFont.sans(FontSizeToken.sm))
-                    .foregroundStyle(theme.tokens.fg3)
-            }
-        }
+        .overlay(RoundedRectangle(cornerRadius: Radius.base)
+            .stroke(reason.isOverridable ? theme.tokens.warn : theme.tokens.error, lineWidth: 1))
     }
 
     private func warningCard(title: String, titleColor: Color, body: String) -> some View {

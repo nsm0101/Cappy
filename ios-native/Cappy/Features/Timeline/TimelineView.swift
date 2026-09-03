@@ -98,7 +98,7 @@ private struct DoseRow: View {
         dose.child?.displayName ?? dose.caregiverRecipient?.displayName ?? "Caregiver"
     }
     private var medVisual: Brands.MedVisual {
-        Brands.visual(forGeneric: dose.medication?.genericName ?? "acetaminophen")
+        Brands.visual(forGeneric: dose.medication?.genericName)
     }
     private var amount: String {
         CappyFormat.doseAmount(formulation: dose.medication?.formulation ?? .liquidSuspension,

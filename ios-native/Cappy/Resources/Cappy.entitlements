@@ -2,6 +2,12 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<!-- Cross-caregiver dose notifications (APNs). Debug builds are signed
+	     development, so their device tokens are sandbox tokens — PushService
+	     records which environment a token came from, because a sandbox token
+	     sent to the production APNs host comes back as BadDeviceToken. -->
+	<key>aps-environment</key>
+	<string>development</string>
 	<key>com.apple.developer.applesignin</key>
 	<array>
 		<string>Default</string>

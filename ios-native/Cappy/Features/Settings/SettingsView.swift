@@ -124,6 +124,29 @@ struct SettingsView: View {
                     }
                 }
 
+                // Notifications
+                Card {
+                    VStack(alignment: .leading, spacing: Space.sm) {
+                        SectionLabel(text: "Notifications")
+                        NavigationLink { NotificationSettingsView() } label: {
+                            HStack {
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text("Doses and reminders")
+                                        .font(CappyFont.sansSemibold(FontSizeToken.base))
+                                        .foregroundStyle(theme.tokens.fg1)
+                                    Text("Choose what the other caregivers' activity tells you about.")
+                                        .font(CappyFont.sans(FontSizeToken.sm))
+                                        .foregroundStyle(theme.tokens.fg3)
+                                }
+                                Spacer()
+                                Image(systemName: "chevron.right").foregroundStyle(theme.tokens.fgMuted)
+                            }
+                            .contentShape(Rectangle())
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+
                 // Family
                 Card {
                     VStack(alignment: .leading, spacing: Space.sm) {
