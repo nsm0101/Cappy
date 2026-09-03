@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!-- Release/TestFlight. The entitlement must match the provisioning
+	     profile's aps-environment or code signing fails, and a distribution
+	     profile is always `production`. TestFlight is the production APNs
+	     environment, not sandbox — a common and expensive surprise.
+	     PushService reports `production` for non-DEBUG builds to match. -->
+	<key>aps-environment</key>
+	<string>production</string>
+	<key>com.apple.developer.applesignin</key>
+	<array>
+		<string>Default</string>
+	</array>
+	<key>com.apple.developer.associated-domains</key>
+	<array>
+		<string>applinks:cappy.closedose.com</string>
+	</array>
+	<key>com.apple.developer.nfc.readersession.formats</key>
+	<array>
+		<string>TAG</string>
+	</array>
+	<key>com.apple.security.application-groups</key>
+	<array>
+		<string>group.com.closedose.cappy</string>
+	</array>
+</dict>
+</plist>

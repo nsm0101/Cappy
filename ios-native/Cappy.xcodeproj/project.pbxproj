@@ -218,6 +218,7 @@
 		B95948107973472FEFED73EB /* Dosing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Dosing.swift; sourceTree = "<group>"; };
 		B9A2B08B26E1B05B545E724B /* AvatarPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AvatarPicker.swift; sourceTree = "<group>"; };
 		BA308DD5CDB30554E0100835 /* DoseLiveActivity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DoseLiveActivity.swift; sourceTree = "<group>"; };
+		BD02648E7DAFECA40EB61EA8 /* CappyRelease.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = CappyRelease.entitlements; sourceTree = "<group>"; };
 		C0AFEBC33174BB3E15748FB1 /* DoseSheetViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DoseSheetViewModel.swift; sourceTree = "<group>"; };
 		C2FC62AEF4A64E6B0C0BB773 /* SuccessOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SuccessOverlay.swift; sourceTree = "<group>"; };
 		C587867F1AD77E467E41C373 /* FunctionsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FunctionsService.swift; sourceTree = "<group>"; };
@@ -575,6 +576,7 @@
 			children = (
 				DFE55E76DB1FFC22FABF1BA3 /* Assets.xcassets */,
 				9EC117C75BC3F87A13484FCF /* Cappy.entitlements */,
+				BD02648E7DAFECA40EB61EA8 /* CappyRelease.entitlements */,
 				2F593AE8EDB5DCFA1907AC1E /* Info.plist */,
 				8D4BE27975D40E644C9DD5FE /* PrivacyInfo.xcprivacy */,
 			);
@@ -823,7 +825,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 0.1.0;
+				MARKETING_VERSION = 0.8.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.closedose.cappy;
 				PRODUCT_NAME = Cappy;
 				SDKROOT = iphoneos;
@@ -881,7 +883,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
-				MARKETING_VERSION = 0.1.0;
+				MARKETING_VERSION = 0.8.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -899,7 +901,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
-				CODE_SIGN_ENTITLEMENTS = Cappy/Resources/Cappy.entitlements;
+				CODE_SIGN_ENTITLEMENTS = Cappy/Resources/CappyRelease.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_PREVIEWS = YES;
@@ -909,7 +911,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 0.1.0;
+				MARKETING_VERSION = 0.8.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.closedose.cappy;
 				PRODUCT_NAME = Cappy;
 				SDKROOT = iphoneos;
@@ -929,7 +931,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 0.1.0;
+				MARKETING_VERSION = 0.8.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.closedose.cappy.CappyWidget;
 				PRODUCT_NAME = CappyWidget;
 				SDKROOT = iphoneos;
@@ -949,7 +951,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 0.1.0;
+				MARKETING_VERSION = 0.8.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.closedose.cappy.CappyWidget;
 				PRODUCT_NAME = CappyWidget;
 				SDKROOT = iphoneos;
@@ -1013,7 +1015,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
-				MARKETING_VERSION = 0.1.0;
+				MARKETING_VERSION = 0.8.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
