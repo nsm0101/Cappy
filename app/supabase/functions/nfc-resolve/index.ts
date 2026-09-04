@@ -106,7 +106,12 @@ Deno.serve(async (req) => {
   }
 
   const tagUid = (body.tagUid ?? '').trim();
-  if (!tagUid || tagUid.length < 4) {
+  // Minimum length is 2, not 4. A hardware NFC UID is never shorter than 4,
+  // but the printed captap.pro tokens carry two-character codes ("ac", "ib")
+  // — "HTTP://CAPTAP.PRO/" spends 18 of the 20 alphanumeric characters a
+  // version-1 QR holds, so two is all that is left. A floor of 4 rejected
+  // every printed token here, after the client had already parsed it happily.
+  if (!tagUid || tagUid.length < 2 || tagUid.length > 32) {
     return problem(400, 'tagUid is required');
   }
 
