@@ -16,6 +16,7 @@
 	<key>com.apple.developer.associated-domains</key>
 	<array>
 		<string>applinks:cappy.closedose.com</string>
+		<string>applinks:captap.pro</string>
 	</array>
 	<key>com.apple.developer.nfc.readersession.formats</key>
 	<array>

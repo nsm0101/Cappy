@@ -13,12 +13,19 @@ enum DosesRepository {
 
     /// Embedded-relation select. Aliased so `.convertFromSnakeCase` maps each
     /// embed to a `DoseEventWithDetails` property.
+    /// `dose_event_reconciliations` has two foreign keys back to `dose_events`
+    /// (canonical and merged), so the embed names the constraint explicitly —
+    /// PostgREST cannot pick for us, and the wrong one would list an
+    /// administration under the duplicate that was merged away.
     private static let detailsSelect = """
     *,\
     medication:medications(*),\
     logged_by_profile:profiles!dose_events_logged_by_fkey(display_name),\
     caregiver_recipient:profiles!dose_events_caregiver_user_id_fkey(display_name,avatar_url),\
-    child:children(display_name,avatar_url)
+    child:children(display_name,avatar_url),\
+    reconciliation_sources:dose_event_reconciliations!dose_event_reconciliations_canonical_event_id_fkey(\
+    merged_given_at,merged_device_id,separation_seconds,\
+    merged_logger:profiles!dose_event_reconciliations_merged_logged_by_fkey(display_name))
     """
 
     struct LogDoseInput {
@@ -153,13 +160,19 @@ enum DosesRepository {
     static func listDosesWithDetails(forChild childId: String, limit: Int = 50) async throws -> [DoseEventWithDetails] {
         try await db.from("dose_events").select(detailsSelect)
             .eq("child_id", childId)
+            .neq("reconciliation_status", "merged")
             .order("given_at", ascending: false).limit(limit)
             .execute(decoding: [DoseEventWithDetails].self)
     }
 
+    /// ¶[0058]: an audit representation preserves the original local records
+    /// "without presenting duplicate administrations as independent doses", so
+    /// merged entries are excluded here and surfaced underneath the canonical
+    /// row they belong to instead.
     static func listDosesWithDetails(forFamily familyId: String, limit: Int = 50) async throws -> [DoseEventWithDetails] {
         try await db.from("dose_events").select(detailsSelect)
             .eq("family_id", familyId)
+            .neq("reconciliation_status", "merged")
             .order("given_at", ascending: false).limit(limit)
             .execute(decoding: [DoseEventWithDetails].self)
     }

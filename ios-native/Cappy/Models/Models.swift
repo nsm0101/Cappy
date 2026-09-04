@@ -136,6 +136,21 @@ struct DoseStatusResult: Codable, Hashable {
     static let due = DoseStatusResult(status: .due, lastDoseAt: nil, nextSafeAt: nil, dosesInLast24h: 0)
 }
 
+/// One entry that was merged away into a canonical administration, kept so the
+/// timeline can show where a reconciled dose came from. ¶[0058]: "an audit
+/// representation can preserve the original local event records without
+/// presenting duplicate administrations as independent doses."
+struct ReconciliationSource: Codable, Hashable, Identifiable {
+    /// The time that entry asserted, exactly as its device recorded it.
+    var mergedGivenAt: String
+    var mergedDeviceId: String?
+    var separationSeconds: Double?
+    var mergedLogger: NameOnly?
+
+    var id: String { mergedGivenAt + (mergedDeviceId ?? "") }
+    var loggerName: String { mergedLogger?.displayName ?? "Another caregiver" }
+}
+
 /// A dose row joined with medication + attribution + recipient (Timeline).
 struct DoseEventWithDetails: Codable, Identifiable, Hashable {
     let id: String
@@ -149,6 +164,39 @@ struct DoseEventWithDetails: Codable, Identifiable, Hashable {
     var amountVolumeMl: Double?
     var unitCount: Int?
     var note: String?
+
+    // ── Reconciliation (¶[0056]-[0058]) ───────────────────────────────
+    /// The instant the interlocks use. For a reconciled administration this is
+    /// the later of the colliding entries — the common administration time.
+    var effectiveAt: String?
+    var reconciliationStatus: ReconciliationState?
+    var canonicalEventId: String?
+    var deviceId: String?
+    /// Entries merged into this one. Empty unless this row is canonical.
+    var reconciliationSources: [ReconciliationSource]?
+
+    /// True when this row absorbed at least one other device's entry for the
+    /// same administration.
+    var isReconciled: Bool {
+        reconciliationStatus == .canonical && !(reconciliationSources ?? []).isEmpty
+    }
+
+    /// ¶[0058]: the interface marks a reconciled entry "while continuing to
+    /// display the administration time used for safety calculations". For an
+    /// ordinary dose that is simply when it was given.
+    var displayTime: String { isReconciled ? (effectiveAt ?? givenAt) : givenAt }
+
+    /// Every device's account of when this administration happened, earliest
+    /// first, including this row's own.
+    var allAssertedTimes: [(name: String, at: String, device: String?)] {
+        var rows: [(String, String, String?)] = [
+            (loggedByProfile?.displayName ?? "Someone", givenAt, deviceId)
+        ]
+        for source in reconciliationSources ?? [] {
+            rows.append((source.loggerName, source.mergedGivenAt, source.mergedDeviceId))
+        }
+        return rows.sorted { $0.1 < $1.1 }.map { (name: $0.0, at: $0.1, device: $0.2) }
+    }
 
     // Embedded relations. The PostgREST select in DosesRepository aliases
     // each embed to a snake_case key that `.convertFromSnakeCase` maps to

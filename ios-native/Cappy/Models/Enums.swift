@@ -52,6 +52,23 @@ enum TagStatus: String, Codable {
     case active, revoked, pending
 }
 
+/// Where a dose event sits in the collision-reconciliation of ¶[0056].
+///
+/// `canonical` and `merged` always come in a set: one administration that two
+/// devices each recorded. The canonical entry is the one the interlocks read;
+/// the merged entries keep their own asserted times and are never shown as
+/// separate doses.
+enum ReconciliationState: String, Codable {
+    case unreconciled
+    case canonical
+    case merged
+
+    init(from decoder: Decoder) throws {
+        let raw = try decoder.singleValueContainer().decode(String.self)
+        self = ReconciliationState(rawValue: raw) ?? .unreconciled
+    }
+}
+
 enum MedicationRxStatus: String, Codable {
     case otc, rx
 }

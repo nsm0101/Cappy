@@ -94,6 +94,12 @@ private struct DoseRow: View {
     @Environment(\.theme) private var theme
     let dose: DoseEventWithDetails
 
+    /// Collapsed by default. A reconciled entry is one dose that happens to
+    /// have two accounts of itself; the accounts are provenance, and putting
+    /// them on the face of the row would make an ordinary evening look like a
+    /// dispute.
+    @State private var showingSources = false
+
     private var recipientName: String {
         dose.child?.displayName ?? dose.caregiverRecipient?.displayName ?? "Caregiver"
     }
@@ -107,7 +113,7 @@ private struct DoseRow: View {
     }
     private var giver: String { dose.loggedByProfile?.displayName ?? "Someone" }
 
-    var body: some View {
+    private var mainRow: some View {
         HStack(spacing: Space.md) {
             ZStack {
                 Circle().fill(medVisual.color.opacity(0.14)).frame(width: 40, height: 40)
@@ -130,13 +136,86 @@ private struct DoseRow: View {
             }
             Spacer()
             VStack(alignment: .trailing, spacing: 2) {
-                Text(CappyTime.clock(dose.givenAt)).font(CappyFont.mono(FontSizeToken.sm)).foregroundStyle(theme.tokens.fg2)
-                Text(CappyTime.relative(dose.givenAt)).font(CappyFont.sans(FontSizeToken.xs)).foregroundStyle(theme.tokens.fgMuted)
+                // ¶[0058]: mark the reconciled entry "while continuing to
+                // display the administration time used for safety
+                // calculations" — so the time shown here IS the one the
+                // interlocks used, not this device's account of it.
+                Text(CappyTime.clock(dose.displayTime))
+                    .font(CappyFont.mono(FontSizeToken.sm))
+                    .foregroundStyle(theme.tokens.fg2)
+                Text(CappyTime.relative(dose.displayTime))
+                    .font(CappyFont.sans(FontSizeToken.xs))
+                    .foregroundStyle(theme.tokens.fgMuted)
             }
+        }
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: Space.sm) {
+            mainRow
+            if dose.isReconciled { reconciliationDisclosure }
         }
         .padding(Space.base)
         .background(theme.tokens.bgCard)
         .clipShape(RoundedRectangle(cornerRadius: Radius.base))
         .overlay(RoundedRectangle(cornerRadius: Radius.base).stroke(theme.tokens.border, lineWidth: 1))
+    }
+
+    // MARK: Reconciliation (claim 20)
+
+    /// Two caregivers recorded the same administration. The row shows one dose,
+    /// says so, and can account for both entries.
+    @ViewBuilder private var reconciliationDisclosure: some View {
+        let sources = dose.reconciliationSources ?? []
+        VStack(alignment: .leading, spacing: Space.sm) {
+            Divider()
+            Button {
+                withAnimation(.easeInOut(duration: Motion.fast)) { showingSources.toggle() }
+            } label: {
+                HStack(spacing: 6) {
+                    Image(systemName: "arrow.triangle.merge")
+                        .font(.system(size: 11, weight: .semibold))
+                    Text(badgeLabel(sources.count))
+                        .font(CappyFont.sans(FontSizeToken.xs))
+                    Spacer()
+                    Image(systemName: showingSources ? "chevron.up" : "chevron.down")
+                        .font(.system(size: 10, weight: .semibold))
+                }
+                .foregroundStyle(theme.tokens.fg3)
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel("Reconciled dose. \(badgeLabel(sources.count)). Spacing uses \(CappyTime.clock(dose.displayTime)).")
+            .accessibilityHint(showingSources ? "Hides what each phone recorded" : "Shows what each phone recorded")
+
+            if showingSources {
+                VStack(alignment: .leading, spacing: 6) {
+                    // Says which way the tie was broken and why, because "we
+                    // moved your dose later" is the sort of thing a caregiver
+                    // is entitled to see the reasoning for.
+                    Text("Cappy keeps the later time, \(CappyTime.clock(dose.displayTime)), so the next dose is never due earlier than either phone would have allowed.")
+                        .font(CappyFont.sans(FontSizeToken.xs))
+                        .foregroundStyle(theme.tokens.fg3)
+                        .fixedSize(horizontal: false, vertical: true)
+
+                    ForEach(Array(dose.allAssertedTimes.enumerated()), id: \.offset) { _, entry in
+                        HStack(spacing: 6) {
+                            Circle().fill(theme.tokens.fgMuted).frame(width: 4, height: 4)
+                            Text("\(entry.name) recorded \(CappyTime.clock(entry.at))")
+                                .font(CappyFont.sans(FontSizeToken.xs))
+                                .foregroundStyle(theme.tokens.fg2)
+                            Spacer()
+                        }
+                    }
+                }
+                .transition(.opacity.combined(with: .move(edge: .top)))
+            }
+        }
+    }
+
+    private func badgeLabel(_ count: Int) -> String {
+        count == 1
+            ? "Logged on two phones · counted once"
+            : "Logged on \(count + 1) phones · counted once"
     }
 }

@@ -175,9 +175,21 @@ final class AppModel: ObservableObject {
 
     func handle(url: URL) {
         // NFC tag:   https://cappy.closedose.com/t/{uid}   or  cappy://t/{uid}
+        // Short tag: https://captap.pro/{code}              (printed QR)
         // Invite:    https://cappy.closedose.com/join/{code} or cappy://join/{code}
         let path = url.path
-        if path.hasPrefix("/t/") {
+        if url.host?.lowercased() == Tags.shortHost {
+            // captap.pro spends no characters on a /t/ segment, so the whole
+            // path is the tag UID. The printed QR is uppercase (QR
+            // alphanumeric mode); the slug map is lowercase.
+            let code = path
+                .trimmingCharacters(in: CharacterSet(charactersIn: "/"))
+                .lowercased()
+            if !code.isEmpty {
+                pendingTagChannel = .nfc
+                pendingTagUID = code
+            }
+        } else if path.hasPrefix("/t/") {
             pendingTagChannel = .nfc
             pendingTagUID = String(path.dropFirst(3))
         } else if path.hasPrefix("/join/") {

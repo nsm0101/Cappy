@@ -76,11 +76,18 @@ create index if not exists dose_event_reconciliations_canonical_idx
 alter table public.dose_event_reconciliations enable row level security;
 
 drop policy if exists dose_event_reconciliations_read on public.dose_event_reconciliations;
+-- `canonical_event_id` MUST be qualified with the table name. dose_events has
+-- a column of the same name, so an unqualified reference inside this subquery
+-- binds to the INNER table and Postgres stores the predicate as
+-- `de.id = de.canonical_event_id` — false for every canonical row, which makes
+-- the whole audit trail silently unreadable by every client. Found 2026-09-04
+-- only by actually querying it as a signed-in user.
 create policy dose_event_reconciliations_read on public.dose_event_reconciliations
   for select to authenticated
   using (exists (
     select 1 from public.dose_events de
-    where de.id = canonical_event_id and public.is_family_member(de.family_id)
+    where de.id = dose_event_reconciliations.canonical_event_id
+      and public.is_family_member(de.family_id)
   ));
 
 -- ─────────────────────────────────────────────────────────────────────
