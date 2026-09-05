@@ -1,6 +1,7 @@
 import * as AppleAuthentication from 'expo-apple-authentication';
 import { supabase } from './client';
 import type { Session, User } from './client';
+import { unregisterDeviceToken } from './notifications';
 
 /**
  * Native Sign in with Apple. Uses the device's Apple ID to obtain an
@@ -104,7 +105,24 @@ export const signInWithPassword = async (
   return { error };
 };
 
+/**
+ * Sign out, dropping this device's push token first.
+ *
+ * Order matters and is not cosmetic: `device_tokens` is protected by RLS
+ * keyed on `auth.uid()`, so the delete only succeeds while the session is
+ * still live. Doing it after `signOut` would silently no-op and leave the
+ * row behind — and a row left behind means the next dose logged in that
+ * family pushes a child's name and medication to a phone whose owner has
+ * signed out. On a shared or handed-down device that is a disclosure, not
+ * an annoyance.
+ *
+ * Best-effort by design: `unregisterDeviceToken` never throws, and a
+ * failure to clean up must not trap someone in a session they asked to
+ * leave. The 90-day prune and `DeviceNotRegistered` handling are the
+ * backstops when this leg fails.
+ */
 export const signOut = async (): Promise<{ error: Error | null }> => {
+  await unregisterDeviceToken();
   const { error } = await supabase.auth.signOut();
   return { error };
 };

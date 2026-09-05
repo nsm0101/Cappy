@@ -1,4 +1,15 @@
-export type RootStackParamList = { Auth: undefined; Setup: undefined; App: undefined };
+import type { NavigatorScreenParams } from '@react-navigation/native';
+
+/**
+ * `App` carries `NavigatorScreenParams` rather than `undefined` so a tapped
+ * dose notification can address a screen inside the app stack from the
+ * container ref — `navigate('App', { screen: 'DoseDetail', params: … })`.
+ */
+export type RootStackParamList = {
+  Auth: undefined;
+  Setup: undefined;
+  App: NavigatorScreenParams<AppStackParamList> | undefined;
+};
 
 export type AuthStackParamList = { SignIn: undefined };
 
@@ -11,6 +22,14 @@ export type AppStackParamList = {
   ChildDetail: { childId: string };
   FamilyDashboard: undefined;
   Scan: { initialTagUid?: string };
+  /** Per-child dose-notification toggles. Reached from Settings. */
+  Notifications: undefined;
+  /**
+   * Read-only view of a single logged dose — the destination when a
+   * caregiver taps a dose notification. Deliberately has no Log action:
+   * it reports what someone else already recorded.
+   */
+  DoseDetail: { doseId: string };
   /**
    * "Send to a nearby phone" screen: direct phone-to-phone family invite
    * transfer without a code or physical tag. iPhone 11+ uses a real

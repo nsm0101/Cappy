@@ -134,5 +134,32 @@ Deno.serve(async (req) => {
     .update({ accepted_at: new Date().toISOString(), accepted_by: userId })
     .eq('id', invite.id);
 
+  // Subscribe the new caregiver to every child in the family (ADR-0009
+  // decision 1). Default-on because the failure mode of opt-out-by-default is
+  // silence — a caregiver who assumed they were covered and wasn't — and in a
+  // medication context that is the dangerous direction to be wrong in. They
+  // can mute per child afterwards on the Notifications screen.
+  //
+  // Best-effort, and deliberately last: the caregiver is already active by
+  // this point, and failing a family join because a notification preference
+  // could not be written would be the tail wagging the dog. `do nothing` on
+  // conflict covers the re-join case where rows already exist.
+  try {
+    const { data: kids } = await admin
+      .from('children')
+      .select('id')
+      .eq('family_id', invite.family_id)
+      .is('deleted_at', null);
+
+    if (kids?.length) {
+      await admin.from('notification_subscriptions').upsert(
+        kids.map((c: { id: string }) => ({ user_id: userId, child_id: c.id, enabled: true })),
+        { onConflict: 'user_id,child_id', ignoreDuplicates: true },
+      );
+    }
+  } catch (e) {
+    console.error('accept-invite: subscription backfill failed', e instanceof Error ? e.message : 'unknown');
+  }
+
   return json(200, { caregiver });
 });

@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.closedose.cappy",
+      "sha256_cert_fingerprints": [
+        "PLACEHOLDER_NOT_A_REAL_FINGERPRINT_SEE_ANDROID_BETA_GUIDE"
+      ]
+    }
+  }
+]
